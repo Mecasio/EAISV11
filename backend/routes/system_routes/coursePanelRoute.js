@@ -1,11 +1,11 @@
 const express = require('express');
-const multer = require("multer");
 const { db, db3 } = require('../database/database');
 
 const router = express.Router();
 
+/* ===================== GET COURSE LIST ===================== */
 router.get("/course_list", async (req, res) => {
-  const query = "SELECT * FROM course_table ORDER BY course_table.course_code ASC";
+  const query = "SELECT * FROM course_table ORDER BY course_code ASC";
 
   try {
     const [result] = await db3.query(query);
@@ -19,21 +19,24 @@ router.get("/course_list", async (req, res) => {
   }
 });
 
+/* ===================== ADD COURSE ===================== */
 router.post("/adding_course", async (req, res) => {
   const {
     course_code,
     course_description,
     course_unit,
+    lec_unit,
     lab_unit,
     prereq,
     corequisite,
-
   } = req.body;
 
   try {
-    const normalized_code = (course_code || "")
-      .replace(/[^A-Za-z0-9]/g, "")
-      .toUpperCase();
+    // Allow letters, numbers, dash (-), underscore (_), dot (.)
+    const normalizeCode = (code) =>
+      (code || "").replace(/[^A-Za-z0-9-_\.]/g, "").toUpperCase();
+
+    const normalized_code = normalizeCode(course_code);
 
     if (!normalized_code) {
       return res.status(400).json({ message: "Course code is required" });
@@ -50,16 +53,16 @@ router.post("/adding_course", async (req, res) => {
 
     await db3.query(
       `INSERT INTO course_table
-      (course_code, course_description, course_unit, lab_unit, prereq, corequisite,)
-      VALUES (?, ?, ?, ?, ?, ?)`,
+       (course_code, course_description, course_unit, lec_unit, lab_unit, prereq, corequisite)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         normalized_code,
         course_description || null,
         course_unit || 0,
+        lec_unit || 0,
         lab_unit || 0,
         prereq || null,
         corequisite || null,
-
       ]
     );
 
@@ -70,6 +73,7 @@ router.post("/adding_course", async (req, res) => {
   }
 });
 
+/* ===================== UPDATE COURSE ===================== */
 router.put("/update_course/:id", async (req, res) => {
   const { id } = req.params;
   const {
@@ -80,11 +84,9 @@ router.put("/update_course/:id", async (req, res) => {
     lab_unit,
     prereq,
     corequisite,
-
   } = req.body;
 
   try {
-    /* ===================== GET CURRENT COURSE ===================== */
     const [currentRows] = await db3.query(
       "SELECT * FROM course_table WHERE course_id = ?",
       [id]
@@ -96,17 +98,16 @@ router.put("/update_course/:id", async (req, res) => {
 
     const current = currentRows[0];
 
-    /* ===================== NORMALIZE COURSE CODE ===================== */
+    // Same normalization as adding
     const normalizeCode = (code) =>
-      code.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+      (code || "").replace(/[^A-Za-z0-9-_\.]/g, "").toUpperCase();
 
     const normalized_current_code = normalizeCode(current.course_code);
-
     const final_course_code = course_code
       ? normalizeCode(course_code)
       : normalized_current_code;
 
-    /* ===================== DUPLICATE CHECK (ONLY IF CHANGED) ===================== */
+    // Duplicate check if changed
     if (course_code && final_course_code !== normalized_current_code) {
       const [rows] = await db3.query(
         "SELECT course_id FROM course_table WHERE course_code = ? AND course_id != ?",
@@ -118,17 +119,16 @@ router.put("/update_course/:id", async (req, res) => {
       }
     }
 
-    /* ===================== UPDATE ===================== */
     await db3.query(
       `UPDATE course_table SET
-        course_code = ?,
-        course_description = ?,
-        course_unit = ?,
-        lec_unit = ?,
-        lab_unit = ?,
-        prereq = ?,
-        corequisite = ?,
-      WHERE course_id = ?`,
+         course_code = ?,
+         course_description = ?,
+         course_unit = ?,
+         lec_unit = ?,
+         lab_unit = ?,
+         prereq = ?,
+         corequisite = ?
+       WHERE course_id = ?`,
       [
         final_course_code,
         course_description ?? current.course_description,
@@ -148,18 +148,21 @@ router.put("/update_course/:id", async (req, res) => {
   }
 });
 
+/* ===================== DELETE COURSE ===================== */
 router.delete("/delete_course/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
-    const [result] = await db3.query("DELETE FROM course_table WHERE course_id=?", [id]);
+    const [result] = await db3.query(
+      "DELETE FROM course_table WHERE course_id = ?",
+      [id]
+    );
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Course not found" });
     }
 
     res.json({ message: "✅ Course deleted successfully" });
-
   } catch (error) {
     console.error("❌ Error deleting course:", error);
     res.status(500).json({ message: "Failed to delete course" });

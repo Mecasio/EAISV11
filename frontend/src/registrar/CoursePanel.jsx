@@ -226,8 +226,7 @@ const CoursePanel = () => {
   };
 
 
-  const handleAddingCourse = async (e) => {
-    e.preventDefault();
+  const handleAddingCourse = async () => {
     try {
       await axios.post(`${API_BASE_URL}/adding_course`, {
         ...course,
@@ -238,7 +237,6 @@ const CoursePanel = () => {
         corequisite: course.corequisite || null,
       });
 
-      // Reset the form to empty values after adding
       setCourse({
         course_code: "",
         course_description: "",
@@ -247,18 +245,15 @@ const CoursePanel = () => {
         lab_unit: "",
         prereq: "",
         corequisite: "",
-
       });
 
       showSnack("Course successfully added!", "success");
-      fetchCourses(); // refetch courses to update UI
+      fetchCourses();
     } catch (err) {
-      showSnack(
-        err.response?.data?.message || "Failed to add course.",
-        "error"
-      );
+      showSnack(err.response?.data?.message || "Failed to add course.", "error");
     }
   };
+
 
 
 
@@ -303,11 +298,11 @@ const CoursePanel = () => {
 
   const handleEdit = (item) => {
     setCourse({
-      course_code: item.course_code != null ? String(item.course_code) : "",
+      course_code: item.course_code ?? "",
       course_description: item.course_description ?? "",
-      course_unit: item.course_unit ?? "",
-      lec_unit: item.lec_unit ?? "",
-      lab_unit: item.lab_unit ?? "",
+      course_unit: Number(item.course_unit) || 0,
+      lec_unit: Number(item.lec_unit) || 0,
+      lab_unit: Number(item.lab_unit) || 0,
       prereq: item.prereq ?? "",
       corequisite: item.corequisite ?? "",
     });
@@ -318,6 +313,11 @@ const CoursePanel = () => {
 
 
   const handleUpdateCourse = async () => {
+    if (!editId) {
+      showSnack("Invalid course selected.", "error");
+      return;
+    }
+
     try {
       await axios.put(`${API_BASE_URL}/update_course/${editId}`, {
         ...course,
@@ -328,8 +328,7 @@ const CoursePanel = () => {
         corequisite: course.corequisite || null,
       });
 
-
-      await fetchCourses();
+      fetchCourses();
       showSnack("Course updated successfully!", "success");
 
       setEditMode(false);
@@ -342,12 +341,13 @@ const CoursePanel = () => {
         lab_unit: "",
         prereq: "",
         corequisite: "",
-
       });
     } catch (error) {
       showSnack(error.response?.data?.message || "Failed to update course.", "error");
     }
   };
+
+  
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [courseToDelete, setCourseToDelete] = useState(null);
 

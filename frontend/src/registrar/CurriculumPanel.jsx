@@ -234,6 +234,16 @@ const CurriculumPanel = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
 
+  const formatAcademicYear = (year) => {
+    if (!year) return "";
+
+    const startYear = parseInt(year, 10);
+    if (isNaN(startYear)) return year;
+
+    return `${startYear}-${startYear + 1}`;
+  };
+
+
   const filteredCurriculumList = curriculumList.filter((item) => {
     const words = searchQuery.trim().toLowerCase().split(" ").filter(Boolean);
 
@@ -247,14 +257,6 @@ const CurriculumPanel = () => {
     );
   });
 
-  const formatAcademicYear = (year) => {
-    if (!year) return "";
-
-    const startYear = parseInt(year, 10);
-    if (isNaN(startYear)) return year;
-
-    return `${startYear}-${startYear + 1}`;
-  };
 
 
   if (loading || hasAccess === null) {
@@ -308,7 +310,7 @@ const CurriculumPanel = () => {
       <hr style={{ border: "1px solid #ccc", width: "100%" }} />
       <br />
 
-      <TableContainer component={Paper} sx={{ width: '100%', border: `2px solid ${borderColor}`, mb: "40px"}}>
+      <TableContainer component={Paper} sx={{ width: '100%', border: `2px solid ${borderColor}`, mb: "40px" }}>
         <Table>
           <TableHead sx={{ backgroundColor: settings?.header_color || "#1976d2", }}>
             <TableRow>
@@ -325,7 +327,7 @@ const CurriculumPanel = () => {
             display: "flex",
             justifyContent: "space-between",
             gap: "20px",
-         
+
           }}
         >
           {/* LEFT SECTION */}
@@ -333,7 +335,7 @@ const CurriculumPanel = () => {
             style={{
               flex: 1,
               padding: "20px",
-              
+
               backgroundColor: "#fff",
               border: `2px solid ${borderColor}`,
               boxShadow: "0 0 10px rgba(0,0,0,0.1)",

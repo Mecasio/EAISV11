@@ -389,10 +389,10 @@ const CertificateOfRegistration = forwardRef(
     const [activeSchoolYear, setActiveSchoolYear] = useState([]);
 
     useEffect(() => {
-        axios
-          .get(`${API_BASE_URL}/get_active_school_years`)
-          .then((res) => setActiveSchoolYear(res.data))
-          .catch((err) => console.error(err));
+      axios
+        .get(`${API_BASE_URL}/get_active_school_years`)
+        .then((res) => setActiveSchoolYear(res.data))
+        .catch((err) => console.error(err));
     }, []);
 
     // Fetch department sections when component mounts
@@ -1501,7 +1501,7 @@ const CertificateOfRegistration = forwardRef(
                           value={
                             major
                               ? major.charAt(0).toUpperCase() +
-                                major.slice(1).toLowerCase()
+                              major.slice(1).toLowerCase()
                               : ""
                           }
                           style={{
@@ -3581,7 +3581,7 @@ const CertificateOfRegistration = forwardRef(
                       >
                         <input
                           type="text"
-                          value={"A S S E S S E D  F E E S"}
+                          value={"S C H E D U L E O F P A Y M E N T"}
                           readOnly
                           style={{
                             color: "black",
@@ -3919,7 +3919,7 @@ const CertificateOfRegistration = forwardRef(
                     borderCollapse: "collapse",
                     fontFamily: "Arial, Helvetica, sans-serif",
                     width: "8in",
-                    margin: "0 auto", // Center the table inside the form
+                    margin: "0 auto",
                     textAlign: "center",
                     tableLayout: "fixed",
                     borderLeft: "1px solid black",
@@ -3928,29 +3928,54 @@ const CertificateOfRegistration = forwardRef(
                   }}
                 >
                   <tbody>
+                    {/* TOP ROW: IMAGE (LEFT) + QR (RIGHT) */}
                     <tr>
-                      <td style={{ width: "50%", textAlign: "center" }}>
+                      {/* LEFT SIDE */}
+                      <td
+                        colSpan={20}
+                        style={{
+                          textAlign: "left",
+                          paddingLeft: "50px", // margin-left effect
+                        }}
+                      >
                         <img
                           src={FreeTuitionImage}
                           alt="EARIST MIS FEE"
                           style={{
-                            marginLeft: "75px",
-                            width: "200px", // Corrected unit
-                            height: "150px",
+                            width: "175px",
+                            height: "125px",
                           }}
                         />
                       </td>
+
+                      {/* RIGHT SIDE */}
+                      <td
+                        colSpan={20}
+                        style={{
+                          textAlign: "right",
+                          paddingRight: "30px",
+                        }}
+                      >
+                        {student_number && (
+                          <img
+                            style={{ width: "150px", height: "150px" }}
+                            src={`${API_BASE_URL}/uploads/QrCodeGenerated/${student_number}_qrcode.png`}
+                            alt="QR Code"
+                          />
+                        )}
+                      </td>
                     </tr>
 
+                    {/* DATE ROW */}
                     <tr>
                       <td
-                        colSpan={40}
+                        colSpan={40} // spans full width
                         style={{
                           height: "0.25in",
                           fontSize: "15px",
                           textAlign: "right",
-                          textAlign: "right",
-                          verticalAlign: "middle", // Centers vertically
+                          verticalAlign: "middle",
+                          paddingRight: "20px",
                         }}
                       >
                         <input
@@ -3959,7 +3984,7 @@ const CertificateOfRegistration = forwardRef(
                           readOnly
                           style={{
                             color: "black",
-                            textAlign: "right", // Centers text inside the input
+                            textAlign: "right",
                             width: "98%",
                             border: "none",
                             outline: "none",
@@ -3968,10 +3993,11 @@ const CertificateOfRegistration = forwardRef(
                         />
                       </td>
                     </tr>
-                       
+
+                    {/* FOOTER */}
                     <tr>
                       <td
-                        colSpan={42}
+                        colSpan={40} // spans full width
                         style={{
                           height: "0.2in",
                           fontSize: "72.5%",
@@ -3987,14 +4013,16 @@ const CertificateOfRegistration = forwardRef(
                               display: "block",
                             }}
                           >
-                            KEEP THIS CERTIFICATE. YOU WILL BE REQUIRED TO
-                            PRESENT THIS IN ALL YOUR DEALINGS WITH THE COLLEGE.
+                            KEEP THIS CERTIFICATE. YOU WILL BE REQUIRED TO PRESENT THIS IN ALL
+                            YOUR DEALINGS WITH THE COLLEGE.
                           </i>
                         </b>
                       </td>
                     </tr>
                   </tbody>
                 </table>
+
+
               </div>
             </div>
           </div>

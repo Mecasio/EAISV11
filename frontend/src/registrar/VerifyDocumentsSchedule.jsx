@@ -481,6 +481,28 @@ const VerifyDocumentsSchedule = () => {
                 >
                     VERIFY DOCUMENT ROOM ASSIGNMENT
                 </Typography>
+
+                <TextField
+                    size="small"
+                    placeholder="Search Evaluator, Building, Room"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    sx={{
+                        width: 450,
+                        backgroundColor: "#fff",
+                        borderRadius: 1,
+                        "& .MuiOutlinedInput-root": {
+                            borderRadius: "10px",
+                        },
+                    }}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <SearchIcon sx={{ mr: 1, color: "gray" }} />
+                            </InputAdornment>
+                        ),
+                    }}
+                />
             </Box>
 
             <Box sx={{ borderBottom: "2px solid #ddd", mb: 3 }} />
@@ -705,21 +727,6 @@ const VerifyDocumentsSchedule = () => {
                         </Typography>
 
                         <Box display="flex" gap={2} mb={3} flexWrap="wrap">
-                            {/* 🔍 Search */}
-                            <TextField
-                                fullWidth
-                                placeholder="Search building, room, evaluator..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <SearchIcon />
-                                        </InputAdornment>
-                                    ),
-                                }}
-                                sx={{ minWidth: 280 }}
-                            />
 
                             {/* 📆 Month Selector */}
                             <TextField

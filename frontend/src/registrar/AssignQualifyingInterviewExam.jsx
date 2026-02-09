@@ -27,7 +27,8 @@ import LoadingOverlay from "../components/LoadingOverlay";
 import { useNavigate } from "react-router-dom";
 import API_BASE_URL from "../apiConfig";
 import MenuBookIcon from '@mui/icons-material/MenuBook';
-
+import SearchIcon from "@mui/icons-material/Search";
+import InputAdornment from "@mui/material/InputAdornment";
 
 
 const AssignQualifyingInterviewExam = () => {
@@ -318,7 +319,7 @@ const AssignQualifyingInterviewExam = () => {
     // 🗑️ Delete Dialog
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [scheduleToDelete, setScheduleToDelete] = useState(null);
-    
+
     const formatDate = (dateString) => {
         if (!dateString) return "";
 
@@ -429,6 +430,28 @@ const AssignQualifyingInterviewExam = () => {
                 >
                     QUALIFYING / INTERVIEW ROOM ASSIGNMENT
                 </Typography>
+                <TextField
+                    size="small"
+                    placeholder="Search Interviewer, Building, Room"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    sx={{
+                        width: 450,
+                        backgroundColor: "#fff",
+                        borderRadius: 1,
+                        "& .MuiOutlinedInput-root": {
+                            borderRadius: "10px",
+                        },
+                        minWidth: 280,
+                    }}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <SearchIcon sx={{ mr: 1, color: "gray" }} />
+                            </InputAdornment>
+                        ),
+                    }}
+                />
 
 
             </Box>
@@ -632,13 +655,6 @@ const AssignQualifyingInterviewExam = () => {
 
                         {/* ===== FILTER & SEARCH BOX ===== */}
                         <Box display="flex" gap={2} mb={3} flexWrap="wrap">
-                            <TextField
-                                fullWidth
-                                placeholder="Search building, room, interviewer..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                sx={{ minWidth: 280 }}
-                            />
 
                             <TextField
                                 select

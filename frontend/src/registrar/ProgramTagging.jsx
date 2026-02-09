@@ -252,7 +252,9 @@ const ProgramTagging = () => {
 
   const fetchTaggedPrograms = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/prgram_tagging_list`);
+      const res = await axios.get(
+        `${API_BASE_URL}/program_tagging_list`
+      );
 
       const normalized = res.data.map(p => ({
         ...p,
@@ -262,11 +264,12 @@ const ProgramTagging = () => {
       }));
 
       setTaggedPrograms(normalized);
-      setFilteredPrograms(normalized); // ✅ keeps table in sync
+      setFilteredPrograms(normalized);
     } catch (err) {
       console.log(err);
     }
   };
+
 
 
 
@@ -349,24 +352,18 @@ const ProgramTagging = () => {
         });
 
         // 🔥 Update state locally instead of refetch
-        setTaggedPrograms((prev) =>
-          prev.map((p) =>
+        setTaggedPrograms(prev =>
+          prev.map(p =>
             p.program_tagging_id === editingId
               ? {
                 ...p,
-                curriculum_id,
-                year_level_id,
-                semester_id,
-                course_id,
-                lec_fee: Number(lec_fee) || 0,
-                lab_fee: Number(lab_fee) || 0,
-                iscomputer_lab: Number(iscomputer_lab),
-                islaboratory_fee: Number(islaboratory_fee),
-                is_nstp: Number(is_nstp),
+                ...progTag,
               }
               : p
           )
         );
+
+
 
         setSnackbar({
           open: true,
@@ -466,14 +463,17 @@ const ProgramTagging = () => {
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${API_BASE_URL}/program_tagging/${id}`);
+
+      setTaggedPrograms(prev =>
+        prev.filter(p => p.program_tagging_id !== id)
+      );
+
       setSnackbar({
         open: true,
         message: "Program tag deleted successfully!",
         severity: "success",
       });
-      fetchTaggedPrograms();
     } catch (err) {
-      console.error(err);
       setSnackbar({
         open: true,
         message: "Error deleting program tag.",
