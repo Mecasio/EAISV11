@@ -135,8 +135,7 @@ import AnnouncementForAdmission from './registrar/AnnouncementForAdmission';
 import StudentList from './registrar/StudentList';
 import SubmittedDocuments from './registrar/SubmittedDocuments';
 
-import SearchCORForCollege from './registrar/SearchCORForCollege';
-import CORForCollege from './registrar/CORForCollege';
+
 import ProgramSlotLimit from './registrar/ProgramSlotLimit';
 
 import GradingEvaluationForRegistrar from './registrar/GradingEvaluationForRegistrar';
@@ -527,9 +526,8 @@ function App() {
                     <Route path="/verify_document_schedule" element={<ProtectedRoute allowedRoles={['registrar']}><VerifyDocumentsSchedule/></ProtectedRoute>} />
 
                     <Route path="/department_curriculum_panel" element={<ProtectedRoute><DepartmentCurriculumPanel /></ProtectedRoute>} />
-                    <Route path="/cor_for_college" element={<ProtectedRoute ><CORForCollege /></ProtectedRoute>} />
                     <Route path="/program_slot_limit" element={<ProtectedRoute ><ProgramSlotLimit /></ProtectedRoute>} />
-                    <Route path="/search_cor_for_college" element={<ProtectedRoute ><SearchCORForCollege /></ProtectedRoute>} />
+                   
                     <Route path="/class_roster" element={<ProtectedRoute ><ClassRoster /></ProtectedRoute>} />
                     <Route path="/transcript_of_records" element={<ProtectedRoute ><TranscriptOfRecords /></ProtectedRoute>} />
                     <Route path="/tosf_crud" element={<ProtectedRoute ><TOSFCrud /></ProtectedRoute>} />

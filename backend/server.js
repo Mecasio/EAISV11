@@ -9,6 +9,7 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const QRCode = require("qrcode");
+const puppeteer = require("puppeteer");
 
 require("dotenv").config();
 const app = express();
@@ -19,6 +20,7 @@ const { Server } = require("socket.io");
 app.use(express.json());
 app.use(bodyparser.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(
@@ -29,13 +31,15 @@ app.use(
   "/ApplicantOnlineDocuments",
   express.static(path.join(__dirname, "uploads", "ApplicantOnlineDocuments")),
 );
+app.use("/assets", express.static(path.join(__dirname, "assets")));
 
 const allowedOrigins = [
   'http://localhost:5173',
   'http://192.168.50.77:5173',
-  'http://192.168.50.129:5173',
+  'http://192.168.50.98:5173',
   'http://136.239.248.58:5173'
 ];
+
 
 app.use(
   cors({
@@ -6990,7 +6994,7 @@ WHERE proctor LIKE ?
   }
 
   // ---------------------- Assign Student Number ----------------------
-socket.on("assign-student-number", async (person_id) => {
+  socket.on("assign-student-number", async (person_id) => {
     try {
       // ✅ Fetch person info
       const [rows] = await db.query(
@@ -7241,7 +7245,7 @@ socket.on("assign-student-number", async (person_id) => {
       const qrData = `${process.env.DB_HOST_LOCAL}:5173/student_qr_information/${student_number}`;
       const qrFilename = `${student_number}_qrcode.png`;
       const qrPath = path.join(__dirname, "./uploads/QrCodeGenerated", qrFilename);
-  
+
       await QRCode.toFile(qrPath, qrData, {
         color: { dark: "#000", light: "#FFF" },
         width: 300,
@@ -19392,19 +19396,19 @@ io.on("connection", (socket) => {
     user_person_id,
   }) => {
 
-  console.log(applicant_numbers);
-  
-  try {
+    console.log(applicant_numbers);
 
-    if (!schedule_id || !Array.isArray(applicant_numbers) || applicant_numbers.length === 0) {
-      return socket.emit("send_verify_schedule_emails_result", {
-        success: false,
-        error: "No applicants provided.",
-      });
-    }
+    try {
 
-    // 🔹 Fetch applicants with email
-    const [rows] = await db.query(`
+      if (!schedule_id || !Array.isArray(applicant_numbers) || applicant_numbers.length === 0) {
+        return socket.emit("send_verify_schedule_emails_result", {
+          success: false,
+          error: "No applicants provided.",
+        });
+      }
+
+      // 🔹 Fetch applicants with email
+      const [rows] = await db.query(`
       SELECT
         va.applicant_id,
         p.first_name,
@@ -19421,77 +19425,77 @@ io.on("connection", (socket) => {
       AND va.email_sent = 0
     `, [schedule_id, applicant_numbers]);
 
-    if (rows.length === 0) {
-      return socket.emit("send_verify_schedule_emails_result", {
+      if (rows.length === 0) {
+        return socket.emit("send_verify_schedule_emails_result", {
+          success: false,
+          error: "No pending applicants found.",
+        });
+      }
+
+      const sent = [];
+      const failed = [];
+
+      for (const row of rows) {
+
+        if (!row.emailAddress) {
+          failed.push(row.applicant_id);
+          continue;
+        }
+
+        const personalizedMsg = message
+          .replace("{first_name}", row.first_name || "")
+          .replace("{middle_name}", row.middle_name || "")
+          .replace("{last_name}", row.last_name || "")
+          .replace("{applicant_number}", row.applicant_id);
+
+        try {
+
+          await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: row.emailAddress,
+            subject,
+            text: personalizedMsg,
+          });
+
+          // ✅ Mark sent
+          await db.query(
+            "UPDATE verify_applicants SET email_sent = 1 WHERE applicant_id = ?",
+            [row.applicant_id]
+          );
+
+          sent.push(row.applicant_id);
+
+        } catch (err) {
+          console.error("Email failed:", err.message);
+
+          await db.query(
+            "UPDATE verify_applicants SET email_sent = -1 WHERE applicant_id = ?",
+            [row.applicant_id]
+          );
+
+          failed.push(row.applicant_id);
+        }
+      }
+
+      // ✅ Return result
+      socket.emit("send_verify_schedule_emails_result", {
+        success: true,
+        sent,
+        failed,
+        message: `Verify emails: Sent=${sent.length}, Failed=${failed.length}`,
+      });
+
+      io.emit("schedule_updated", { schedule_id });
+
+    } catch (err) {
+      console.error("Verify email error:", err);
+
+      socket.emit("send_verify_schedule_emails_result", {
         success: false,
-        error: "No pending applicants found.",
+        error: "Server error sending verify emails.",
       });
     }
-
-    const sent = [];
-    const failed = [];
-
-    for (const row of rows) {
-
-      if (!row.emailAddress) {
-        failed.push(row.applicant_id);
-        continue;
-      }
-
-      const personalizedMsg = message
-        .replace("{first_name}", row.first_name || "")
-        .replace("{middle_name}", row.middle_name || "")
-        .replace("{last_name}", row.last_name || "")
-        .replace("{applicant_number}", row.applicant_id);
-
-      try {
-
-        await transporter.sendMail({
-          from: process.env.EMAIL_USER,
-          to: row.emailAddress,
-          subject,
-          text: personalizedMsg,
-        });
-
-        // ✅ Mark sent
-        await db.query(
-          "UPDATE verify_applicants SET email_sent = 1 WHERE applicant_id = ?",
-          [row.applicant_id]
-        );
-
-        sent.push(row.applicant_id);
-
-      } catch (err) {
-        console.error("Email failed:", err.message);
-
-        await db.query(
-          "UPDATE verify_applicants SET email_sent = -1 WHERE applicant_id = ?",
-          [row.applicant_id]
-        );
-
-        failed.push(row.applicant_id);
-      }
-    }
-
-    // ✅ Return result
-    socket.emit("send_verify_schedule_emails_result", {
-      success: true,
-      sent,
-      failed,
-      message: `Verify emails: Sent=${sent.length}, Failed=${failed.length}`,
-    });
-
-    io.emit("schedule_updated", { schedule_id });
-
-  } catch (err) {
-    console.error("Verify email error:", err);
-
-    socket.emit("send_verify_schedule_emails_result", {
-      success: false,
-      error: "Server error sending verify emails.",
-    });
-  }
-});
+  });
 
 
   socket.on("update_verify_schedule", async ({ schedule_id, applicant_numbers }) => {
@@ -19609,6 +19613,84 @@ app.get("/announcements", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+
+app.post("/api/generate-cor-pdf", async (req, res) => {
+  try {
+    const { html } = req.body;
+
+    if (!html) {
+      return res.status(400).json({ message: "No HTML received" });
+    }
+
+    const browser = await puppeteer.launch({
+      headless: "new",
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+
+    const page = await browser.newPage();
+
+    // Allow images, block heavy stuff
+    await page.setRequestInterception(true);
+
+    page.on("request", (req) => {
+      if (["font", "media"].includes(req.resourceType())) {
+        req.abort();
+      } else {
+        req.continue();
+      }
+    });
+
+    // Load HTML
+    await page.setContent(html, {
+      waitUntil: "domcontentloaded",
+    });
+    await page.waitForSelector("img");
+
+    // ✅ Wait for images
+    await page.evaluate(async () => {
+      const images = Array.from(document.images);
+
+      await Promise.all(
+        images.map((img) => {
+          if (img.complete) return Promise.resolve();
+
+          return new Promise((resolve) => {
+            img.onload = resolve;
+            img.onerror = resolve;
+          });
+        })
+      );
+    });
+
+    const pdfBuffer = await page.pdf({
+      format: "A4",
+      printBackground: true,
+      preferCSSPageSize: true,
+      scale: 0.91, 
+    });
+
+    await browser.close();
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=certificate.pdf"
+    );
+
+    res.end(pdfBuffer);
+
+  } catch (err) {
+    console.error("PDF ERROR:", err);
+
+    res.status(500).json({
+      message: "PDF generation failed",
+      error: err.message,
+    });
+  }
+});
+
+
 
 
 const PORT = process.env.WEB_PORT || 5000;

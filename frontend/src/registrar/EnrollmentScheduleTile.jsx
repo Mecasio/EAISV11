@@ -115,7 +115,7 @@ const ScheduleHoverTile = () => {
             if (!selectedSchoolYear || !selectedSchoolSemester) return;
             try {
                 const res = await axios.get(
-                    `${API_BASE_URL}/verify_schedules_with_count`
+                    `${API_BASE_URL}/verify_schedules_with_count/${selectedSchoolYear}/${selectedSchoolSemester}`
                 );
                 setSchedules(res.data);
                 setFilteredSchedules(res.data);

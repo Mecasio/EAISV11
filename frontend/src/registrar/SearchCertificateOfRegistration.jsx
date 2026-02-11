@@ -31,6 +31,10 @@ import API_BASE_URL from "../apiConfig";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import Unauthorized from "../components/Unauthorized";
 import LoadingOverlay from "../components/LoadingOverlay";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+
+
 
 const SearchCertificateOfRegistration = () => {
   const settings = useContext(SettingsContext);
@@ -224,70 +228,58 @@ const SearchCertificateOfRegistration = () => {
     return localStorage.getItem("studentNumberForCOR") || localStorage.getItem("admin_edit_person_id") || "";
   });
   const [debouncedStudentNumber, setDebouncedStudentNumber] = useState("");
-  
-  const divToPrintRef = useRef();
 
-  const printDiv = () => {
-    const divToPrint = divToPrintRef.current;
-    if (divToPrint) {
-      const newWin = window.open('', 'Print-Window');
-      newWin.document.open();
-      newWin.document.write(`
+  const divToPrintRef = useRef();
+  const [pdfLoading, setPdfLoading] = useState(false);
+
+  const handleGeneratePdf = async () => {
+    if (!divToPrintRef.current || pdfLoading) return;
+
+    setPdfLoading(true);
+
+    try {
+      const html = `
       <html>
         <head>
-          <title>Print</title>
-          <style>
-            @page {
-              size: A4;
-              margin: 0;
-            }
-
-            html, body {
-              margin: 0;
-              padding: 0;
-              width: 210mm;
-              height: 297mm;
-            
-              font-family: Arial, sans-serif;
-              overflow: hidden;
-            }
-
-            .print-container {
-              width: 110%;
-              height: 100%;
-
-              box-sizing: border-box;
-   
-              transform: scale(0.90);
-              transform-origin: top left;
-            }
-
-            * {
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-            }
-
-            button {
-              display: none;
-            }
-
-            .student-table {
-              margin-top: -15px !important;
-            }
-          </style>
+          <link rel="stylesheet" href="${window.location.origin}/styles/Print.css" />
         </head>
-        <body onload="window.print(); setTimeout(() => window.close(), 100);">
-          <div class="print-container">
-            ${divToPrint.innerHTML}
-          </div>
+        <body>
+          ${divToPrintRef.current.innerHTML}
         </body>
       </html>
-    `);
-      newWin.document.close();
-    } else {
-      console.error("divToPrintRef is not set.");
+    `;
+
+      const res = await fetch(`${API_BASE_URL}/api/generate-cor-pdf`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ html }),
+      });
+
+      if (!res.ok) throw new Error("PDF failed");
+
+      const blob = await res.blob();
+
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "certificate_of_registration.pdf";
+      a.click();
+
+      window.URL.revokeObjectURL(url);
+
+    } catch (err) {
+      console.error(err);
+      alert("PDF failed");
     }
+
+    setPdfLoading(false);
   };
+
+
+
 
   useEffect(() => {
     if (studentNumber.trim().length >= 9) { // adjust min length if needed
@@ -307,7 +299,7 @@ const SearchCertificateOfRegistration = () => {
 
   // Put this at the very bottom before the return 
   if (loading || hasAccess === null) {
-   return <LoadingOverlay open={loading} message="Loading..." />;
+    return <LoadingOverlay open={loading} message="Loading..." />;
   }
 
   if (!hasAccess) {
@@ -317,7 +309,7 @@ const SearchCertificateOfRegistration = () => {
   }
 
   return (
-       <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
+    <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
       <Box
         sx={{
           display: "flex",
@@ -412,7 +404,7 @@ const SearchCertificateOfRegistration = () => {
               sx={{
                 flex: 1,
                 maxWidth: `${100 / tabs1.length}%`, // evenly fit 100%
-                   height: 140,
+                height: 140,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -464,7 +456,7 @@ const SearchCertificateOfRegistration = () => {
       <br />
 
       <button
-        onClick={printDiv}
+        onClick={handleGeneratePdf}
         style={{
           marginBottom: "1rem",
           padding: "10px 20px",
@@ -485,11 +477,20 @@ const SearchCertificateOfRegistration = () => {
       >
         <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <FcPrint size={20} />
-          Print Certificate of Grades
+          Generate Certificate PDF
         </span>
       </button>
 
-      <CertificateOfRegistration ref={divToPrintRef} student_number={debouncedStudentNumber} />
+      <div
+        ref={divToPrintRef}
+        style={{
+          transform: "scale(0.9)",       // 👈 10% zoom out
+          transformOrigin: "top center", // keeps it centered
+        }}
+      >
+        <CertificateOfRegistration student_number={debouncedStudentNumber} />
+      </div>
+
 
       <Snackbar
         open={openSnackbar}

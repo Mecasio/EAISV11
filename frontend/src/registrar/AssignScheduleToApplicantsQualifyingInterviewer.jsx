@@ -667,24 +667,29 @@ const AssignScheduleToApplicantsInterviewer = () => {
         });
 
         // Prefill the email message
+        const formattedDate = new Date(sched.day_description).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+
         setEmailMessage(
             `Dear ${first.last_name || ""}, ${first.first_name || ""} ${first.middle_name || ""},
 
-            You are scheduled for an interview on:
+You are scheduled for an interview on:
 
-            📅 Date: ${sched.day_description}
-            🏢 Building: ${sched.building_description}
-            🏫 Room: ${sched.room_description}
-            🕒 Time: ${formattedStart} - ${formattedEnd}
+📅 Date: ${formattedDate}
+🏢 Building: ${sched.building_description}
+🏫 Room: ${sched.room_description}
+🕒 Time: ${formattedStart} - ${formattedEnd}
 
-            Please bring the following requirements:
+Please bring the following requirements:
 
-            1. Log in at /login_applicant → Applicant Form → "Print Admission Form Process".
-            2. Proceed to the Guidance Office for verification.
-            3. Your Admission Form must be signed before taking the exam.
+1. Log in at /login_applicant → Applicant Form → "Print Admission Form Process".
+2. Proceed to the Guidance Office for verification.
+3. Your Admission Form must be signed before taking the exam.
 
-            Thank you and good luck!
-            `
+Thank you and good luck!`
         );
 
         // OPEN the dialog
@@ -973,7 +978,7 @@ const AssignScheduleToApplicantsInterviewer = () => {
     }
 
     return (
-          <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
+        <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
             <Box
                 sx={{
                     display: 'flex',
@@ -1701,11 +1706,11 @@ const AssignScheduleToApplicantsInterviewer = () => {
                                             sx={{ textAlign: "center", border: `2px solid ${borderColor}`, fontSize: "12px" }}
                                         >
                                             {(() => {
-                                                if (!person.created_at) return "";
+                                                if (!person.created_at.split("T")[0]) return "";
 
-                                                const date = new Date(person.created_at + "T00:00:00");
+                                                const date = new Date(person.created_at.split("T")[0]);
 
-                                                if (isNaN(date)) return person.created_at;
+                                                if (isNaN(date)) return person.created_at.split("T")[0];
 
                                                 return date.toLocaleDateString("en-US", {
                                                     year: "numeric",
@@ -1714,6 +1719,7 @@ const AssignScheduleToApplicantsInterviewer = () => {
                                                 });
                                             })()}
                                         </TableCell>
+
 
                                         {/* Action Buttons */}
                                         <TableCell

@@ -453,7 +453,6 @@ const CORExportingModule = () => {
       // Start with no export DOM to avoid overlap
       setExportList([]);
       await new Promise((r) => requestAnimationFrame(r));
-      const previewWindow = window.open("", "_blank"); // user-initiated
 
       const selectedDept =
         department.find((d) => d.dprtmnt_id == selectedDepartmentFilter) || {};
