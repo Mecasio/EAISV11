@@ -218,6 +218,7 @@ import PaymentExportingModule from "./superadmin/PaymentExportingModule";
 import CORExportingModule from "./superadmin/CORExportingModule";
 import VerifyDocumentsSchedule from "./registrar/VerifyDocumentsSchedule";
 import VerifyApplicantDocumentSchedule from "./registrar/VerifySchedule";
+import StudentScholarshipList from "./superadmin/StudentScholarshipList";
 
 // ✅ Create a Context so all components can access settings
 export const SettingsContext = createContext(null);
@@ -562,6 +563,7 @@ function App() {
                     <Route path="/page_crud" element={<ProtectedRoute><PageCRUD /></ProtectedRoute>} />
                     <Route path="/report_of_grades" element={<ProtectedRoute><ReportOfGrade /></ProtectedRoute>} />
                     <Route path="/user_page_access" element={<ProtectedRoute><UserPageAccess /></ProtectedRoute>} />
+                    <Route path="/student_scholarship_list" element={<ProtectedRoute><StudentScholarshipList /></ProtectedRoute>} />
 
                   </Routes>
 

@@ -24,6 +24,7 @@ import {
   Grid,
   FormControlLabel
 } from "@mui/material";
+import EaristLogo from "../assets/EaristLogo.png";
 import Unauthorized from "../components/Unauthorized";
 import LoadingOverlay from "../components/LoadingOverlay";
 import API_BASE_URL from "../apiConfig";
@@ -148,6 +149,16 @@ const TOSF = () => {
   // Dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
+  const [tosfUpdateDialogOpen, setTosfUpdateDialogOpen] = useState(false);
+  const [scholarshipUpdateDialogOpen, setScholarshipUpdateDialogOpen] = useState(false);
+  const [scholarshipDeleteDialogOpen, setScholarshipDeleteDialogOpen] = useState(false);
+  const [selectedScholarshipId, setSelectedScholarshipId] = useState(null);
+  const [scholarshipTypes, setScholarshipTypes] = useState([]);
+  const [scholarshipForm, setScholarshipForm] = useState({
+    scholarship_name: "",
+    scholarship_status: 1,
+  });
+  const [editingScholarshipId, setEditingScholarshipId] = useState(null);
 
   // Fetch all TOSF data
   const fetchTosf = async () => {
@@ -178,6 +189,20 @@ const TOSF = () => {
     fetchTosf();
   }, []);
 
+  const fetchScholarshipTypes = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/scholarship_types`);
+      setScholarshipTypes(Array.isArray(res.data) ? res.data : []);
+    } catch (error) {
+      console.error("Error fetching scholarship types:", error);
+      showSnackbar("Error fetching scholarship types", "error");
+    }
+  };
+
+  useEffect(() => {
+    fetchScholarshipTypes();
+  }, []);
+
   // Handle input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -193,8 +218,7 @@ const TOSF = () => {
   };
 
   // Handle submit for create or update
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const saveTosf = async () => {
     try {
       if (editingId) {
         await axios.put(`${API_BASE_URL}/update_tosf/${editingId}`, formData);
@@ -223,6 +247,15 @@ const TOSF = () => {
       console.error("Error submitting data:", error);
       showSnackbar("Error while saving data", "error");
     }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (editingId) {
+      setTosfUpdateDialogOpen(true);
+      return;
+    }
+    await saveTosf();
   };
 
 
@@ -378,7 +411,6 @@ const TOSF = () => {
 
   // Handle delete fee rule
   const handleDeleteFee = async (fee_code) => {
-    if (!window.confirm("Are you sure you want to delete this fee rule?")) return;
     try {
       await axios.delete(`${API_BASE_URL}/delete_fee_rule/${fee_code}`);
       showSnackbar("Fee rule deleted!");
@@ -394,6 +426,83 @@ const TOSF = () => {
   const handleDeleteCancel = () => {
     setDialogOpen(false);
     setSelectedId(null);
+  };
+
+  const handleScholarshipChange = (e) => {
+    const { name, value } = e.target;
+    setScholarshipForm((prev) => ({
+      ...prev,
+      [name]:
+        name === "scholarship_status"
+          ? Number(value)
+          : value,
+    }));
+  };
+
+  const resetScholarshipForm = () => {
+    setScholarshipForm({
+      scholarship_name: "",
+      scholarship_status: 1,
+    });
+    setEditingScholarshipId(null);
+  };
+
+  const saveScholarshipType = async () => {
+    try {
+      if (editingScholarshipId) {
+        await axios.put(
+          `${API_BASE_URL}/update_scholarship_type/${editingScholarshipId}`,
+          scholarshipForm
+        );
+        showSnackbar("Scholarship type updated successfully!");
+      } else {
+        await axios.post(`${API_BASE_URL}/insert_scholarship_type`, scholarshipForm);
+        showSnackbar("Scholarship type added successfully!");
+      }
+
+      resetScholarshipForm();
+      fetchScholarshipTypes();
+    } catch (error) {
+      console.error("Error saving scholarship type:", error);
+      showSnackbar("Error saving scholarship type", "error");
+    }
+  };
+
+  const handleScholarshipSubmit = async (e) => {
+    e.preventDefault();
+    if (editingScholarshipId) {
+      setScholarshipUpdateDialogOpen(true);
+      return;
+    }
+    await saveScholarshipType();
+  };
+
+  const handleScholarshipEdit = (item) => {
+    setScholarshipForm({
+      scholarship_name: item.scholarship_name || "",
+      scholarship_status: Number(item.scholarship_status ?? 1),
+    });
+    setEditingScholarshipId(item.id);
+  };
+
+  const handleScholarshipDelete = (id) => {
+    setSelectedScholarshipId(id);
+    setScholarshipDeleteDialogOpen(true);
+  };
+
+  const executeScholarshipDelete = async () => {
+    if (!selectedScholarshipId) return;
+    try {
+      await axios.delete(`${API_BASE_URL}/delete_scholarship_type/${selectedScholarshipId}`);
+      showSnackbar("Scholarship type deleted successfully!");
+      fetchScholarshipTypes();
+    } catch (error) {
+      console.error("Error deleting scholarship type:", error);
+      showSnackbar("Error deleting scholarship type", "error");
+    } finally {
+      setScholarshipDeleteDialogOpen(false);
+      setSelectedScholarshipId(null);
+    }
   };
 
   // ✅ Access Guards
@@ -674,6 +783,175 @@ const TOSF = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Box sx={{ mt: 4 }}>
+        <TableContainer component={Paper} sx={{ width: "100%", border: `2px solid ${borderColor}` }}>
+          <Table>
+            <TableHead sx={{ backgroundColor: settings?.header_color || "#1976d2" }}>
+              <TableRow>
+                <TableCell sx={{ color: "white", textAlign: "center", fontWeight: "bold" }}>
+                  SCHOLARSHIP TYPE MANAGEMENT
+                </TableCell>
+              </TableRow>
+            </TableHead>
+          </Table>
+        </TableContainer>
+
+        <Paper sx={{ padding: 2, mb: 3, border: `2px solid ${borderColor}` }}>
+          <form onSubmit={handleScholarshipSubmit}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={8}>
+                <Typography sx={{ fontWeight: "500", mb: 0.5 }}>
+                  SCHOLARSHIP NAME
+                </Typography>
+                <TextField
+                  name="scholarship_name"
+                  value={scholarshipForm.scholarship_name}
+                  onChange={handleScholarshipChange}
+                  variant="outlined"
+                  size="small"
+                  required
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Typography sx={{ fontWeight: "500", mb: 0.5 }}>
+                  STATUS
+                </Typography>
+                <TextField
+                  select
+                  SelectProps={{ native: true }}
+                  name="scholarship_status"
+                  value={scholarshipForm.scholarship_status}
+                  onChange={handleScholarshipChange}
+                  variant="outlined"
+                  size="small"
+                  fullWidth
+                >
+                  <option value={1}>Active</option>
+                  <option value={0}>Inactive</option>
+                </TextField>
+              </Grid>
+            </Grid>
+
+            <Box sx={{ mt: 2, textAlign: "right" }}>
+              <Button
+                type="submit"
+                variant="contained"
+                color={editingScholarshipId ? "warning" : "primary"}
+              >
+                {editingScholarshipId ? "Update Scholarship Type" : "Add Scholarship Type"}
+              </Button>
+
+              {editingScholarshipId && (
+                <Button
+                  onClick={resetScholarshipForm}
+                  variant="outlined"
+                  color="secondary"
+                  sx={{ ml: 2 }}
+                >
+                  Cancel
+                </Button>
+              )}
+            </Box>
+          </form>
+        </Paper>
+
+        <TableContainer component={Paper} sx={{ border: `2px solid ${borderColor}` }}>
+          <Table>
+            <TableHead
+              style={{
+                border: `2px solid ${borderColor}`,
+                backgroundColor: settings?.header_color || "#1976d2",
+              }}
+            >
+              <TableRow>
+                <TableCell style={{ border: `2px solid ${borderColor}`, color: "white", textAlign: "center", fontWeight: "bold" }}>
+                  ID
+                </TableCell>
+                <TableCell style={{ border: `2px solid ${borderColor}`, color: "white", textAlign: "center", fontWeight: "bold" }}>
+                  Scholarship Name
+                </TableCell>
+                <TableCell style={{ border: `2px solid ${borderColor}`, color: "white", textAlign: "center", fontWeight: "bold" }}>
+                  Status
+                </TableCell>
+                <TableCell style={{ border: `2px solid ${borderColor}`, color: "white", textAlign: "center", fontWeight: "bold" }}>
+                  Created At
+                </TableCell>
+                <TableCell style={{ border: `2px solid ${borderColor}`, color: "white", textAlign: "center", fontWeight: "bold" }}>
+                  Actions
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {scholarshipTypes.length === 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
+                    sx={{ border: `2px solid ${borderColor}`, textAlign: "center" }}
+                  >
+                    No scholarship types found.
+                  </TableCell>
+                </TableRow>
+              )}
+
+              {scholarshipTypes.map((item, index) => (
+                <TableRow key={item.id}>
+                  <TableCell sx={{ border: `2px solid ${borderColor}`, textAlign: "center" }}>
+                    {index + 1}
+                  </TableCell>
+                  <TableCell sx={{ border: `2px solid ${borderColor}`, textAlign: "center" }}>
+                    {item.scholarship_name}
+                  </TableCell>
+                  <TableCell sx={{ border: `2px solid ${borderColor}`, textAlign: "center" }}>
+                    {Number(item.scholarship_status) === 1 ? "Active" : "Inactive"}
+                  </TableCell>
+                  <TableCell sx={{ border: `2px solid ${borderColor}`, textAlign: "center" }}>
+                    {item.created_at
+                      ? new Date(Number(item.created_at) * 1000).toLocaleString()
+                      : "-"}
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      border: `2px solid ${borderColor}`,
+                      textAlign: "center",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    <Button
+                      onClick={() => handleScholarshipEdit(item)}
+                      size="small"
+                      sx={{
+                        backgroundColor: "green",
+                        color: "white",
+                        borderRadius: "5px",
+                        marginRight: "6px",
+                        width: "85px",
+                        height: "35px",
+                      }}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      onClick={() => handleScholarshipDelete(item.id)}
+                      size="small"
+                      sx={{
+                        backgroundColor: "#9E0000",
+                        color: "white",
+                        borderRadius: "5px",
+                        width: "85px",
+                        height: "35px",
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
 
       <Box sx={{ mt: 5 }}>
         {/* <Box
@@ -991,6 +1269,89 @@ const TOSF = () => {
             Cancel
           </Button>
           <Button onClick={handleDeleteConfirm} color="error">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={tosfUpdateDialogOpen}
+        onClose={() => setTosfUpdateDialogOpen(false)}
+      >
+        <DialogTitle>Confirm Update</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Do you want to save the updated TOSF record?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setTosfUpdateDialogOpen(false)} color="secondary">
+            Cancel
+          </Button>
+          <Button
+            onClick={async () => {
+              setTosfUpdateDialogOpen(false);
+              await saveTosf();
+            }}
+            variant="contained"
+            color="warning"
+          >
+            Yes, Update
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={scholarshipUpdateDialogOpen}
+        onClose={() => setScholarshipUpdateDialogOpen(false)}
+      >
+        <DialogTitle>Confirm Update</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Do you want to save the updated scholarship type?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setScholarshipUpdateDialogOpen(false)} color="secondary">
+            Cancel
+          </Button>
+          <Button
+            onClick={async () => {
+              setScholarshipUpdateDialogOpen(false);
+              await saveScholarshipType();
+            }}
+            variant="contained"
+            color="warning"
+          >
+            Yes, Update
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={scholarshipDeleteDialogOpen}
+        onClose={() => {
+          setScholarshipDeleteDialogOpen(false);
+          setSelectedScholarshipId(null);
+        }}
+      >
+        <DialogTitle>Delete Confirmation</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this scholarship type? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setScholarshipDeleteDialogOpen(false);
+              setSelectedScholarshipId(null);
+            }}
+            color="secondary"
+          >
+            Cancel
+          </Button>
+          <Button onClick={executeScholarshipDelete} color="error">
             Delete
           </Button>
         </DialogActions>

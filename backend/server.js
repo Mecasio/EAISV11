@@ -37,9 +37,9 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://192.168.50.77:5173',
   'http://192.168.50.98:5173',
-  'http://136.239.248.58:5173'
+  'http://192.168.50.211:5173',
+  'http://136.239.248.58:5173',
 ];
-
 
 app.use(
   cors({
@@ -89,6 +89,7 @@ const verifyDocumentSchedule = require("./routes/admission_routes/verifyDocument
 const QualifyingInterviewExam = require("./routes/admission_routes/QualifyingInterviewExam");
 const medicalExamRoute = require("./routes/admission_routes/medicalExamRoute");
 const qrCodeForStudents = require("./routes/qrCodeForStudents");
+const studentPayment = require('./routes/payment/studentScholarship');
 app.use("/auth/", authRoute);
 app.use("/form/", applicantFormRoute);
 app.use("/exampermit/", examPermit);
@@ -105,6 +106,7 @@ app.use("/", verifyDocumentSchedule);
 app.use("/", QualifyingInterviewExam);
 app.use("/", medicalExamRoute);
 app.use("/", qrCodeForStudents);
+app.use("/", studentPayment);
 
 const uploadPath = path.join(__dirname, "uploads");
 
@@ -1952,6 +1954,8 @@ app.post("/transfer", async (req, res) => {
 // Get applicant_number by person_id
 app.get("/api/applicant_number/:person_id", async (req, res) => {
   const { person_id } = req.params;
+
+  console.log("Recieved Person Id: ", person_id);
 
   try {
     const [rows] = await db.query(
@@ -6724,9 +6728,10 @@ io.on("connection", (socket) => {
     }
   });
 
-  app.get("/api/applicant-schedule/:applicant_number", async (req, res) => {
+  app.get("/api/applicant-schedule/:applicantNumber", async (req, res) => {
     try {
-      const { applicant_number } = req.params;
+      const { applicantNumber } = req.params;
+      console.log("Receive Applicant Number: ", applicantNumber);
 
       const [rows] = await db.query(
         `SELECT 
@@ -6744,7 +6749,7 @@ io.on("connection", (socket) => {
        INNER JOIN exam_applicants ea
          ON ea.schedule_id = s.schedule_id
        WHERE ea.applicant_id = ?`,
-        [applicant_number],
+        [applicantNumber],
       );
 
       if (rows.length === 0) {
@@ -12765,6 +12770,7 @@ app.post("/save_to_matriculation", async (req, res) => {
     school_id_fees,
     total_tosf,
     remark,
+    matriculation_remark,
     active_school_year_id,
     status,
   } = req.body;
@@ -12776,9 +12782,9 @@ app.post("/save_to_matriculation", async (req, res) => {
         campus_name, student_number, learner_reference_number, last_name, given_name, middle_initial, 
         degree_program, year_level, sex, email_address, phone_number, laboratory_units, computer_units, 
         academic_units_enrolled, academic_units_nstp_enrolled, tuition_fees, nstp_fees, athletic_fees, computer_fees, 
-       cultural_fees, development_fees, guidance_fees, laboratory_fees, library_fees, 
-        medical_and_dental_fees, registration_fees, school_id_fees, total_tosf, remark, active_school_year_id, status
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        cultural_fees, development_fees, guidance_fees, laboratory_fees, library_fees, 
+        medical_and_dental_fees, registration_fees, school_id_fees, total_tosf, remark, matriculation_remark, active_school_year_id, status
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const values = [
@@ -12811,6 +12817,7 @@ app.post("/save_to_matriculation", async (req, res) => {
       school_id_fees,
       total_tosf,
       remark,
+      matriculation_remark || null,
       active_school_year_id,
       statusValue,
     ];

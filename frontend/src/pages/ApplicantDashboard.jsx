@@ -227,6 +227,7 @@ const ApplicantDashboard = (props) => {
       );
       if (res.data && res.data.applicant_number) {
         setApplicantID(res.data.applicant_number);
+        setApplicantNumber(res.data.applicant_number);
         fetchEntranceExamScores(res.data.applicant_number);
         fetchProctorSchedule(res.data.applicant_number);
         fetchInterviewSchedule(res.data.applicant_number);
@@ -241,9 +242,7 @@ const ApplicantDashboard = (props) => {
     if (!id) return console.warn("fetchPersonData called with empty id");
 
     try {
-      console.info("fetchPersonData -> requesting person_with_applicant for id:", id);
       const res = await axios.get(`${API_BASE_URL}/api/person_with_applicant/${id}`);
-      console.info("person_with_applicant response:", res.data);
       setPerson(res.data || {});
 
       const applicantNumber = res.data?.applicant_number ?? res.data?.applicantNumber ?? null;
@@ -251,10 +250,8 @@ const ApplicantDashboard = (props) => {
         setApplicantID(applicantNumber);
         try {
           const sched = await axios.get(`${API_BASE_URL}/api/applicant-schedule/${applicantNumber}`);
-          console.info("applicant-schedule:", sched.data);
           setProctor(sched.data);
         } catch (e) {
-          console.warn("applicant-schedule fetch failed:", e?.response?.data || e.message);
           setProctor(null);
         }
       } else {
@@ -306,8 +303,7 @@ const ApplicantDashboard = (props) => {
     month: "long",
     year: "numeric",
   });
-
-  /* ---------------- Step 2: Entrance Exam ---------------- */
+  
   const [examScores, setExamScores] = useState({
     english: null,
     science: null,

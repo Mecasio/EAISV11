@@ -148,4 +148,98 @@ router.delete("/delete_tosf/:tosf_id", async (req, res) => {
   }
 });
 
+router.get("/scholarship_types", async (req, res) => {
+  try {
+    const [rows] = await db3.query(
+      "SELECT id, scholarship_name, scholarship_status, created_at FROM scholarship_type ORDER BY id DESC"
+    );
+    res.json(rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error while fetching scholarship types" });
+  }
+});
+
+router.post("/insert_scholarship_type", async (req, res) => {
+  const { scholarship_name, scholarship_status, created_at } = req.body;
+
+  if (!scholarship_name || !String(scholarship_name).trim()) {
+    return res.status(400).json({ message: "scholarship_name is required" });
+  }
+
+  try {
+    const [maxRow] = await db3.query(
+      "SELECT COALESCE(MAX(id), 0) + 1 AS next_id FROM scholarship_type"
+    );
+    const nextId = maxRow?.[0]?.next_id || 1;
+
+    await db3.query(
+      `INSERT INTO scholarship_type (
+        id,
+        scholarship_name,
+        scholarship_status,
+        created_at
+      ) VALUES (?, ?, ?, ?)`,
+      [
+        nextId,
+        String(scholarship_name).trim(),
+        scholarship_status ?? 1,
+        created_at ?? Math.floor(Date.now() / 1000),
+      ]
+    );
+
+    res.json({ success: true, message: "Scholarship type inserted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error while inserting scholarship type" });
+  }
+});
+
+router.put("/update_scholarship_type/:id", async (req, res) => {
+  const { id } = req.params;
+  const { scholarship_name, scholarship_status } = req.body;
+
+  if (!scholarship_name || !String(scholarship_name).trim()) {
+    return res.status(400).json({ message: "scholarship_name is required" });
+  }
+
+  try {
+    const [result] = await db3.query(
+      `UPDATE scholarship_type
+       SET scholarship_name = ?, scholarship_status = ?
+       WHERE id = ?`,
+      [String(scholarship_name).trim(), scholarship_status ?? 1, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Scholarship type not found" });
+    }
+
+    res.json({ success: true, message: "Scholarship type updated successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error while updating scholarship type" });
+  }
+});
+
+router.delete("/delete_scholarship_type/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [result] = await db3.query(
+      "DELETE FROM scholarship_type WHERE id = ?",
+      [id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Scholarship type not found" });
+    }
+
+    res.json({ success: true, message: "Scholarship type deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error while deleting scholarship type" });
+  }
+});
+
 module.exports = router;
