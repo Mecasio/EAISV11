@@ -189,6 +189,7 @@ const SystemDashboardPanel = () => {
         { title: "EVALUATION MANAGEMENT", link: "/evaluation_crud", icon: HelpOutlineIcon, page_id: 23 },
         { title: "TOSF CRUD", link: "/tosf_crud", icon: HelpOutlineIcon, page_id: 99 },
         { title: "PAYMENT EXPORTING MODULE", link: "/payment_exporting_module", icon: HelpOutlineIcon, page_id: 116 },
+        { title: "STUDENT SCHOLARSHIP LIST", link: "/student_scholarship_list", icon: HelpOutlineIcon, page_id: 116 },
       ],
     },
     {
