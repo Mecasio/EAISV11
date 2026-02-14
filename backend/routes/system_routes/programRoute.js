@@ -7,7 +7,8 @@ const router = express.Router();
 router.post("/program", async (req, res) => {
   const { name, code, major, components } = req.body;
 
-  if (!["0", "1"].includes(components)) {
+  if (!["1", "2"].includes(String(components))) {
+
     return res.status(400).json({
       message: "Invalid campus value",
     });
@@ -44,7 +45,8 @@ router.put("/program/:id", async (req, res) => {
   const { id } = req.params;
   const { name, code, major, components } = req.body;
 
-  if (!["0", "1"].includes(components)) {
+  if (!["1", "2"].includes(String(components))) {
+
     return res.status(400).json({
       message: "Invalid campus value",
     });
@@ -98,7 +100,8 @@ router.put("/update_program/:id", async (req, res) => {
   const { id } = req.params;
   const { name, code, major, components } = req.body;
 
-  if (!["0", "1"].includes(components)) {
+  if (!["1", "2"].includes(String(components))) {
+
     return res.status(400).json({
       message: "Invalid campus value",
     });

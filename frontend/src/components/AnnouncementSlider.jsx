@@ -11,11 +11,12 @@ const AnnouncementSlider = () => {
         axios
             .get(`${API_BASE_URL}/api/announcements`)
             .then(res => {
-                if (res.data.success && Array.isArray(res.data.data)) {
-                    setSlides(res.data.data);
+                if (Array.isArray(res.data)) {
+                    setSlides(res.data);
                     setIndex(0);
                 }
             })
+
             .catch(err => console.error("Announcement fetch error:", err));
     }, []);
 

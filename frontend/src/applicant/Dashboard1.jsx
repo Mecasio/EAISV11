@@ -312,7 +312,7 @@ const Dashboard1 = (props) => {
     try {
       const res = await axios.get(`${API_BASE_URL}/form/person/${id}`);
       setPerson(res.data);
-    } catch (error) {}
+    } catch (error) { }
   };
 
   // Do not alter
@@ -1247,9 +1247,9 @@ const Dashboard1 = (props) => {
                   name="campus"
                   value={
                     person.campus === null ||
-                    person.campus === "" ||
-                    person.campus === undefined ||
-                    person.campus === 0
+                      person.campus === "" ||
+                      person.campus === undefined ||
+                      person.campus === 0
                       ? ""
                       : String(person.campus)
                   }
@@ -1464,8 +1464,14 @@ const Dashboard1 = (props) => {
                                 fontWeight: isFull ? "bold" : "normal",
                               }}
                             >
-                              ({item.program_code}) {item.program_description}{" "}
-                              {item.major} ({item.components === 0 ? "Manila" : "Cavite" })
+                              {`(${item.program_code}): ${item.program_description}${item.major ? ` (${item.major})` : ""
+                                } (${Number(item.components) === 1
+                                  ? "Manila Campus"
+                                  : Number(item.components) === 2
+                                    ? "Cavite Campus"
+                                    : "—"
+                                })`}
+
                               {/* Slot info */}
                               {isFull ? (
                                 <span style={{ marginLeft: 8 }}>
@@ -1630,7 +1636,7 @@ const Dashboard1 = (props) => {
             <Typography
               style={{
                 fontSize: "20px",
-               color: mainButtonColor,
+                color: mainButtonColor,
                 fontWeight: "bold",
                 mt: "-50px",
               }}

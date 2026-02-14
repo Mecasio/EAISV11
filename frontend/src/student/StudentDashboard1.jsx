@@ -777,7 +777,7 @@ const StudentDashboard1 = () => {
 
     // dot not alter
     return (
-         <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
+        <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
 
             <Box
                 sx={{
@@ -1233,8 +1233,14 @@ const StudentDashboard1 = () => {
                                                 <MenuItem value=""><em>Select Program</em></MenuItem>
                                                 {curriculumOptions.map((item, index) => (
                                                     <MenuItem key={index} value={item.curriculum_id}>
-                                                           ({item.program_code}) {item.program_description}{" "}
-                              {item.major} ({item.components === 0 ? "Manila" : "Cavite" })
+                                                        {`(${item.program_code}): ${item.program_description}${item.major ? ` (${item.major})` : ""
+                                                            } (${Number(item.components) === 1
+                                                                ? "Manila Campus"
+                                                                : Number(item.components) === 2
+                                                                    ? "Cavite Campus"
+                                                                    : "—"
+                                                            })`}
+
                                                     </MenuItem>
                                                 ))}
                                             </Select>

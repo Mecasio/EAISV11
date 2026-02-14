@@ -39,7 +39,7 @@ const allowedOrigins = [
   'http://192.168.50.98:5173',
   'http://192.168.50.211:5173',
   'http://136.239.248.58:5173',
-  'http://192.168.50.45:5173',
+  'http://192.168.50.53:5173',
 ];
 
 app.use(
@@ -4911,6 +4911,7 @@ app.get("/api/applied_program", async (req, res) => {
         pt.program_code,
         pt.program_description,
         pt.major,
+        pt.components,
         d.dprtmnt_id,
         d.dprtmnt_name
       FROM curriculum_table AS ct
@@ -14044,6 +14045,7 @@ app.get("/api/applied_program/:dprtmnt_id", async (req, res) => {
         pt.program_code,
         pt.program_description,
         pt.major,
+          pt.components,
         d.dprtmnt_id,
         d.dprtmnt_name
       FROM curriculum_table AS ct
@@ -19444,7 +19446,6 @@ io.on("connection", (socket) => {
 
 
 
-
 app.get("/announcements", async (req, res) => {
   const { role } = req.query;
 
@@ -19461,16 +19462,19 @@ app.get("/announcements", async (req, res) => {
       params.push(role);
     }
 
-    console.log("Executing SQL:", sql, "with params:", params);
-
     const [rows] = await db.query(sql, params);
-    console.log("Fetched announcements:", rows);
-    res.json(rows);
+
+    res.json({
+      success: true,
+      data: rows,
+    });
+
   } catch (err) {
     console.error("Error fetching announcements:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
+
 
 
 app.post("/api/generate-cor-pdf", async (req, res) => {

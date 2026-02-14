@@ -109,7 +109,6 @@ const AdminDashboard1 = () => {
   };
 
 
-
   const handleNavigateStep = (index, to) => {
     setCurrentStep(index);
 
@@ -323,6 +322,7 @@ const AdminDashboard1 = () => {
 
 
 
+
   // Fetch person by ID (when navigating with ?person_id=... or sessionStorage)
   useEffect(() => {
     const fetchPersonById = async () => {
@@ -343,6 +343,7 @@ const AdminDashboard1 = () => {
 
     fetchPersonById();
   }, [userID]);
+
 
 
 
@@ -955,6 +956,9 @@ const AdminDashboard1 = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchError, setSearchError] = useState("");
 
+
+
+
   useEffect(() => {
     const delayDebounce = setTimeout(async () => {
       if (searchQuery.trim() === "") return; // Don't search empty
@@ -983,6 +987,7 @@ const AdminDashboard1 = () => {
 
     return () => clearTimeout(delayDebounce);
   }, [searchQuery]);
+
 
   const divToPrintRef = useRef();
   const [showPrintView, setShowPrintView] = useState(false);
@@ -1109,7 +1114,7 @@ const AdminDashboard1 = () => {
 
   // dot not alter
   return (
-      <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
+    <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
       {showPrintView && (
         <div ref={divToPrintRef} style={{ display: "block" }}>
           <ExamPermit personId={userID} />   {/* ✅ pass the searched person_id */}
@@ -1710,10 +1715,16 @@ const AdminDashboard1 = () => {
                         <MenuItem value=""><em>Select Program</em></MenuItem>
                         {curriculumOptions.map((item, index) => (
                           <MenuItem key={index} value={item.curriculum_id}>
-   ({item.program_code}) {item.program_description}{" "}
-                              {item.major} ({item.components === 0 ? "Manila" : "Cavite" })
+                            {`(${item.program_code}): ${item.program_description}${item.major ? ` (${item.major})` : ""
+                              } (${Number(item.components) === 1
+                                ? "Manila Campus"
+                                : Number(item.components) === 2
+                                  ? "Cavite Campus"
+                                  : "—"
+                              })`}
                           </MenuItem>
                         ))}
+
                       </Select>
                       {errors.program && (
                         <FormHelperText>This field is required.</FormHelperText>

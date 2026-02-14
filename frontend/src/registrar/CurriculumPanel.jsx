@@ -257,6 +257,12 @@ const CurriculumPanel = () => {
     );
   });
 
+  const formatSchoolYear = (yearDesc) => {
+    if (!yearDesc) return "";
+    const startYear = Number(yearDesc);
+    if (isNaN(startYear)) return yearDesc; // safe fallback
+    return `${startYear} - ${startYear + 1}`;
+  };
 
 
   if (loading || hasAccess === null) {
@@ -383,8 +389,14 @@ const CurriculumPanel = () => {
                 <option value="">Choose Program</option>
                 {programList.map((program) => (
                   <option key={program.program_id} value={program.program_id}>
-                    ({program.program_code}) - {program.program_description} {program.major} ({program.components === 0 ? "Manila" : "Cavite" })
-
+                    {formatSchoolYear(program.year_description)}:{" "}
+                    {`(${program.program_code}): ${program.program_description}${program.major ? ` (${program.major})` : ""
+                      } (${Number(program.components) === 1
+                        ? "Manila Campus"
+                        : Number(program.components) === 2
+                          ? "Cavite Campus"
+                          : "—"
+                      })`}
                   </option>
                 ))}
               </select>
@@ -453,10 +465,16 @@ const CurriculumPanel = () => {
                         </TableCell >
                         <TableCell sx={{ border: `2px solid ${borderColor}` }}>
                           <Typography fontWeight={500}>
-                            ({item.program_code}) {item.program_description} ({item.components === 0 ? "Manila" : "Cavite" })
+                            {formatSchoolYear(item.year_description)}:{" "}
+                            {`(${item.program_code}): ${item.program_description} (${Number(item.components) === 1
+                              ? "Manila Campus"
+                              : Number(item.components) === 2
+                                ? "Cavite Campus"
+                                : "—"
+                              })`}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
-                            {item.major}
+                            {item.major ? ` (${item.major})` : ""}
                           </Typography>
                         </TableCell>
                         <TableCell sx={{ border: `2px solid ${borderColor}` }} align="center">

@@ -269,6 +269,15 @@ export default function DepartmentCurriculumPanel() {
     }
   }
 
+  const formatSchoolYear = (yearDesc) => {
+    if (!yearDesc) return "";
+    const startYear = Number(yearDesc);
+    if (isNaN(startYear)) return yearDesc; // safe fallback
+    return `${startYear} - ${startYear + 1}`;
+  };
+
+
+
   // Put this at the very bottom before the return 
   if (loading || hasAccess === null) {
     return <LoadingOverlay open={loading} message="Loading..." />;
@@ -358,15 +367,17 @@ export default function DepartmentCurriculumPanel() {
               </MenuItem>
               {curriculums.map((c) => {
                 const programLabel = c.program_description || c.program_code || `program ${c.program_id}`;
-                const yearLabel = c.year_description || `year ${c.year_id}`;
+
                 return (
                   <MenuItem key={c.curriculum_id} value={c.curriculum_id}>
-                    {yearLabel ? ` ${yearLabel}` : ""}:
-                    {c.program_code ? ` (${c.program_code})` : ""} -
-                     {programLabel}
-                    
-                    {c.major ? ` (${c.major})` : ""}
-
+                    {formatSchoolYear(c.year_description)}:{" "}
+                    {`(${c.program_code}): ${c.program_description}${c.major ? ` (${c.major})` : ""
+                      } (${Number(c.components) === 1
+                        ? "Manila Campus"
+                        : Number(c.components) === 2
+                          ? "Cavite Campus"
+                          : "—"
+                      })`}
                   </MenuItem>
                 );
               })}

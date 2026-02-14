@@ -205,12 +205,13 @@ const ProgramPanel = () => {
       name: prog.program_description,
       code: prog.program_code,
       major: prog.major || "",
-      components: prog.components || "",
+      components: String(prog.components || ""), // ✅
     });
 
     setEditMode(true);
     setEditId(prog.program_id);
   };
+
 
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [programToDelete, setProgramToDelete] = useState(null);
@@ -244,8 +245,8 @@ const ProgramPanel = () => {
       prog.program_description?.toLowerCase().includes(q) ||
       prog.program_code?.toLowerCase().includes(q) ||
       prog.major?.toLowerCase().includes(q) ||
-      (prog.components === 0 && "manila".includes(q)) ||
-      (prog.components === 1 && "cavite".includes(q))
+      (prog.components === 1 && "manila".includes(q)) ||
+      (prog.components === 2 && "cavite".includes(q))
 
     );
   });
@@ -519,8 +520,8 @@ const ProgramPanel = () => {
               style={styles.input}
             >
               <option value="">-- Select Campus --</option>
-              <option value="0">Manila</option>
-              <option value="1">Cavite</option>
+              <option value="1">Manila Campus</option>
+              <option value="2">Cavite Campus</option>
             </select>
           </div>
 
@@ -738,10 +739,10 @@ const ProgramPanel = () => {
                     <td style={styles.td}>{prog.program_code}</td>
                     <td style={styles.td}>{prog.major || "—"}</td>
                     <td style={styles.td}>
-                      {prog.components === 0
-                        ? "Manila"
-                        : prog.components === 1
-                          ? "Cavite"
+                      {prog.components === 1
+                        ? "Manila Campus"
+                        : prog.components === 2
+                          ? "Cavite Campus"
                           : "—"}
                     </td>
 

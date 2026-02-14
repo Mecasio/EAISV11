@@ -81,14 +81,14 @@ const MedicalDashboard1 = () => {
   }, [settings]);
 
 
-    const stepsData = [
-        { label: "Medical Applicant List", to: "/medical_applicant_list", icon: <ListAltIcon /> },
-        { label: "Applicant Form", to: "/medical_dashboard1", icon: <HowToRegIcon /> },
-        { label: "Submitted Documents", to: "/medical_requirements", icon: <UploadFileIcon /> }, // updated icon
-        { label: "Medical History", to: "/medical_requirements_form", icon: <PersonIcon /> },
-        { label: "Dental Assessment", to: "/dental_assessment", icon: <DescriptionIcon /> },
-        { label: "Physical and Neurological Examination", to: "/physical_neuro_exam", icon: <SchoolIcon /> },
-    ];
+  const stepsData = [
+    { label: "Medical Applicant List", to: "/medical_applicant_list", icon: <ListAltIcon /> },
+    { label: "Applicant Form", to: "/medical_dashboard1", icon: <HowToRegIcon /> },
+    { label: "Submitted Documents", to: "/medical_requirements", icon: <UploadFileIcon /> }, // updated icon
+    { label: "Medical History", to: "/medical_requirements_form", icon: <PersonIcon /> },
+    { label: "Dental Assessment", to: "/dental_assessment", icon: <DescriptionIcon /> },
+    { label: "Physical and Neurological Examination", to: "/physical_neuro_exam", icon: <SchoolIcon /> },
+  ];
 
   const [currentStep, setCurrentStep] = useState(1);
   const [visitedSteps, setVisitedSteps] = useState(Array(stepsData.length).fill(false));
@@ -1686,8 +1686,14 @@ const MedicalDashboard1 = () => {
                         <MenuItem value=""><em>Select Program</em></MenuItem>
                         {curriculumOptions.map((item, index) => (
                           <MenuItem key={index} value={item.curriculum_id}>
-                               ({item.program_code}) {item.program_description}{" "}
-                              {item.major} ({item.components === 0 ? "Manila" : "Cavite" })
+                            {`(${item.program_code}): ${item.program_description}${item.major ? ` (${item.major})` : ""
+                              } (${Number(item.components) === 1
+                                ? "Manila Campus"
+                                : Number(item.components) === 2
+                                  ? "Cavite Campus"
+                                  : "—"
+                              })`}
+
                           </MenuItem>
                         ))}
                       </Select>
