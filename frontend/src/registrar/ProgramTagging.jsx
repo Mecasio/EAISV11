@@ -190,15 +190,16 @@ const ProgramTagging = () => {
   const filteredCourses = courseList.filter((course) => {
     const words = courseSearch.toLowerCase().split(" ");
 
+    const courseCode = (course.course_code || "").toLowerCase();
+    const courseDesc = (course.course_description || "").toLowerCase();
+
     return words.every((word) =>
-      course.course_code.toLowerCase().includes(word) ||
-      course.course_description.toLowerCase().includes(word)
+      courseCode.includes(word) || courseDesc.includes(word)
     );
   });
 
-
+  
   useEffect(() => {
-    fetchCourse();
     fetchYearLevel();
     fetchSemester();
     fetchCurriculum();
@@ -232,7 +233,6 @@ const ProgramTagging = () => {
     }
   };
 
-
   const fetchCourse = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/course_list`);
@@ -248,6 +248,10 @@ const ProgramTagging = () => {
       console.log(err);
     }
   };
+
+  useEffect(() => {
+    fetchCourse();
+  })
 
 
   const fetchTaggedPrograms = async () => {
@@ -612,13 +616,13 @@ const ProgramTagging = () => {
               {curriculumList.map((curriculum) => (
                 <option key={curriculum.curriculum_id} value={curriculum.curriculum_id}>
                   {formatSchoolYear(curriculum.year_description)}:{" "}
-              {`(${curriculum.program_code}): ${curriculum.program_description}${curriculum.major ? ` (${curriculum.major})` : ""
-                } (${Number(curriculum.components) === 1
-                  ? "Manila Campus"
-                  : Number(curriculum.components) === 2
-                    ? "Cavite Campus"
-                    : "—"
-                })`}
+                  {`(${curriculum.program_code}): ${curriculum.program_description}${curriculum.major ? ` (${curriculum.major})` : ""
+                    } (${Number(curriculum.components) === 1
+                      ? "Manila Campus"
+                      : Number(curriculum.components) === 2
+                        ? "Cavite Campus"
+                        : "—"
+                    })`}
                 </option>
               ))}
             </select>

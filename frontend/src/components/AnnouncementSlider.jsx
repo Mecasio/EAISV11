@@ -59,6 +59,7 @@ const AnnouncementSlider = () => {
                 gap: "50px",
                 justifyContent: "center",
                 borderRadius: "30px",
+    
                 overflow: "hidden",
             }}
         >
@@ -86,7 +87,8 @@ const AnnouncementSlider = () => {
                             width: "100%",
                             height: "100%",
                             objectFit: "cover",
-                            borderRadius: "30px"
+                            borderRadius: "30px",
+
                         }}
                     />
 

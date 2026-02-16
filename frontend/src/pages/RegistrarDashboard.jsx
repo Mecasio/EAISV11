@@ -151,13 +151,31 @@ const Dashboard = ({ profileImage, setProfileImage }) => {
 
 
 
-
+  const [dateTime, setDateTime] = useState(new Date());
 
   const formattedDate = new Date().toLocaleDateString("en-US", {
     weekday: "short",
     day: "2-digit",
     month: "long",
     year: "numeric",
+  });
+
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const formattedTime = time.toLocaleTimeString("en-US", {
+    timeZone: "Asia/Manila",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
   });
 
   useEffect(() => {
@@ -475,35 +493,35 @@ const Dashboard = ({ profileImage, setProfileImage }) => {
   ];
 
 
- const backgroundImage = settings?.bg_image
-     ? `url(${API_BASE_URL}${settings.bg_image})`
-     : "linear-gradient(to right, #e0e0e0, #bdbdbd)"
- 
-   return (
-     <Box
-       sx={{
-         height: "calc(100vh - 100px)", // fixed viewport height
-         width: "100%",
-         backgroundImage,
-         backgroundRepeat: "no-repeat",
-         backgroundSize: "cover",
-         backgroundPosition: "center",
-         position: "relative",
-       }}
-     >
-       {/* Overlay */}
-       <Box
-         sx={{
-           position: "absolute",
-           inset: 0,
-         backgroundColor: "rgba(0, 0, 0, 0.1)",
-           backdropFilter: "blur(0.5px)",
-           WebkitBackdropFilter: "blur(0.5px)",
-           zIndex: 0,
-           pointerEvents: "none",
-         }}
-       />
- 
+  const backgroundImage = settings?.bg_image
+    ? `url(${API_BASE_URL}${settings.bg_image})`
+    : "linear-gradient(to right, #e0e0e0, #bdbdbd)"
+
+  return (
+    <Box
+      sx={{
+        height: "calc(100vh - 100px)", // fixed viewport height
+        width: "100%",
+        backgroundImage,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        position: "relative",
+      }}
+    >
+      {/* Overlay */}
+      <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.1)",
+          backdropFilter: "blur(0.5px)",
+          WebkitBackdropFilter: "blur(0.5px)",
+          zIndex: 0,
+          pointerEvents: "none",
+        }}
+      />
+
       {/* Scrollable content */}
       <Box
         sx={{
@@ -529,7 +547,7 @@ const Dashboard = ({ profileImage, setProfileImage }) => {
                 "&:hover": {
                   transform: "scale(1.05)",
                   boxShadow: 6,
-                  
+
                 },
               }}
             >
@@ -617,8 +635,11 @@ const Dashboard = ({ profileImage, setProfileImage }) => {
 
                   {/* 📅 Right Section - Date */}
                   <Box textAlign="right" sx={{ color: "black" }}>
-                    <Typography variant="body1" fontSize="20px">
+                    <Typography variant="body1" fontSize="24px" fontWeight="bold" >
                       {formattedDate}
+                    </Typography>
+                    <Typography variant="body1" fontSize="24px" sx={{textAlign: "center"}}>
+                      {formattedTime}
                     </Typography>
                   </Box>
 

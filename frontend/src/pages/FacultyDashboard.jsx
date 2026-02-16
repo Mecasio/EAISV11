@@ -255,11 +255,32 @@ const FacultyDashboard = ({ profileImage, setProfileImage }) => {
     fetchHolidays();
   }, [year]);
 
+
+  const [dateTime, setDateTime] = useState(new Date());
+
   const formattedDate = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
+    weekday: "short",
     day: "2-digit",
     month: "long",
     year: "numeric",
+  });
+
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const formattedTime = time.toLocaleTimeString("en-US", {
+    timeZone: "Asia/Manila",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
   });
 
   const todayDay = new Date().toLocaleString("en-US", {
@@ -483,12 +504,15 @@ const FacultyDashboard = ({ profileImage, setProfileImage }) => {
                     md={3}
                     textAlign={{ xs: "left", sm: "right" }}
                   >
-                    <Typography
-                      variant="body1"
-                      sx={{ fontSize: { xs: "16px", sm: "18px", md: "20px" } }} // smaller
-                    >
-                      {formattedDate}
-                    </Typography>
+                    {/* 📅 Right Section - Date */}
+                    <Box textAlign="right" sx={{ color: "black" }}>
+                      <Typography variant="body1" fontSize="24px" fontWeight="bold" >
+                        {formattedDate}
+                      </Typography>
+                      <Typography variant="body1" fontSize="24px" sx={{ textAlign: "center" }}>
+                        {formattedTime}
+                      </Typography>
+                    </Box>
                   </Grid>
                 </Grid>
               </CardContent>

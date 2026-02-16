@@ -297,13 +297,35 @@ const ApplicantDashboard = (props) => {
       })
       : "";
 
+
+  const [dateTime, setDateTime] = useState(new Date());
+
   const formattedDate = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
+    weekday: "short",
     day: "2-digit",
     month: "long",
     year: "numeric",
   });
-  
+
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const formattedTime = time.toLocaleTimeString("en-US", {
+    timeZone: "Asia/Manila",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  });
+
+
   const [examScores, setExamScores] = useState({
     english: null,
     science: null,
@@ -845,13 +867,16 @@ const ApplicantDashboard = (props) => {
                   </Stack>
 
                   {/* Right side (date) */}
-                  <Typography
-                    variant="body3"
-                    color="#000000"
-                    sx={{ fontWeight: 500, marginTop: "-10px" }}
-                  >
-                    Date: {formattedDate}
-                  </Typography>
+                  {/* 📅 Right Section - Date */}
+                  <Box textAlign="right" sx={{ color: "black" }}>
+                    <Typography variant="body1" fontSize="24px" fontWeight="bold" >
+                      {formattedDate}
+                    </Typography>
+                    <Typography variant="body1" fontSize="24px" sx={{ textAlign: "center" }}>
+                      {formattedTime}
+                    </Typography>
+                  </Box>
+
                 </Stack>
               </CardContent>
             </Card>

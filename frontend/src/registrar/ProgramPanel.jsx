@@ -68,6 +68,7 @@ const ProgramPanel = () => {
     code: "",
     major: "",
     components: "",
+    academic_program: "",  // ✅ new
   });
 
 
@@ -185,6 +186,7 @@ const ProgramPanel = () => {
         code: "",
         major: "",
         components: "",
+        academic_program: "", // ✅
       });
 
       setEditMode(false);
@@ -205,12 +207,14 @@ const ProgramPanel = () => {
       name: prog.program_description,
       code: prog.program_code,
       major: prog.major || "",
-      components: String(prog.components || ""), // ✅
+      components: String(prog.components || ""),
+      academic_program: String(prog.academic_program || ""), // ✅
     });
 
     setEditMode(true);
     setEditId(prog.program_id);
   };
+
 
 
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -256,28 +260,7 @@ const ProgramPanel = () => {
     setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
-  // ✅ Move security event listeners inside useEffect
-  useEffect(() => {
-    const handleContextMenu = (e) => e.preventDefault();
-    const handleKeyDown = (e) => {
-      const blocked =
-        e.key === "F12" ||
-        e.key === "F11" ||
-        (e.ctrlKey && e.shiftKey && ["i", "j"].includes(e.key.toLowerCase())) ||
-        (e.ctrlKey && ["u", "p"].includes(e.key.toLowerCase()));
-      if (blocked) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    };
 
-    document.addEventListener("contextmenu", handleContextMenu);
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("contextmenu", handleContextMenu);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 50; // adjust how many programs per page
@@ -524,7 +507,21 @@ const ProgramPanel = () => {
               <option value="2">Cavite Campus</option>
             </select>
           </div>
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Academic Program:</label>
 
+            <select
+              name="academic_program"
+              value={program.academic_program}
+              onChange={handleChangesForEverything}
+              style={styles.input}
+            >
+              <option value="">-- Select Academic Program --</option>
+              <option value="0">Undergraduate</option>
+              <option value="1">Graduate</option>
+              <option value="2">Techvoc</option>
+            </select>
+          </div>
 
 
 
@@ -727,6 +724,8 @@ const ProgramPanel = () => {
                   <th style={styles.th}>Code</th>
                   <th style={styles.th}>Major</th>
                   <th style={styles.th}>Components</th>
+                  <th style={styles.th}>Academic Program</th>
+
                   <th style={styles.th}>Actions</th>
                 </tr>
               </thead>
@@ -745,6 +744,16 @@ const ProgramPanel = () => {
                           ? "Cavite Campus"
                           : "—"}
                     </td>
+                    <td style={styles.td}>
+                      {prog.academic_program === 0
+                        ? "Undergraduate"
+                        : prog.academic_program === 1
+                          ? "Graduate"
+                          : prog.academic_program === 2
+                            ? "Techvoc"
+                            : "—"}
+                    </td>
+
 
                     <td style={{ ...styles.td, textAlign: "center" }}>
                       <button

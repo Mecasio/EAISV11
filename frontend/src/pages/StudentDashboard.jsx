@@ -169,12 +169,35 @@ const StudentDashboard = ({ profileImage, setProfileImage }) => {
   const failedPercent = total > 0 ? (failed / total) * 100 : 0;
   const incompletePercent = total > 0 ? (incomplete / total) * 100 : 0;
 
+  const [dateTime, setDateTime] = useState(new Date());
+
   const formattedDate = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
+    weekday: "short",
     day: "2-digit",
     month: "long",
     year: "numeric",
   });
+
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const formattedTime = time.toLocaleTimeString("en-US", {
+    timeZone: "Asia/Manila",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  });
+
+
+
 
   const divToPrintRef = useRef();
 
@@ -510,14 +533,14 @@ const StudentDashboard = ({ profileImage, setProfileImage }) => {
                     </Box>
                   </Stack>
 
-                  {/* Right side: Date */}
-                  <Typography
-                    variant="body3"
-                    color="#000000"
-                    sx={{ fontWeight: 500, marginTop: "-10px" }}
-                  >
-                    Date: {formattedDate}
-                  </Typography>
+                  <Box textAlign="right" sx={{ color: "black" }}>
+                    <Typography variant="body1" fontSize="24px" fontWeight="bold" >
+                      {formattedDate}
+                    </Typography>
+                    <Typography variant="body1" fontSize="24px" sx={{ textAlign: "center" }}>
+                      {formattedTime}
+                    </Typography>
+                  </Box>
                 </Stack>
 
                 <Divider sx={{ mb: 2 }} />

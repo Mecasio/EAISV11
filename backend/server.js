@@ -4920,6 +4920,7 @@ app.get("/api/applied_program", async (req, res) => {
         pt.program_description,
         pt.major,
         pt.components,
+        pt.academic_program,
         d.dprtmnt_id,
         d.dprtmnt_name
       FROM curriculum_table AS ct
@@ -13584,7 +13585,8 @@ app.get("/api/applied_program/:dprtmnt_id", async (req, res) => {
         pt.program_code,
         pt.program_description,
         pt.major,
-          pt.components,
+        pt.components,
+        pt.academic_program,
         d.dprtmnt_id,
         d.dprtmnt_name
       FROM curriculum_table AS ct

@@ -49,6 +49,8 @@ const CurriculumCourseMap = () => {
 
   }, [settings]);
 
+  
+
   const [userID, setUserID] = useState("");
   const [user, setUser] = useState("");
   const [userRole, setUserRole] = useState("");

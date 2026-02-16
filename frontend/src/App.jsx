@@ -144,7 +144,7 @@ import Prerequisite from "./registrar/Prerequisite";
 import ProgramUnit from "./registrar/ProgramUnit";
 
 import EvaluatorApplicantList from './registrar/EvaluatorApplicantList';
-import EvaluatorScheduleTile from './registrar/EvaluatorScheduleTile';        
+import EvaluatorScheduleTile from './registrar/EvaluatorScheduleTile';
 
 // APPLICANT FOLDER
 import Dashboard1 from './applicant/Dashboard1';
@@ -228,11 +228,13 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [settings, setSettings] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
-  // ✅ Fetch settings from backend
+  const [logoVersion, setLogoVersion] = useState(Date.now());
+
   const fetchSettings = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/settings`);
       setSettings(response.data);
+      setLogoVersion(Date.now()); // 🔥 update version
     } catch (error) {
       console.error("Error fetching settings:", error);
     }
@@ -243,10 +245,11 @@ function App() {
 
     // Auto-refresh when settings change in Settings.jsx
     const handleStorageChange = () => fetchSettings();
-    window.addEventListener("storage", handleStorageChange);
 
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
+
+  
 
   // ✅ Check authentication
   useEffect(() => {
@@ -257,7 +260,6 @@ function App() {
   // ✅ Listen for custom 'settingsUpdated' event
   useEffect(() => {
     const handleSettingsUpdate = () => fetchSettings();
-    window.addEventListener("settingsUpdated", handleSettingsUpdate);
 
     return () => window.removeEventListener("settingsUpdated", handleSettingsUpdate);
   }, []);
@@ -302,7 +304,7 @@ function App() {
                   <Toolbar>
                     {settings?.logo_url && (
                       <img
-                        src={`${API_BASE_URL}${settings.logo_url}`}
+                        src={`${API_BASE_URL}${settings.logo_url}?t=${Date.now()}`}
                         alt="Logo"
                         style={{
                           height: "55px",
@@ -399,7 +401,7 @@ function App() {
                     <Route path="/college_schedule_plotting" element={<ProtectedRoute><CollegeScheduleChecker /></ProtectedRoute>} />
                     <Route path="/assign_entrance_exam" element={<ProtectedRoute><AssignEntranceExam /></ProtectedRoute>} />
                     <Route path="/assign_schedule_applicant" element={<ProtectedRoute><AssignScheduleToApplicants /></ProtectedRoute>} />
-                    <Route path="/verify_schedule" element={<ProtectedRoute><VerifyApplicantDocumentSchedule/></ProtectedRoute>} />
+                    <Route path="/verify_schedule" element={<ProtectedRoute><VerifyApplicantDocumentSchedule /></ProtectedRoute>} />
                     <Route path="/admission_schedule_room_list" element={<ProtectedRoute><AdmissionScheduleTile /></ProtectedRoute>} />
                     <Route path="/enrollment_schedule_room_list" element={<ProtectedRoute><EnrollmentScheduleTile /></ProtectedRoute>} />
                     <Route path="/applicant_scoring" element={<ProtectedRoute><ApplicantScoring /></ProtectedRoute>} />
@@ -502,7 +504,7 @@ function App() {
                     <Route path="/super_admin_room_registration" element={<ProtectedRoute><SuperAdminRoomRegistration /></ProtectedRoute>} />
                     <Route path="/migration_data_panel" element={<ProtectedRoute><MigrationDataPanel /></ProtectedRoute>} />
                     <Route path="/payment_exporting_module" element={<ProtectedRoute><PaymentExportingModule /></ProtectedRoute>} />
-                    <Route path="/cor_exporting_module" element={<ProtectedRoute><CORExportingModule/></ProtectedRoute>} />
+                    <Route path="/cor_exporting_module" element={<ProtectedRoute><CORExportingModule /></ProtectedRoute>} />
 
                     <Route path="/applicant_dashboard" element={<ProtectedRoute allowedRoles={['applicant']}><ApplicantDashboard /></ProtectedRoute>} />
 
@@ -524,11 +526,11 @@ function App() {
                     <Route path="/admission_form_process" element={<ProtectedRoute allowedRoles={['applicant', 'registrar', 'student']}><AdmissionFormProcess /></ProtectedRoute>} />
                     <Route path="/admission_services" element={<ProtectedRoute allowedRoles={['applicant', 'registrar']}><AdmissionServices /></ProtectedRoute>} />
                     <Route path="/office_of_the_registrar" element={<ProtectedRoute allowedRoles={['applicant']}><OfficeOfTheRegistrar /></ProtectedRoute>} />
-                    <Route path="/verify_document_schedule" element={<ProtectedRoute allowedRoles={['registrar']}><VerifyDocumentsSchedule/></ProtectedRoute>} />
+                    <Route path="/verify_document_schedule" element={<ProtectedRoute allowedRoles={['registrar']}><VerifyDocumentsSchedule /></ProtectedRoute>} />
 
                     <Route path="/department_curriculum_panel" element={<ProtectedRoute><DepartmentCurriculumPanel /></ProtectedRoute>} />
                     <Route path="/program_slot_limit" element={<ProtectedRoute ><ProgramSlotLimit /></ProtectedRoute>} />
-                   
+
                     <Route path="/class_roster" element={<ProtectedRoute ><ClassRoster /></ProtectedRoute>} />
                     <Route path="/transcript_of_records" element={<ProtectedRoute ><TranscriptOfRecords /></ProtectedRoute>} />
                     <Route path="/tosf_crud" element={<ProtectedRoute ><TOSFCrud /></ProtectedRoute>} />

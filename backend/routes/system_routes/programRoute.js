@@ -5,7 +5,8 @@ const router = express.Router();
 
 // ---------------------------- CREATE PROGRAM ----------------------------------
 router.post("/program", async (req, res) => {
-  const { name, code, major, components } = req.body;
+  const { name, code, major, components, academic_program } = req.body;
+
 
   if (!["1", "2"].includes(String(components))) {
 
@@ -17,10 +18,11 @@ router.post("/program", async (req, res) => {
   try {
     await db3.query(
       `INSERT INTO program_table 
-       (program_description, program_code, major, components)
-       VALUES (?, ?, ?, ?)`,
-      [name, code, major, components]
+   (program_description, program_code, major, components, academic_program)
+   VALUES (?, ?, ?, ?, ?)`,
+      [name, code, major, components, academic_program]
     );
+
 
     res.status(200).json({ message: "Program created successfully" });
   } catch (err) {
@@ -43,7 +45,9 @@ router.get("/get_program", async (req, res) => {
 // -------------------- UPDATE PROGRAM --------------------
 router.put("/program/:id", async (req, res) => {
   const { id } = req.params;
-  const { name, code, major, components } = req.body;
+  const { name, code, major, components, academic_program } = req.body;
+
+
 
   if (!["1", "2"].includes(String(components))) {
 
@@ -55,12 +59,14 @@ router.put("/program/:id", async (req, res) => {
   try {
     const [result] = await db3.query(
       `UPDATE program_table
-       SET program_description = ?, 
-           program_code = ?, 
-           major = ?, 
-           components = ?
-       WHERE program_id = ?`,
-      [name, code, major, components, id]
+ SET program_description = ?, 
+     program_code = ?, 
+     major = ?, 
+     components = ?,
+     academic_program = ?
+ WHERE program_id = ?`,
+      [name, code, major, components, academic_program, id]
+
     );
 
     if (result.affectedRows === 0) {
@@ -98,7 +104,8 @@ router.delete("/program/:id", async (req, res) => {
 // -------------------- SUPERADMIN UPDATE PROGRAM --------------------
 router.put("/update_program/:id", async (req, res) => {
   const { id } = req.params;
-  const { name, code, major, components } = req.body;
+  const { name, code, major, components, academic_program } = req.body;
+
 
   if (!["1", "2"].includes(String(components))) {
 

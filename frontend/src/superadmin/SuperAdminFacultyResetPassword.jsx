@@ -294,9 +294,13 @@ const SuperAdminFacultyResetPassword = () => {
 
         }}
       >
-        <Typography variant="h4" fontWeight="bold">
+        <Typography
+          variant="h4"
+          sx={{ fontWeight: "bold", color: titleColor, fontSize: "36px" }}
+        >
           FACULTY RESET PASSWORD
         </Typography>
+
 
         <TextField
           size="small"
