@@ -234,6 +234,28 @@ const ProgramUnit = () => {
         return `${startYear} - ${startYear + 1}`;
     };
 
+    const [filteredPrograms, setFilteredPrograms] = useState([]);
+
+    const [selectedCampus, setSelectedCampus] = useState("");
+    const [selectedAcademicProgram, setSelectedAcademicProgram] = useState("");
+
+    const filteredCurriculumList = curriculumList.filter((item) => {
+        // 🏫 CAMPUS FILTER
+        if (selectedCampus !== "") {
+            if (Number(item.components) !== Number(selectedCampus)) {
+                return false;
+            }
+        }
+
+        // 🎓 ACADEMIC PROGRAM FILTER
+        if (selectedAcademicProgram !== "") {
+            if (Number(item.academic_program) !== Number(selectedAcademicProgram)) {
+                return false;
+            }
+        }
+
+        return true;
+    });
 
     const yearOrder = {
         "First Year": 1,
@@ -319,6 +341,48 @@ const ProgramUnit = () => {
             <hr style={{ border: "1px solid #ccc", width: "100%" }} />
             <br />
 
+            <Typography fontWeight={500}>Select Campus:</Typography>
+            <FormControl sx={{ minWidth: 300, mb: 3 }}>
+                <InputLabel>Campus</InputLabel>
+                <Select
+                    value={selectedCampus}
+                    label="Campus"
+                    onChange={(e) => {
+                        setSelectedCampus(e.target.value);
+                        setSelectedAcademicProgram("");
+                        setSelectedCurriculum("");
+                    }}
+                >
+                    <MenuItem value="">
+                        <em>Choose Campus</em>
+                    </MenuItem>
+                    <MenuItem value="1">Manila</MenuItem>
+                    <MenuItem value="2">Cavite</MenuItem>
+                </Select>
+            </FormControl>
+
+            <Typography fontWeight={500}>Academic Program:</Typography>
+            <FormControl sx={{ minWidth: 300, mb: 3 }}>
+                <InputLabel>Academic Program</InputLabel>
+                <Select
+                    value={selectedAcademicProgram}
+                    label="Academic Program"
+                    onChange={(e) => {
+                        setSelectedAcademicProgram(e.target.value);
+                        setSelectedCurriculum("");
+                    }}
+                    disabled={!selectedCampus}
+                >
+                    <MenuItem value="">
+                        <em>Select Program</em>
+                    </MenuItem>
+                    <MenuItem value="0">Undergraduate</MenuItem>
+                    <MenuItem value="1">Graduate</MenuItem>
+                    <MenuItem value="2">Techvoc</MenuItem>
+                </Select>
+            </FormControl>
+
+
             <Typography fontWeight={500}>Select Curriculum:</Typography>
             <FormControl sx={{ minWidth: 400, mb: 4 }}>
                 <InputLabel>Choose Curriculum</InputLabel>
@@ -330,7 +394,8 @@ const ProgramUnit = () => {
                     <MenuItem value="">
                         <em>None</em>
                     </MenuItem>
-                    {curriculumList.map((c) => (
+                    {filteredCurriculumList.map((c) => (
+
                         <MenuItem key={c.curriculum_id} value={c.curriculum_id}>
                             {formatSchoolYear(c.year_description)}:{" "}
                             {`(${c.program_code}): ${c.program_description}${c.major ? ` (${c.major})` : ""

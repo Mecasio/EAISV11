@@ -139,6 +139,9 @@ const DepartmentRegistration = () => {
     }
   };
 
+  const [editMode, setEditMode] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
+
   const handleAddingDepartment = async () => {
     if (!department.dep_name || !department.dep_code) {
       setSnack({
@@ -150,26 +153,76 @@ const DepartmentRegistration = () => {
     }
 
     try {
-      await axios.post(`${API_BASE_URL}/department`, department);
+      if (editMode) {
+        await axios.put(
+          `${API_BASE_URL}/department/${selectedId}`,
+          department
+        );
+
+        setSnack({
+          open: true,
+          message: "Department updated successfully!",
+          severity: "success",
+        });
+      } else {
+        await axios.post(`${API_BASE_URL}/department`, department);
+
+        setSnack({
+          open: true,
+          message: "Department added successfully!",
+          severity: "success",
+        });
+      }
 
       fetchDepartment();
       setDepartment({ dep_name: "", dep_code: "" });
+      setEditMode(false);
+      setSelectedId(null);
       setOpenModal(false);
-
-      setSnack({
-        open: true,
-        message: "Department added successfully!",
-        severity: "success",
-      });
 
     } catch (err) {
       setSnack({
         open: true,
-        message: err.response?.data?.message || "Failed to add department",
+        message: err.response?.data?.message || "Operation failed",
         severity: "error",
       });
     }
   };
+
+  const handleEdit = (dept) => {
+    setDepartment({
+      dep_name: dept.dprtmnt_name,
+      dep_code: dept.dprtmnt_code,
+    });
+    setSelectedId(dept.dprtmnt_id);
+    setEditMode(true);
+    setOpenModal(true);
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this department?"))
+      return;
+
+    try {
+      await axios.delete(`${API_BASE_URL}/department/${id}`);
+
+      setSnack({
+        open: true,
+        message: "Department deleted successfully!",
+        severity: "success",
+      });
+
+      fetchDepartment();
+    } catch (err) {
+      setSnack({
+        open: true,
+        message: "Failed to delete department",
+        severity: "error",
+      });
+    }
+  };
+
+
 
   const handleChangesForEverything = (e) => {
     const { name, value } = e.target;
@@ -179,11 +232,11 @@ const DepartmentRegistration = () => {
     }));
   };
 
-  
+
 
   // Put this at the very bottom before the return 
   if (loading || hasAccess === null) {
-   return <LoadingOverlay open={loading} message="Loading..." />;
+    return <LoadingOverlay open={loading} message="Loading..." />;
   }
 
   if (!hasAccess) {
@@ -262,13 +315,35 @@ const DepartmentRegistration = () => {
                   textAlign: "center",
                 }}
               >
+
+
                 <Typography variant="h6" fontWeight="bold" color="text.primary">
                   {department.dprtmnt_name}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   Code: {department.dprtmnt_code}
                 </Typography>
+                <Box mt={2} display="flex" gap={1}>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    sx={{ backgroundColor: "green", color: "white", mr: 1 }}
+                    onClick={() => handleEdit(department)}
+                  >
+                    Edit
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    size="small"
+                    sx={{ backgroundColor: "#9E0000", color: "white" }}
+                    onClick={() => handleDelete(department.dprtmnt_id)}
+                  >
+                    Delete
+                  </Button>
+                </Box>
               </CardContent>
+
             </Card>
           </Grid>
         ))}
@@ -277,7 +352,8 @@ const DepartmentRegistration = () => {
 
       <Dialog open={openModal} onClose={() => setOpenModal(false)} fullWidth maxWidth="sm">
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          Add New Department
+          {editMode ? "Edit Department" : "Add New Department"}
+
           <IconButton onClick={() => setOpenModal(false)}>
             <CloseIcon />
           </IconButton>
@@ -303,17 +379,17 @@ const DepartmentRegistration = () => {
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button
             variant="contained"
-            sx={{ backgroundColor: "#primary", color: "white",  }}
+            sx={{ backgroundColor: "#primary", color: "white", }}
             onClick={handleAddingDepartment}
           >
             Save
           </Button>
-              <Button
+          <Button
             variant="contained"
             sx={{ backgroundColor: "#B22222", color: "white", }}
-         onClick={() => setOpenModal(false)}
+            onClick={() => setOpenModal(false)}
           >
-           Cancel
+            Cancel
           </Button>
         </DialogActions>
       </Dialog>

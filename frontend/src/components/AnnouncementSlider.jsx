@@ -11,8 +11,8 @@ const AnnouncementSlider = () => {
         axios
             .get(`${API_BASE_URL}/api/announcements`)
             .then(res => {
-                if (Array.isArray(res.data)) {
-                    setSlides(res.data);
+                if (Array.isArray(res.data.data)) {
+                    setSlides(res.data.data);
                     setIndex(0);
                 }
             })
