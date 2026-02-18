@@ -156,6 +156,8 @@ const CurriculumCourseMap = () => {
   const [editedFees, setEditedFees] = useState({});
 
   useEffect(() => {
+    fetchYear();
+    fetchProgram();
     fetchCurriculum();
     fetchTaggedPrograms();
   }, []);
@@ -175,8 +177,10 @@ const CurriculumCourseMap = () => {
       iscomputer_lab: p.iscomputer_lab,
       isnon_computer_lab: p.isnon_computer_lab,
     }));
-    setTaggedPrograms(tagged);
-
+    const unique = Array.from(
+      new Map(tagged.map(item => [item.program_tagging_id, item])).values()
+    );
+    setTaggedPrograms(unique);
   };
 
   const [tosf, setTosf] = useState(null);

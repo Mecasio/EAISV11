@@ -198,7 +198,7 @@ const ProgramTagging = () => {
     );
   });
 
-  
+
   useEffect(() => {
     fetchYearLevel();
     fetchSemester();
@@ -251,14 +251,11 @@ const ProgramTagging = () => {
 
   useEffect(() => {
     fetchCourse();
-  })
-
+  }, []);
 
   const fetchTaggedPrograms = async () => {
     try {
-      const res = await axios.get(
-        `${API_BASE_URL}/program_tagging_list`
-      );
+      const res = await axios.get(`${API_BASE_URL}/program_tagging_list`);
 
       const normalized = res.data.map(p => ({
         ...p,
@@ -267,8 +264,22 @@ const ProgramTagging = () => {
         is_nstp: Number(p.is_nstp ?? 0),
       }));
 
-      setTaggedPrograms(normalized);
-      setFilteredPrograms(normalized);
+      // ✅ REMOVE DUPLICATES BASED ON UNIQUE PROGRAM KEY
+      const unique = [];
+      const seen = new Set();
+
+      normalized.forEach(p => {
+        const key = `${p.curriculum_id}-${p.year_level_id}-${p.semester_id}-${p.course_id}`;
+
+        if (!seen.has(key)) {
+          seen.add(key);
+          unique.push(p);
+        }
+      });
+
+      setTaggedPrograms(unique);
+      setFilteredPrograms(unique);
+
     } catch (err) {
       console.log(err);
     }
@@ -508,28 +519,24 @@ const ProgramTagging = () => {
   }, [searchQuery, selectedCurriculum, selectedYearLevel, selectedSemester]);
 
 
-  const handleExclusiveFeeFlag = (e) => {
-    const { name, value } = e.target;
-    const selected = Number(value);
+  const [selectedCampus, setSelectedCampus] = useState("");
+  const [selectedAcademicProgram, setSelectedAcademicProgram] = useState("");
 
-    setProgTag((prev) => {
-      // If user selects "No", just update normally
-      if (selected === 0) {
-        return {
-          ...prev,
-          [name]: 0,
-        };
-      }
-
-      // If user selects "Yes", force others to 0
-      return {
-        ...prev,
-        iscomputer_lab: name === "iscomputer_lab" ? 1 : 0,
-        islaboratory_fee: name === "islaboratory_fee" ? 1 : 0,
-        is_nstp: name === "is_nstp" ? 1 : 0,
-      };
-    });
-  };
+  const filteredCurriculumList = Array.from(
+    new Map(
+      curriculumList
+        .filter(item => {
+          if (selectedCampus !== "") {
+            if (Number(item.components) !== Number(selectedCampus)) return false;
+          }
+          if (selectedAcademicProgram !== "") {
+            if (Number(item.academic_program) !== Number(selectedAcademicProgram)) return false;
+          }
+          return true;
+        })
+        .map(item => [item.curriculum_id, item])
+    ).values()
+  );
 
 
   const formatSchoolYear = (yearDesc) => {
@@ -604,6 +611,44 @@ const ProgramTagging = () => {
         {/* Left: Form Section */}
         <div style={{ ...styles.formSection, border: `2px solid ${borderColor}` }}>
 
+          {/* CAMPUS */}
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Campus:</label>
+            <select
+              value={selectedCampus}
+              onChange={(e) => {
+                setSelectedCampus(e.target.value);
+                setSelectedAcademicProgram("");
+                setProgTag(prev => ({ ...prev, curriculum_id: "" }));
+              }}
+              style={styles.select}
+            >
+              <option value="">Choose Campus</option>
+              <option value="1">Manila</option>
+              <option value="2">Cavite</option>
+            </select>
+          </div>
+
+          {/* ACADEMIC PROGRAM */}
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Academic Program:</label>
+            <select
+              value={selectedAcademicProgram}
+              onChange={(e) => {
+                setSelectedAcademicProgram(e.target.value);
+                setProgTag(prev => ({ ...prev, curriculum_id: "" }));
+              }}
+              disabled={!selectedCampus}
+              style={styles.select}
+            >
+              <option value="">Select Program</option>
+              <option value="0">Undergraduate</option>
+              <option value="1">Graduate</option>
+              <option value="2">Techvoc</option>
+            </select>
+          </div>
+
+          {/* CURRICULUM (FILTERED) */}
           <div style={styles.formGroup}>
             <label style={styles.label}>Curriculum:</label>
             <select
@@ -613,20 +658,17 @@ const ProgramTagging = () => {
               style={styles.select}
             >
               <option value="">Choose Curriculum</option>
-              {curriculumList.map((curriculum) => (
+
+              {filteredCurriculumList.map((curriculum) => (
                 <option key={curriculum.curriculum_id} value={curriculum.curriculum_id}>
-                  {formatSchoolYear(curriculum.year_description)}:{" "}
-                  {`(${curriculum.program_code}): ${curriculum.program_description}${curriculum.major ? ` (${curriculum.major})` : ""
-                    } (${Number(curriculum.components) === 1
-                      ? "Manila Campus"
-                      : Number(curriculum.components) === 2
-                        ? "Cavite Campus"
-                        : "—"
-                    })`}
+                  {formatSchoolYear(curriculum.year_description)}:
+                  {` (${curriculum.program_code}) ${curriculum.program_description}`}
+                  {curriculum.major ? ` (${curriculum.major})` : ""}
                 </option>
               ))}
             </select>
           </div>
+
 
           <div style={styles.formGroup}>
             <label style={styles.label}>Course:</label>

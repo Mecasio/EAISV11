@@ -82,7 +82,11 @@ const CoursePanelMap = () => {
 
     const fetchTaggedPrograms = async () => {
         const res = await axios.get(`${API_BASE_URL}/program_tagging_list`);
-        setTaggedPrograms(res.data);
+        const unique = Array.from(
+            new Map(res.data.map(item => [item.program_tagging_id, item])).values()
+        );
+        setTaggedPrograms(unique);
+
     };
 
     /* ===================== GROUP YEAR → SEM ===================== */

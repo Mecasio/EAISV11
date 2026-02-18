@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 
 const ProgramTaggingFilter = ({
   curriculumList,
@@ -16,6 +16,10 @@ const ProgramTaggingFilter = ({
 
   setFilteredPrograms,
 }) => {
+
+  /* ===== NEW FILTER STATES ===== */
+  const [selectedCampus, setSelectedCampus] = useState("");
+  const [selectedAcademicProgram, setSelectedAcademicProgram] = useState("");
 
   /* ===== HELPER: Format School Year ===== */
   const formatSchoolYear = (yearDesc) => {
@@ -38,6 +42,24 @@ const ProgramTaggingFilter = ({
     "First Semester": 1,
     "Second Semester": 2,
   };
+
+  /* ===== FILTERED CURRICULUM LIST (NEW) ===== */
+  const filteredCurriculumList = useMemo(() => {
+    return curriculumList.filter(item => {
+
+      // campus filter
+      if (selectedCampus !== "") {
+        if (Number(item.components) !== Number(selectedCampus)) return false;
+      }
+
+      // academic program filter
+      if (selectedAcademicProgram !== "") {
+        if (Number(item.academic_program) !== Number(selectedAcademicProgram)) return false;
+      }
+
+      return true;
+    });
+  }, [curriculumList, selectedCampus, selectedAcademicProgram]);
 
   /* ===== FILTERED YEAR LEVELS ===== */
   const filteredYearLevels = useMemo(() => {
@@ -95,9 +117,50 @@ const ProgramTaggingFilter = ({
   }, [selectedCurriculum, selectedYearLevel, selectedSemester, taggedPrograms]);
 
   return (
-    <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
-      
-      {/* Curriculum */}
+    <div style={{ display: "flex", gap: "20px", marginBottom: "20px", flexWrap: "wrap" }}>
+
+      {/* CAMPUS */}
+      <div style={{ flex: 1 }}>
+        <label><b>Campus</b></label>
+        <select
+          value={selectedCampus}
+          onChange={(e) => {
+            setSelectedCampus(e.target.value);
+            setSelectedAcademicProgram("");
+            setSelectedCurriculum("");
+            setSelectedYearLevel("");
+            setSelectedSemester("");
+          }}
+          style={{ width: "100%", padding: "10px" }}
+        >
+          <option value="">Select Campus</option>
+          <option value="1">Manila</option>
+          <option value="2">Cavite</option>
+        </select>
+      </div>
+
+      {/* ACADEMIC PROGRAM */}
+      <div style={{ flex: 1 }}>
+        <label><b>Academic Program</b></label>
+        <select
+          value={selectedAcademicProgram}
+          onChange={(e) => {
+            setSelectedAcademicProgram(e.target.value);
+            setSelectedCurriculum("");
+            setSelectedYearLevel("");
+            setSelectedSemester("");
+          }}
+          disabled={!selectedCampus}
+          style={{ width: "100%", padding: "10px" }}
+        >
+          <option value="">Select Program</option>
+          <option value="0">Undergraduate</option>
+          <option value="1">Graduate</option>
+          <option value="2">Techvoc</option>
+        </select>
+      </div>
+
+      {/* CURRICULUM */}
       <div style={{ flex: 1 }}>
         <label><b>Curriculum</b></label>
         <select
@@ -107,19 +170,21 @@ const ProgramTaggingFilter = ({
             setSelectedYearLevel("");
             setSelectedSemester("");
           }}
+          disabled={!selectedAcademicProgram}
           style={{ width: "100%", padding: "10px" }}
         >
           <option value="">Select Curriculum</option>
-          {curriculumList.map(c => (
+          {filteredCurriculumList.map(c => (
             <option key={c.curriculum_id} value={c.curriculum_id}>
-              {formatSchoolYear(c.year_description)}: ({c.program_code}) – {c.program_description}
+              {formatSchoolYear(c.year_description)}:
+              ({c.program_code}) – {c.program_description}
               {c.major ? ` (${c.major})` : ""}
             </option>
           ))}
         </select>
       </div>
 
-      {/* Year Level */}
+      {/* YEAR LEVEL */}
       <div style={{ flex: 1 }}>
         <label><b>Year Level</b></label>
         <select
@@ -137,7 +202,7 @@ const ProgramTaggingFilter = ({
         </select>
       </div>
 
-      {/* Semester */}
+      {/* SEMESTER */}
       <div style={{ flex: 1 }}>
         <label><b>Semester</b></label>
         <select

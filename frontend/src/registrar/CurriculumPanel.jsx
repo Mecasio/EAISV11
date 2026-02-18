@@ -154,7 +154,7 @@ const CurriculumPanel = () => {
   };
 
   const handleAddCurriculum = async () => {
-    if (!curriculum.year_id || !curriculum.program_id) {
+    if (!curriculum.year_id || !selectedCurriculum) {
       setSnackbar({
         open: true,
         message: "Please fill all fields",
@@ -243,19 +243,40 @@ const CurriculumPanel = () => {
     return `${startYear}-${startYear + 1}`;
   };
 
+  const [selectedCurriculum, setSelectedCurriculum] = useState("");
+  const [selectedCampus, setSelectedCampus] = useState("");
+  const [selectedAcademicProgram, setSelectedAcademicProgram] = useState("");
+
 
   const filteredCurriculumList = curriculumList.filter((item) => {
+    // 🔎 SEARCH FILTER
     const words = searchQuery.trim().toLowerCase().split(" ").filter(Boolean);
 
-    return words.every((word) =>
-      String(formatAcademicYear(item.year_description))
-        .toLowerCase()
-        .includes(word) ||
+    const matchesSearch = words.every((word) =>
+      String(formatAcademicYear(item.year_description)).toLowerCase().includes(word) ||
       String(item.program_code ?? "").toLowerCase().includes(word) ||
       String(item.program_description ?? "").toLowerCase().includes(word) ||
       String(item.major ?? "").toLowerCase().includes(word)
     );
+
+    if (!matchesSearch) return false;
+
+    // 🏫 CAMPUS FILTER
+    if (selectedCampus !== "" && Number(item.components) !== Number(selectedCampus)) {
+      return false;
+    }
+
+    // 🎓 ACADEMIC PROGRAM FILTER
+    if (
+      selectedAcademicProgram !== "" &&
+      Number(item.academic_program) !== Number(selectedAcademicProgram)
+    ) {
+      return false;
+    }
+
+    return true;
   });
+
 
   const formatSchoolYear = (yearDesc) => {
     if (!yearDesc) return "";
@@ -350,7 +371,7 @@ const CurriculumPanel = () => {
             <Typography variant="h6" gutterBottom textAlign="center" style={{ color: subtitleColor, fontWeight: "bold" }} >
               Add Curriculum
             </Typography>
-
+            {/* Curriculum Year */}
             <div style={{ marginBottom: "15px" }}>
               <label style={{ fontWeight: "bold" }}>Curriculum Year:</label>
               <select
@@ -362,6 +383,7 @@ const CurriculumPanel = () => {
                   padding: "8px",
                   border: "1px solid #ccc",
                   borderRadius: "4px",
+                  marginTop: "4px"
                 }}
               >
                 <option value="">Choose Year</option>
@@ -373,45 +395,112 @@ const CurriculumPanel = () => {
               </select>
             </div>
 
+            {/* Campus */}
             <div style={{ marginBottom: "15px" }}>
-              <label style={{ fontWeight: "bold" }}>Program:</label>
+              <label style={{ fontWeight: "bold" }}>Select Campus:</label>
               <select
-                name="program_id"
-                value={curriculum.program_id}
-                onChange={handleChange}
+                value={selectedCampus}
+                onChange={(e) => {
+                  setSelectedCampus(e.target.value);
+                  setSelectedAcademicProgram("");
+                  setSelectedCurriculum("");
+                }}
                 style={{
                   width: "100%",
                   padding: "8px",
                   border: "1px solid #ccc",
                   borderRadius: "4px",
+                  marginTop: "4px"
                 }}
               >
-                <option value="">Choose Program</option>
-                {programList.map((program) => (
-                  <option key={program.program_id} value={program.program_id}>
-                    {formatSchoolYear(program.year_description)}:{" "}
-                    {`(${program.program_code}): ${program.program_description}${program.major ? ` (${program.major})` : ""
-                      } (${Number(program.components) === 1
-                        ? "Manila Campus"
-                        : Number(program.components) === 2
-                          ? "Cavite Campus"
-                          : "—"
+                <option value="">Choose Campus</option>
+                <option value="1">Manila</option>
+                <option value="2">Cavite</option>
+              </select>
+            </div>
+
+            {/* Academic Program */}
+            <div style={{ marginBottom: "15px" }}>
+              <label style={{ fontWeight: "bold" }}>Academic Program:</label>
+              <select
+                value={selectedAcademicProgram}
+                disabled={!selectedCampus}
+                onChange={(e) => {
+                  setSelectedAcademicProgram(e.target.value);
+                  setSelectedCurriculum("");
+                }}
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  border: "1px solid #ccc",
+                  borderRadius: "4px",
+                  marginTop: "4px",
+                  backgroundColor: !selectedCampus ? "#f5f5f5" : "#fff"
+                }}
+              >
+                <option value="">Select Program</option>
+                <option value="0">Undergraduate</option>
+                <option value="1">Graduate</option>
+                <option value="2">Techvoc</option>
+              </select>
+            </div>
+
+            {/* Curriculum */}
+            <div style={{ marginBottom: "20px" }}>
+              <label style={{ fontWeight: "bold" }}>Select Curriculum:</label>
+              <select
+                value={selectedCurriculum}
+                onChange={(e) => {
+                  const selectedId = e.target.value;
+                  setSelectedCurriculum(selectedId);
+
+                  const selectedObj = curriculumList.find(
+                    (c) => String(c.curriculum_id) === String(selectedId)
+                  );
+
+                  if (selectedObj) {
+                    setCurriculum((prev) => ({
+                      ...prev,
+                      program_id: selectedObj.program_id,
+                    }));
+                  }
+                }}
+
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  border: "1px solid #ccc",
+                  borderRadius: "4px",
+                  marginTop: "4px"
+                }}
+              >
+                <option value="">None</option>
+                {filteredCurriculumList.map((c) => (
+                  <option key={c.curriculum_id} value={c.curriculum_id}>
+                    {formatSchoolYear(c.year_description)}:{" "}
+                    {`(${c.program_code}): ${c.program_description}${c.major ? ` (${c.major})` : ""} (${Number(c.components) === 1
+                      ? "Manila Campus"
+                      : Number(c.components) === 2
+                        ? "Cavite Campus"
+                        : "—"
                       })`}
                   </option>
                 ))}
               </select>
             </div>
 
+            {/* Insert Button */}
             <button
               onClick={handleAddCurriculum}
               style={{
                 width: "100%",
                 padding: "10px",
-                backgroundColor: "#1976d2", // typical Material UI primary blue
+                backgroundColor: "#1976d2",
                 color: "white",
                 border: "none",
                 borderRadius: "4px",
                 cursor: "pointer",
+                fontWeight: "bold"
               }}
             >
               Insert

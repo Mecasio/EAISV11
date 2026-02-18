@@ -40,7 +40,7 @@ const allowedOrigins = [
   'http://192.168.50.211:5173',
   'http://136.239.248.58:5173',
   'http://192.168.50.43:5173',
-  'http://192.168.0.180:5173',
+  'http://192.168.50.98:5173',
 ];
 
 app.use(
@@ -8629,78 +8629,6 @@ app.get("/get_course", async (req, res) => {
   }
 });
 
-// ----------------------------- PROGRAM TAGGING PANEL ------------------------------- //
-
-// INSERT PROGRAM TAG
-app.post("/program_tagging", async (req, res) => {
-  const {
-    curriculum_id,
-    year_level_id,
-    semester_id,
-    course_id,
-    lec_fee,
-    lab_fee,
-    misc_fee, // ✅ ADD THIS
-  } = req.body;
-
-  if (lec_fee == null && lab_fee == null && misc_fee == null) {
-    return res.status(400).json({ error: "No fee data provided." });
-  }
-
-  try {
-    const [existing] = await db3.query(
-      `
-      SELECT program_tagging_id 
-      FROM program_tagging_table
-      WHERE curriculum_id = ?
-        AND year_level_id = ?
-        AND semester_id = ?
-        AND course_id = ?
-      `,
-      [curriculum_id, year_level_id, semester_id, course_id],
-    );
-
-    if (existing.length > 0) {
-      return res.status(400).json({
-        error: "This program tag already exists.",
-      });
-    }
-
-    // ✅ INCLUDE misc_fee
-    const insertQuery = `
-      INSERT INTO program_tagging_table
-      (
-        curriculum_id,
-        year_level_id,
-        semester_id,
-        course_id,
-        lec_fee,
-        lab_fee
-      )
-      VALUES (?, ?, ?, ?, ?, ?)
-    `;
-
-    const [result] = await db3.query(insertQuery, [
-      curriculum_id,
-      year_level_id,
-      semester_id,
-      course_id,
-      lec_fee ?? 0,
-      lab_fee ?? 0, // ✅ SAVE HERE
-    ]);
-
-    res.status(200).json({
-      message: "Program tagged successfully",
-      insertId: result.insertId,
-    });
-  } catch (err) {
-    console.error("Database error:", err);
-    res.status(500).json({
-      error: "Failed to tag program",
-      details: err.message,
-    });
-  }
-});
 
 // YEAR TABLE (UPDATED!)
 app.post("/years", async (req, res) => {
