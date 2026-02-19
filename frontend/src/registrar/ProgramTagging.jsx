@@ -249,9 +249,13 @@ const ProgramTagging = () => {
     }
   };
 
+  // useEffect(() => {
+  //   fetchCourse();
+  // }, []);
+
   useEffect(() => {
     fetchCourse();
-  }, []);
+  });
 
   const fetchTaggedPrograms = async () => {
     try {

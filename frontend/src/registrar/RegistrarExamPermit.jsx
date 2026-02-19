@@ -287,10 +287,10 @@ const RegistrarExamPermit = ({ personId }) => {
             <div
                 style={{
                     position: "absolute",
-                    top: "40%",
+                    top: "25%",
                     left: "50%",
-                    transform: "translate(-50%, -50%) rotate(-30deg)",
-                    fontSize: "90px",
+                    transform: "translate(-50%, -50%)",
+                    fontSize: "120px",
                     fontWeight: "900",
 
                     color: isVerified ? "rgba(0, 128, 0, 0.15)" : "rgba(255, 0, 0, 0.15)",
@@ -440,13 +440,13 @@ const RegistrarExamPermit = ({ personId }) => {
                 >
                     <tbody>
                         {/* Applicant Number */}
-                        <tr>
+                        <tr style={{ fontFamily: "Times New Roman", fontSize: "15px" }}>
                             <td colSpan={40}>
                                 <div
                                     style={{
                                         display: "flex",
                                         alignItems: "center",
-                                        justifyContent: "flex-start",
+                                        justifyContent: "flex-end",
                                         width: "100%",
                                         gap: "10px",
                                     }}
@@ -458,7 +458,9 @@ const RegistrarExamPermit = ({ personId }) => {
                                         style={{
                                             borderBottom: "1px solid black",
                                             fontFamily: "Arial",
-                                            minWidth: "220px",
+                                            fontWeight: "normal",
+                                            fontSize: "15px",
+                                            minWidth: "278px",
                                             height: "1.2em",
                                             display: "flex",
                                             alignItems: "center",
@@ -468,7 +470,10 @@ const RegistrarExamPermit = ({ personId }) => {
                                     </div>
                                 </div>
                             </td>
+
+
                         </tr>
+
 
                         {/* Name + Permit No. */}
                         <tr>

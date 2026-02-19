@@ -6,7 +6,7 @@ import EaristLogo from "../assets/EaristLogo.png";
 import "../styles/Print.css";
 import API_BASE_URL from "../apiConfig";
 // ✅ Accept personId as a prop
-const ExamPermit = ({ personId, onReady }) => {
+const ExamPermit = ({ personId }) => {
     const settings = useContext(SettingsContext);
     const [fetchedLogo, setFetchedLogo] = useState(null);
     const [companyName, setCompanyName] = useState("");
@@ -99,12 +99,6 @@ const ExamPermit = ({ personId, onReady }) => {
         fetchData();
     }, [personId]);
 
-    useEffect(() => {
-        if (person && person.last_name) {
-            onReady && onReady();
-        }
-    }, [person, onReady]);
-
     const [person, setPerson] = useState({
         campus: "",
         profile_img: "",
@@ -177,7 +171,23 @@ const ExamPermit = ({ personId, onReady }) => {
     const [isVerified, setIsVerified] = useState(false);
 
 
+    // 🔒 Disable right-click
+    document.addEventListener('contextmenu', (e) => e.preventDefault());
 
+    // 🔒 Block DevTools shortcuts + Ctrl+P silently
+    document.addEventListener('keydown', (e) => {
+        const isBlockedKey =
+            e.key === 'F12' || // DevTools
+            e.key === 'F11' || // Fullscreen
+            (e.ctrlKey && e.shiftKey && (e.key.toLowerCase() === 'i' || e.key.toLowerCase() === 'j')) || // Ctrl+Shift+I/J
+            (e.ctrlKey && e.key.toLowerCase() === 'u') || // Ctrl+U (View Source)
+            (e.ctrlKey && e.key.toLowerCase() === 'p');   // Ctrl+P (Print)
+
+        if (isBlockedKey) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    });
 
 
 
@@ -219,10 +229,10 @@ const ExamPermit = ({ personId, onReady }) => {
             <div
                 style={{
                     position: "absolute",
-                    top: "30%",
+                    top: "26%",
                     left: "50%",
                     transform: "translate(-50%, -50%)",
-                    fontSize: "90px",
+                    fontSize: "120px",
                     fontWeight: "900",
 
                     color: isVerified ? "rgba(0, 128, 0, 0.15)" : "rgba(255, 0, 0, 0.15)",
@@ -250,7 +260,7 @@ const ExamPermit = ({ personId, onReady }) => {
 `}</style>
 
             {/* Header */}
-            <table width="100%" style={{ borderCollapse: "collapse", marginTop: "-10px", fontFamily: "Arial" }}>
+            <table width="100%" style={{ borderCollapse: "collapse", marginTop: "-20px", fontFamily: "Arial" }}>
                 <tbody>
                     <tr>
 

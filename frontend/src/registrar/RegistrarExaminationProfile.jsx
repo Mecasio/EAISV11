@@ -756,10 +756,10 @@ const ExaminationProfile = ({ personId }) => {
                         <div
                             style={{
                                 position: "absolute",
-                                top: "40%",
+                                top: "35%",
                                 left: "50%",
                                 transform: "translate(-50%, -50%)",
-                                fontSize: isVerified ? "6.3rem" : "6rem", // slightly smaller for stacked text
+                                fontSize: "120px",
                                 fontWeight: "900",
                                 color: isVerified ? "rgba(0, 128, 0, 0.15)" : "rgba(255, 0, 0, 0.18)",
                                 textTransform: "uppercase",
@@ -1417,7 +1417,7 @@ const ExaminationProfile = ({ personId }) => {
                                 top: "22%",
                                 left: "50%",
                                 transform: "translate(-50%, -50%)",
-                                fontSize: isVerified ? "6rem" : "5.7rem", // slightly smaller for stacked style
+                                fontSize: "120px",
                                 fontWeight: "900",
                                 color: isVerified ? "rgba(0, 128, 0, 0.15)" : "rgba(255, 0, 0, 0.18)",
                                 textTransform: "uppercase",
@@ -2186,7 +2186,7 @@ const ExaminationProfile = ({ personId }) => {
                                 top: "70%",   // lower half
                                 left: "50%",
                                 transform: "translate(-50%, -50%)",
-                                fontSize: isVerified ? "6rem" : "5.7rem", // adjust slightly for stacked style
+                                fontSize: "120px",
                                 fontWeight: "900",
                                 color: isVerified ? "rgba(0, 128, 0, 0.15)" : "rgba(255, 0, 0, 0.18)",
                                 textTransform: "uppercase",
@@ -2485,18 +2485,18 @@ const ExaminationProfile = ({ personId }) => {
                                         <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
                                             <label style={{ fontWeight: "bold", whiteSpace: "nowrap", marginRight: "10px", fontSize: "14px" }}>Date Applied</label>
                                             <span style={{ flexGrow: 1, borderBottom: "1px solid black", height: "1.3em", fontSize: "14px" }}> {(() => {
-                                            if (!person.created_at.split("T")[0]) return "";
+                                                if (!person.created_at.split("T")[0]) return "";
 
-                                            const date = new Date(person.created_at.split("T")[0]);
+                                                const date = new Date(person.created_at.split("T")[0]);
 
-                                            if (isNaN(date)) return person.created_at.split("T")[0];
+                                                if (isNaN(date)) return person.created_at.split("T")[0];
 
-                                            return date.toLocaleDateString("en-US", {
-                                                year: "numeric",
-                                                month: "long",
-                                                day: "numeric",
-                                            });
-                                        })()}
+                                                return date.toLocaleDateString("en-US", {
+                                                    year: "numeric",
+                                                    month: "long",
+                                                    day: "numeric",
+                                                });
+                                            })()}
                                                 <div style={{ marginTop: "-3px" }} className="dataField"></div>
                                             </span>
                                         </div>
