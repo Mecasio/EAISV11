@@ -11,6 +11,7 @@ import {
   Alert,
 } from "@mui/material";
 import { Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
+import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 
 import { Link, useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
@@ -19,7 +20,6 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import ScheduleIcon from "@mui/icons-material/Schedule";
-import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 import PeopleIcon from "@mui/icons-material/People";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import Unauthorized from "../components/Unauthorized";
@@ -38,8 +38,8 @@ const AssignEntranceExam = () => {
   const [subtitleColor, setSubtitleColor] = useState("#555555");
   const [borderColor, setBorderColor] = useState("#000000");
   const [mainButtonColor, setMainButtonColor] = useState("#1976d2");
-  const [subButtonColor, setSubButtonColor] = useState("#ffffff");  
-  const [stepperColor, setStepperColor] = useState("#000000");  
+  const [subButtonColor, setSubButtonColor] = useState("#ffffff");
+  const [stepperColor, setStepperColor] = useState("#000000");
 
   const [fetchedLogo, setFetchedLogo] = useState(null);
   const [companyName, setCompanyName] = useState("");
@@ -53,8 +53,8 @@ const AssignEntranceExam = () => {
     if (settings.subtitle_color) setSubtitleColor(settings.subtitle_color);
     if (settings.border_color) setBorderColor(settings.border_color);
     if (settings.main_button_color) setMainButtonColor(settings.main_button_color);
-    if (settings.sub_button_color) setSubButtonColor(settings.sub_button_color);  
-    if (settings.stepper_color) setStepperColor(settings.stepper_color);         
+    if (settings.sub_button_color) setSubButtonColor(settings.sub_button_color);
+    if (settings.stepper_color) setStepperColor(settings.stepper_color);
 
     if (settings.logo_url) {
       setFetchedLogo(`${API_BASE_URL}${settings.logo_url}`);
@@ -75,6 +75,7 @@ const AssignEntranceExam = () => {
     { label: "Evaluator's Applicant List", to: "/evaluator_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
     { label: "Entrance Exam Room Assignment", to: "/assign_entrance_exam", icon: <MeetingRoomIcon fontSize="large" /> },
     { label: "Entrance Exam Schedule Management", to: "/assign_schedule_applicant", icon: <ScheduleIcon fontSize="large" /> },
+    { label: "Examination Profile", to: "/registrar_examination_profile", icon: <PersonSearchIcon fontSize="large" /> },
     { label: "Proctor's Applicant List", to: "/admission_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
     { label: "Announcement", to: "/announcement_for_admission", icon: <CampaignIcon fontSize="large" /> },
   ];
@@ -84,7 +85,7 @@ const AssignEntranceExam = () => {
   const [userRole, setUserRole] = useState("");
   const [employeeID, setEmployeeID] = useState("");
   const [hasAccess, setHasAccess] = useState(null);
-  
+
   const currentYear = new Date().getFullYear();
   const minDate = `${currentYear}-01-01`;
   const maxDate = `${currentYear}-12-31`;
@@ -109,7 +110,7 @@ const AssignEntranceExam = () => {
 
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); 
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [scheduleToDelete, setScheduleToDelete] = useState(null);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
@@ -258,7 +259,7 @@ const AssignEntranceExam = () => {
       setEditingSchedule(null);
       setDay(""); setBuildingName(""); setRoomId("");
       setStartTime(""); setEndTime(""); setProctor(""); setRoomQuota("");
-      
+
       const res = await axios.get(`${API_BASE_URL}/exam_schedules_with_count`);
       setSchedules(res.data);
     } catch (err) {
@@ -431,6 +432,8 @@ const AssignEntranceExam = () => {
       </Box>
 
       <hr style={{ border: "1px solid #ccc", width: "100%" }} />
+
+      <br />
       <br />
 
       <Box

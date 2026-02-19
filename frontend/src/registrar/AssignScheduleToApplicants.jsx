@@ -99,13 +99,15 @@ const AssignScheduleToApplicants = () => {
     { label: "Evaluator's Applicant List", to: "/evaluator_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
     { label: "Entrance Exam Room Assignment", to: "/assign_entrance_exam", icon: <MeetingRoomIcon fontSize="large" /> },
     { label: "Entrance Exam Schedule Management", to: "/assign_schedule_applicant", icon: <ScheduleIcon fontSize="large" /> },
+    { label: "Examination Profile", to: "/registrar_examination_profile", icon: <PersonSearchIcon fontSize="large" /> },
     { label: "Proctor's Applicant List", to: "/admission_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
     { label: "Announcement", to: "/announcement_for_admission", icon: <CampaignIcon fontSize="large" /> },
   ];
 
+
   const location = useLocation();
   const navigate = useNavigate();
-  const [activeStep, setActiveStep] = useState(1);
+  const [activeStep, setActiveStep] = useState(5);
   const [clickedSteps, setClickedSteps] = useState(Array(tabs.length).fill(false));
 
 
@@ -899,6 +901,7 @@ Admission Office`;
       </Box>
       <hr style={{ border: "1px solid #ccc", width: "100%" }} />
 
+      <br />
       <br />
       <Box
         sx={{

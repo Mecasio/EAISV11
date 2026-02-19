@@ -102,13 +102,15 @@ const ExaminationProfile = ({ personId }) => {
 
 
     const tabs = [
-        { label: "Admission Process for Registrar", to: "/applicant_list_admin", icon: <SchoolIcon fontSize="large" /> },
-        { label: "Applicant Form", to: "/admin_dashboard1", icon: <DashboardIcon fontSize="large" /> },
-        { label: "Student Requirements", to: "/student_requirements", icon: <AssignmentIcon fontSize="large" /> },
+        { label: "Room Registration", to: "/room_registration", icon: <KeyIcon fontSize="large" /> },
+        { label: "Verify Documents Room Assignment", to: "/verify_document_schedule", icon: <MeetingRoomIcon fontSize="large" /> },
+        { label: "Verify Documents Schedule Management", to: "/verify_schedule", icon: <ScheduleIcon fontSize="large" /> },
+        { label: "Evaluator's Applicant List", to: "/evaluator_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
+        { label: "Entrance Exam Room Assignment", to: "/assign_entrance_exam", icon: <MeetingRoomIcon fontSize="large" /> },
+        { label: "Entrance Exam Schedule Management", to: "/assign_schedule_applicant", icon: <ScheduleIcon fontSize="large" /> },
         { label: "Examination Profile", to: "/registrar_examination_profile", icon: <PersonSearchIcon fontSize="large" /> },
-        { label: "Entrance Examination Score", to: "/applicant_scoring", icon: <ScoreIcon fontSize="large" /> },
-
-
+        { label: "Proctor's Applicant List", to: "/admission_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
+        { label: "Announcement", to: "/announcement_for_admission", icon: <CampaignIcon fontSize="large" /> },
     ];
 
     const location = useLocation();
@@ -142,7 +144,7 @@ const ExaminationProfile = ({ personId }) => {
     }, [location.search]);
 
     const navigate = useNavigate();
-    const [activeStep, setActiveStep] = useState(3);
+    const [activeStep, setActiveStep] = useState(6);
     const [clickedSteps, setClickedSteps] = useState(Array(tabs.length).fill(false));
 
 
@@ -592,6 +594,7 @@ const ExaminationProfile = ({ personId }) => {
                 <hr style={{ border: "1px solid #ccc", width: "100%" }} />
 
                 <br />
+                <br />
 
 
                 <Box
@@ -755,7 +758,7 @@ const ExaminationProfile = ({ personId }) => {
                                 position: "absolute",
                                 top: "40%",
                                 left: "50%",
-                                transform: "translate(-50%, -50%) rotate(-30deg)",
+                                transform: "translate(-50%, -50%)",
                                 fontSize: isVerified ? "6.3rem" : "6rem", // slightly smaller for stacked text
                                 fontWeight: "900",
                                 color: isVerified ? "rgba(0, 128, 0, 0.15)" : "rgba(255, 0, 0, 0.18)",
@@ -868,9 +871,8 @@ const ExaminationProfile = ({ personId }) => {
                                                                 alt="School Logo"
                                                                 style={{
                                                                     marginLeft: "-10px",
-                                                                    width: "140px",
-                                                                    height: "140px",
-
+                                                                    width: "120px",
+                                                                    height: "120px",
                                                                     borderRadius: "50%", // ✅ perfectly circular
                                                                     objectFit: "cover",
 
@@ -1414,7 +1416,7 @@ const ExaminationProfile = ({ personId }) => {
                                 position: "absolute",
                                 top: "22%",
                                 left: "50%",
-                                transform: "translate(-50%, -50%) rotate(-30deg)",
+                                transform: "translate(-50%, -50%)",
                                 fontSize: isVerified ? "6rem" : "5.7rem", // slightly smaller for stacked style
                                 fontWeight: "900",
                                 color: isVerified ? "rgba(0, 128, 0, 0.15)" : "rgba(255, 0, 0, 0.18)",
@@ -1709,7 +1711,19 @@ const ExaminationProfile = ({ personId }) => {
                                     <td colSpan={20}>
                                         <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
                                             <label style={{ fontWeight: "bold", whiteSpace: "nowrap", marginRight: "10px", fontSize: "14px" }}>Date Applied</label>
-                                            <span style={{ flexGrow: 1, borderBottom: "1px solid black", height: "1.3em", fontSize: "14px" }}>{person.created_at}
+                                            <span style={{ flexGrow: 1, borderBottom: "1px solid black", height: "1.3em", fontSize: "14px" }}> {(() => {
+                                                if (!person.created_at.split("T")[0]) return "";
+
+                                                const date = new Date(person.created_at.split("T")[0]);
+
+                                                if (isNaN(date)) return person.created_at.split("T")[0];
+
+                                                return date.toLocaleDateString("en-US", {
+                                                    year: "numeric",
+                                                    month: "long",
+                                                    day: "numeric",
+                                                });
+                                            })()}
                                                 <div style={{ marginTop: "-3px" }} className="dataField"></div>
                                             </span>
                                         </div>
@@ -2171,7 +2185,7 @@ const ExaminationProfile = ({ personId }) => {
                                 position: "absolute",
                                 top: "70%",   // lower half
                                 left: "50%",
-                                transform: "translate(-50%, -50%) rotate(-30deg)",
+                                transform: "translate(-50%, -50%)",
                                 fontSize: isVerified ? "6rem" : "5.7rem", // adjust slightly for stacked style
                                 fontWeight: "900",
                                 color: isVerified ? "rgba(0, 128, 0, 0.15)" : "rgba(255, 0, 0, 0.18)",
@@ -2470,7 +2484,19 @@ const ExaminationProfile = ({ personId }) => {
                                     <td colSpan={20}>
                                         <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
                                             <label style={{ fontWeight: "bold", whiteSpace: "nowrap", marginRight: "10px", fontSize: "14px" }}>Date Applied</label>
-                                            <span style={{ flexGrow: 1, borderBottom: "1px solid black", height: "1.3em", fontSize: "14px" }}>{person.created_at}
+                                            <span style={{ flexGrow: 1, borderBottom: "1px solid black", height: "1.3em", fontSize: "14px" }}> {(() => {
+                                            if (!person.created_at.split("T")[0]) return "";
+
+                                            const date = new Date(person.created_at.split("T")[0]);
+
+                                            if (isNaN(date)) return person.created_at.split("T")[0];
+
+                                            return date.toLocaleDateString("en-US", {
+                                                year: "numeric",
+                                                month: "long",
+                                                day: "numeric",
+                                            });
+                                        })()}
                                                 <div style={{ marginTop: "-3px" }} className="dataField"></div>
                                             </span>
                                         </div>

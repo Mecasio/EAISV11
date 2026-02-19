@@ -29,6 +29,8 @@ import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import PeopleIcon from "@mui/icons-material/People";
 import CampaignIcon from "@mui/icons-material/Campaign";
+import PersonSearchIcon from "@mui/icons-material/PersonSearch";
+
 
 const ScheduleHoverTile = () => {
     const navigate = useNavigate();
@@ -53,16 +55,17 @@ const ScheduleHoverTile = () => {
         toTime: "",
     });
 
-  const tabs = [
-    { label: "Room Registration", to: "/room_registration", icon: <KeyIcon fontSize="large" /> },
-    { label: "Verify Documents Room Assignment", to: "/verify_document_schedule", icon: <MeetingRoomIcon fontSize="large" /> },
-    { label: "Verify Documents Schedule Management", to: "/verify_schedule", icon: <ScheduleIcon fontSize="large" /> },
-    { label: "Evaluator's Applicant List", to: "/evaluator_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
-    { label: "Entrance Exam Room Assignment", to: "/assign_entrance_exam", icon: <MeetingRoomIcon fontSize="large" /> },
-    { label: "Entrance Exam Schedule Management", to: "/assign_schedule_applicant", icon: <ScheduleIcon fontSize="large" /> },
-    { label: "Proctor's Applicant List", to: "/admission_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
-    { label: "Announcement", to: "/announcement_for_admission", icon: <CampaignIcon fontSize="large" /> },
-  ];
+    const tabs = [
+        { label: "Room Registration", to: "/room_registration", icon: <KeyIcon fontSize="large" /> },
+        { label: "Verify Documents Room Assignment", to: "/verify_document_schedule", icon: <MeetingRoomIcon fontSize="large" /> },
+        { label: "Verify Documents Schedule Management", to: "/verify_schedule", icon: <ScheduleIcon fontSize="large" /> },
+        { label: "Evaluator's Applicant List", to: "/evaluator_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
+        { label: "Entrance Exam Room Assignment", to: "/assign_entrance_exam", icon: <MeetingRoomIcon fontSize="large" /> },
+        { label: "Entrance Exam Schedule Management", to: "/assign_schedule_applicant", icon: <ScheduleIcon fontSize="large" /> },
+        { label: "Examination Profile", to: "/registrar_examination_profile", icon: <PersonSearchIcon fontSize="large" /> },
+        { label: "Proctor's Applicant List", to: "/admission_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
+        { label: "Announcement", to: "/announcement_for_admission", icon: <CampaignIcon fontSize="large" /> },
+    ];
 
 
     const [activeStep, setActiveStep] = useState(3);
@@ -176,9 +179,8 @@ const ScheduleHoverTile = () => {
 
     const selectedYearLabel =
         schoolYears.find((sy) => String(sy.year_id) === String(selectedSchoolYear))
-            ? `${schoolYears.find((sy) => String(sy.year_id) === String(selectedSchoolYear)).current_year}-${
-                  schoolYears.find((sy) => String(sy.year_id) === String(selectedSchoolYear)).next_year
-              }`
+            ? `${schoolYears.find((sy) => String(sy.year_id) === String(selectedSchoolYear)).current_year}-${schoolYears.find((sy) => String(sy.year_id) === String(selectedSchoolYear)).next_year
+            }`
             : "selected year";
 
     const selectedSemesterLabel =
@@ -222,7 +224,7 @@ const ScheduleHoverTile = () => {
                         fontSize: "36px",
                     }}
                 >
-                   EVALUATOR ROOM MANAGEMENT
+                    EVALUATOR ROOM MANAGEMENT
                 </Typography>
 
 
@@ -250,7 +252,9 @@ const ScheduleHoverTile = () => {
 
 
             <hr style={{ border: "1px solid #ccc", width: "100%" }} />
-            <div style={{ height: "30px" }}></div>
+
+            <br />
+            <br />
             <Box
                 sx={{
                     display: "flex",

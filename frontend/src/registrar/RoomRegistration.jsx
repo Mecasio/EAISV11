@@ -35,6 +35,8 @@ import CampaignIcon from '@mui/icons-material/Campaign';
 import { useNavigate } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 
+
+
 const RoomRegistration = () => {
   const settings = useContext(SettingsContext);
 
@@ -137,10 +139,10 @@ const RoomRegistration = () => {
     { label: "Evaluator's Applicant List", to: "/evaluator_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
     { label: "Entrance Exam Room Assignment", to: "/assign_entrance_exam", icon: <MeetingRoomIcon fontSize="large" /> },
     { label: "Entrance Exam Schedule Management", to: "/assign_schedule_applicant", icon: <ScheduleIcon fontSize="large" /> },
+    { label: "Examination Profile", to: "/registrar_examination_profile", icon: <PersonSearchIcon fontSize="large" /> },
     { label: "Proctor's Applicant List", to: "/admission_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
     { label: "Announcement", to: "/announcement_for_admission", icon: <CampaignIcon fontSize="large" /> },
   ];
-
 
 
   const navigate = useNavigate();
@@ -372,7 +374,8 @@ const RoomRegistration = () => {
       </Box>
       <hr style={{ border: "1px solid #ccc", width: "100%" }} />
 
-      <div style={{ height: "30px" }}></div>
+    <br/>
+     <br/>
       <Box
         sx={{
           display: "flex",
@@ -440,7 +443,7 @@ const RoomRegistration = () => {
             sx={{
               p: 3,
               border: `2px solid ${borderColor}`,
-       
+
             }}
           >
             <Typography variant="h6" sx={{ mb: 2, color: subtitleColor, }}>
@@ -494,7 +497,7 @@ const RoomRegistration = () => {
             sx={{
               p: 3,
               border: `2px solid ${borderColor}`,
-          
+
             }}
           >
             <Typography variant="h6" sx={{ mb: 2, color: subtitleColor }}>

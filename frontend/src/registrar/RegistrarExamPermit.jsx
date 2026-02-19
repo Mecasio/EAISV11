@@ -328,8 +328,8 @@ const RegistrarExamPermit = ({ personId }) => {
                                 alt="School Logo"
                                 style={{
                                     marginLeft: "-10px",
-                                    width: "140px",
-                                    height: "140px",
+                                    width: "120px",
+                                    height: "120px",
 
                                     borderRadius: "50%", // ✅ perfectly circular
                                     objectFit: "cover",
