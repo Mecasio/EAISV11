@@ -674,9 +674,7 @@ const ProctorApplicantList = () => {
                 {snack.message}
               </Alert>
             </Snackbar>
-
-
-
+            
             <Dialog
               open={openDeleteDialog}
               onClose={() => {
@@ -703,7 +701,6 @@ const ProctorApplicantList = () => {
                 >
                   Cancel
                 </Button>
-
                 <Button
                   color="error"
                   variant="contained"
@@ -743,12 +740,8 @@ const ProctorApplicantList = () => {
                 </Button>
               </DialogActions>
             </Dialog>
-
-
           </Table>
         </TableContainer>
-
-
       )}
     </Box>
   );

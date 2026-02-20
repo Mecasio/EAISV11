@@ -45,8 +45,6 @@ const CertificateOfRegistration = forwardRef(
       severity: "",
     });
 
-
-
     const showSnackbar = (message, severity = "success") => {
       setSnack({ open: true, message, severity });
     };
@@ -702,7 +700,10 @@ const CertificateOfRegistration = forwardRef(
       const middleInitial = data[0]?.middle_name?.[0] || "";
       const campusName = data[0]?.campus === 1 ? "Manila" : "Cavite";
       const gender = data[0]?.gender === 1 ? "Female" : "Male";
-      const totalSum = totalLecFees + totalLabFees;
+      const baseTotalSum = totalLecFees + totalLabFees;
+      const totalSum = isFirstYear
+        ? baseTotalSum - tosf[0]?.nstp_fees
+        : baseTotalSum;
       const schoolIdFee = isFirstYearFirstSem
         ? Number(tosf[0]?.school_id_fees || 0)
         : 0;
@@ -2351,7 +2352,11 @@ const CertificateOfRegistration = forwardRef(
                           >
                             <input
                               type="text"
-                              value={Number(totalLecFees) + Number(totalLabFees)}
+                              value={
+                                isFirstYear
+                                  ? Number(totalLecFees) + Number(totalLabFees) - Number(tosf[0]?.nstp_fees)
+                                  : Number(totalLecFees) + Number(totalLabFees)
+                              }
                               readOnly
                               style={{
                                 textAlign: "center",
