@@ -503,6 +503,7 @@ const CoursePanel = () => {
               fullWidth
               label="Course Code"
               name="course_code"
+              required
               value={course.course_code}
               onChange={handleChangesForEverything}
             />
@@ -513,6 +514,7 @@ const CoursePanel = () => {
               fullWidth
               label="Course Description"
               name="course_description"
+              required
               value={course.course_description}
               onChange={handleChangesForEverything}
             />

@@ -647,18 +647,20 @@ const CurriculumCourseMap = () => {
           <MenuItem value="">
             <em>None</em>
           </MenuItem>
-          {filteredCurriculumList.map((c) => (
-            <MenuItem key={c.curriculum_id} value={c.curriculum_id}>
-              {formatSchoolYear(c.year_description)}:{" "}
-              {`(${c.program_code}): ${c.program_description}${c.major ? ` (${c.major})` : ""
-                } (${Number(c.components) === 1
-                  ? "Manila Campus"
-                  : Number(c.components) === 2
-                    ? "Cavite Campus"
-                    : "—"
-                })`}
-            </MenuItem>
-          ))}
+          {filteredCurriculumList
+            .sort((a, b) => Number(a.year_description) - Number(b.year_description))
+            .map((c) => (
+              <MenuItem key={c.curriculum_id} value={c.curriculum_id}>
+                {formatSchoolYear(c.year_description)}:{" "}
+                {`(${c.program_code}): ${c.program_description}${c.major ? ` (${c.major})` : ""
+                  } (${Number(c.components) === 1
+                    ? "Manila Campus"
+                    : Number(c.components) === 2
+                      ? "Cavite Campus"
+                      : "—"
+                  })`}
+              </MenuItem>
+            ))}
 
 
         </Select>
@@ -776,7 +778,7 @@ const CurriculumCourseMap = () => {
                               {/* YEAR + SEM */}
                               <tr>
                                 <th
-                                  colSpan={3}
+                                  colSpan={4}
                                   style={{
                                     backgroundColor: "#f5f5f5",
                                     borderLeft: `2px solid ${borderColor}`,
@@ -793,7 +795,7 @@ const CurriculumCourseMap = () => {
                                 </th>
 
                                 <th
-                                  colSpan={3}
+                                  colSpan={4}
                                   style={{
                                     backgroundColor: "#f5f5f5",
                                     borderRight: `2px solid ${borderColor}`,
@@ -811,8 +813,10 @@ const CurriculumCourseMap = () => {
                               </tr>
 
                               <tr>
+                                <th style={headerStyle}>#</th>
                                 <th style={headerStyle}>COURSE CODE</th>
                                 <th style={headerStyle}>COURSE DESCRIPTION</th>
+                                <th style={headerStyle}>PREREQUISITE</th>
                                 <th style={headerStyle}>CREDITED UNITS</th>
                                 <th style={headerStyle}>LEC FEE</th>
                                 <th style={headerStyle}>LAB FEE</th>
@@ -824,7 +828,7 @@ const CurriculumCourseMap = () => {
 
                             <tbody>
                               {/* ===== SUBJECT ROWS ===== */}
-                              {semesterCourses.map((course) => {
+                              {semesterCourses.map((course, index) => {
                                 const edit = editedFees[course.program_tagging_id] || {};
                                 const lecFee = edit.lec_fee ?? course.lec_fee ?? 0;
                                 const labFee = edit.lab_fee ?? course.lab_fee ?? 0;
@@ -846,8 +850,10 @@ const CurriculumCourseMap = () => {
 
                                 return (
                                   <tr key={course.program_tagging_id}>
+                                    <td style={{ ...cellStyle, textAlign: "center" }}>{index + 1}</td>
                                     <td style={cellStyle}>{course.course_code}</td>
                                     <td style={cellStyle}>{course.course_description}</td>
+                                    <td style={cellStyle}>{course.prereq}</td>
                                     <td style={{ ...cellStyle, textAlign: "center" }}>{course.course_unit}</td>
                                     <td style={{ ...cellStyle, textAlign: "right" }}>
                                       <input
@@ -894,7 +900,7 @@ const CurriculumCourseMap = () => {
 
                               <tr style={{ fontWeight: "bold", backgroundColor: "#f0f0f0" }}>
                                 {/* LABEL */}
-                                <td colSpan={2} style={{ ...cellStyle, textAlign: "right" }}>
+                                <td colSpan={4} style={{ ...cellStyle, textAlign: "right" }}>
                                   TOTAL UNITS / TOTAL FEES
                                 </td>
 
@@ -942,7 +948,7 @@ const CurriculumCourseMap = () => {
 
                               {getExtraFeesForSem(year, sem).map((fee) => (
                                 <tr key={fee.fee_code} style={{ backgroundColor: "#f9f9ff", fontWeight: "bold" }}>
-                                  <td colSpan={5} style={{ ...cellStyle, textAlign: "center" }}>
+                                  <td colSpan={6} style={{ ...cellStyle, textAlign: "center" }}>
                                     {fee.description}:
                                   </td>
                                   <td style={{ ...cellStyle, textAlign: "center" }}>
@@ -956,7 +962,7 @@ const CurriculumCourseMap = () => {
 
                               <tr>
                                 <th
-                                  colSpan={77}
+                                  colSpan={79}
                                   style={{
                                     backgroundColor: "#f5f5f5",
                                     border: "2px solid black",
@@ -980,7 +986,7 @@ const CurriculumCourseMap = () => {
 
 
                               <tr>
-                                <td colSpan={5}
+                                <td colSpan={7}
                                   style={{ ...cellStyle, textAlign: "left", backgroundColor: "#eef5ff", fontWeight: "bold" }}>
                                   Tuition Fee:
                                 </td>
@@ -991,7 +997,7 @@ const CurriculumCourseMap = () => {
 
                               {hasNSTP && (
                                 <tr>
-                                  <td colSpan={5}
+                                  <td colSpan={7}
                                     style={{ ...cellStyle, textAlign: "left", backgroundColor: "#eef5ff", fontWeight: "bold" }}>
                                     NSTP Fee:
                                   </td>
@@ -1002,7 +1008,7 @@ const CurriculumCourseMap = () => {
                               )}
 
                               <tr style={{ fontWeight: "bold", backgroundColor: "#f0f0f0" }}>
-                                <td colSpan={5} style={{ ...cellStyle, textAlign: "right" }}>
+                                <td colSpan={7} style={{ ...cellStyle, textAlign: "right" }}>
                                   TOTAL TUITION (Tuition + NSTP):
                                 </td>
                                 <td style={{ ...cellStyle, textAlign: "right", color: "red" }}>
@@ -1015,7 +1021,7 @@ const CurriculumCourseMap = () => {
 
                               <tr>
                                 <th
-                                  colSpan={77}
+                                  colSpan={79}
                                   style={{
                                     backgroundColor: "#f5f5f5",
                                     border: "2px solid black",
@@ -1037,20 +1043,20 @@ const CurriculumCourseMap = () => {
                               {/* ===== TOSF FEES ===== */}
                               {tosf && (
                                 <>
-                                  <tr><td colSpan={5} style={{ ...cellStyle, textAlign: "left" }}>Athletic Fee:</td><td style={cellStyle}>{tosf.athletic_fee}</td></tr>
-                                  <tr><td colSpan={5} style={{ ...cellStyle, textAlign: "left" }}>Cultural Fee:</td><td style={cellStyle}>{tosf.cultural_fee}</td></tr>
-                                  <tr><td colSpan={5} style={{ ...cellStyle, textAlign: "left" }}>Developmental Fee:</td><td style={cellStyle}>{tosf.developmental_fee}</td></tr>
-                                  <tr><td colSpan={5} style={{ ...cellStyle, textAlign: "left" }}>Guidance Fee:</td><td style={cellStyle}>{tosf.guidance_fee}</td></tr>
-                                  <tr><td colSpan={5} style={{ ...cellStyle, textAlign: "left" }}>Library Fee:</td><td style={cellStyle}>{tosf.library_fee}</td></tr>
-                                  <tr><td colSpan={5} style={{ ...cellStyle, textAlign: "left" }}>Medical & Dental Fee:</td><td style={cellStyle}>{tosf.medical_and_dental_fee}</td></tr>
-                                  <tr><td colSpan={5} style={{ ...cellStyle, textAlign: "left" }}>Registration Fee:</td><td style={cellStyle}>{tosf.registration_fee}</td></tr>
+                                  <tr><td colSpan={7} style={{ ...cellStyle, textAlign: "left" }}>Athletic Fee:</td><td style={cellStyle}>{tosf.athletic_fee}</td></tr>
+                                  <tr><td colSpan={7} style={{ ...cellStyle, textAlign: "left" }}>Cultural Fee:</td><td style={cellStyle}>{tosf.cultural_fee}</td></tr>
+                                  <tr><td colSpan={7} style={{ ...cellStyle, textAlign: "left" }}>Developmental Fee:</td><td style={cellStyle}>{tosf.developmental_fee}</td></tr>
+                                  <tr><td colSpan={7} style={{ ...cellStyle, textAlign: "left" }}>Guidance Fee:</td><td style={cellStyle}>{tosf.guidance_fee}</td></tr>
+                                  <tr><td colSpan={7} style={{ ...cellStyle, textAlign: "left" }}>Library Fee:</td><td style={cellStyle}>{tosf.library_fee}</td></tr>
+                                  <tr><td colSpan={7} style={{ ...cellStyle, textAlign: "left" }}>Medical & Dental Fee:</td><td style={cellStyle}>{tosf.medical_and_dental_fee}</td></tr>
+                                  <tr><td colSpan={7} style={{ ...cellStyle, textAlign: "left" }}>Registration Fee:</td><td style={cellStyle}>{tosf.registration_fee}</td></tr>
 
                                 </>
                               )}
 
                               {isFirstYearFirstSem && (
                                 <tr>
-                                  <td colSpan={5} style={{ ...cellStyle, textAlign: "left" }}>
+                                  <td colSpan={7} style={{ ...cellStyle, textAlign: "left" }}>
                                     School ID Fee:
                                   </td>
                                   <td style={cellStyle}>
@@ -1061,7 +1067,7 @@ const CurriculumCourseMap = () => {
 
                               {hasComputerLab && (
                                 <tr>
-                                  <td colSpan={5} style={{ ...cellStyle, textAlign: "left", backgroundColor: "#eef5ff", fontWeight: "bold" }}>
+                                  <td colSpan={7} style={{ ...cellStyle, textAlign: "left", backgroundColor: "#eef5ff", fontWeight: "bold" }}>
                                     Computer Fee:
                                   </td>
                                   <td style={{ ...cellStyle, backgroundColor: "#eef5ff" }}>
@@ -1072,7 +1078,7 @@ const CurriculumCourseMap = () => {
 
                               {hasNonComputerLab && (
                                 <tr>
-                                  <td colSpan={5} style={{ ...cellStyle, textAlign: "left", backgroundColor: "#eef5ff", fontWeight: "bold" }}>
+                                  <td colSpan={7} style={{ ...cellStyle, textAlign: "left", backgroundColor: "#eef5ff", fontWeight: "bold" }}>
                                     Laboratory Fee:
                                   </td>
                                   <td style={{ ...cellStyle, backgroundColor: "#eef5ff" }}>
@@ -1086,7 +1092,7 @@ const CurriculumCourseMap = () => {
                               {/* ===== EXTRA FEES ROWS (like NSTP) ===== */}
                               {computeExtraFees(semesterCourses).map((fee, idx) => (
                                 <tr key={`extra-${idx}`} style={{ backgroundColor: "#fafafa", }}>
-                                  <td colSpan={5} style={{ ...cellStyle, textAlign: "left" }}>
+                                  <td colSpan={7} style={{ ...cellStyle, textAlign: "left" }}>
                                     {fee.label}:
                                   </td>
 
@@ -1101,7 +1107,7 @@ const CurriculumCourseMap = () => {
 
                               {semesterCourses && (
                                 <tr style={{ backgroundColor: "#eef5ff" }}>
-                                  <td colSpan={5} style={{ ...cellStyle, textAlign: "left", fontWeight: "bold" }}>
+                                  <td colSpan={7} style={{ ...cellStyle, textAlign: "left", fontWeight: "bold" }}>
                                     Total Miscellaneous Fee:
                                   </td>
                                   <td style={{ ...cellStyle, textAlign: "center" }}>
@@ -1113,7 +1119,7 @@ const CurriculumCourseMap = () => {
 
 
                               <tr style={{ fontWeight: "bold", backgroundColor: "#f0f0f0" }}>
-                                <td colSpan={5} style={{ ...cellStyle, textAlign: "right" }}>
+                                <td colSpan={7} style={{ ...cellStyle, textAlign: "right" }}>
                                   TOTAL TUITION & FEES:
                                 </td>
                                 <td style={{ ...cellStyle, textAlign: "right", color: "red" }}>

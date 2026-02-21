@@ -1,13 +1,18 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import { SettingsContext } from "../App";
 import axios from "axios";
-import { Box, Typography, Snackbar, Alert, Card, Paper, CardContent, TableContainer, Table, TableHead, TableCell, TableRow, TableBody, Switch } from "@mui/material";
+import { Box, Typography, Button, Snackbar, Alert, Card, Paper, CardContent, TableContainer, Table, TableHead, TableCell, TableRow, TableBody, Switch } from "@mui/material";
 import Unauthorized from "../components/Unauthorized";
 import LoadingOverlay from "../components/LoadingOverlay";
 import API_BASE_URL from "../apiConfig";
 import { TextField } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from "@mui/material";
 
 
 const CurriculumPanel = () => {
@@ -162,23 +167,88 @@ const CurriculumPanel = () => {
       });
       return;
     }
+
     try {
-      await axios.post(`${API_BASE_URL}/curriculum`, curriculum);
+      if (editingId) {
+        await axios.put(`${API_BASE_URL}/update_curriculum_data/${editingId}`, curriculum);
+
+        setSnackbar({
+          open: true,
+          message: "Curriculum updated successfully!",
+          severity: "success",
+        });
+
+        setEditingId(null);
+      } else {
+        await axios.post(`${API_BASE_URL}/curriculum`, curriculum);
+
+        setSnackbar({
+          open: true,
+          message: "Curriculum successfully added!",
+          severity: "success",
+        });
+      }
+
       setCurriculum({ year_id: "", program_id: "" });
-      setSnackbar({
-        open: true,
-        message: "Curriculum successfully added!",
-        severity: "success",
-      });
       fetchCurriculum();
+
     } catch (err) {
       console.error(err);
       setSnackbar({
         open: true,
-        message: err.response?.data?.message || "Error adding curriculum!",
+        message: err.response?.data?.message || "Operation failed!",
         severity: "error",
       });
     }
+  };
+
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [curriculumToDelete, setCurriculumToDelete] = useState(null);
+
+  const confirmDelete = (item) => {
+    setCurriculumToDelete(item);
+    setOpenDeleteDialog(true);
+  };
+
+  const handleDeleteConfirmed = async () => {
+    if (!curriculumToDelete) return;
+
+    try {
+      await axios.delete(
+        `${API_BASE_URL}/delete_curriculum/${curriculumToDelete.curriculum_id}`
+      );
+
+      setSnackbar({
+        open: true,
+        message: "Curriculum deleted successfully!",
+        severity: "success",
+      });
+
+      fetchCurriculum();
+    } catch (err) {
+      console.error(err);
+
+      setSnackbar({
+        open: true,
+        message: "Delete failed!",
+        severity: "error",
+      });
+    } finally {
+      setOpenDeleteDialog(false);
+      setCurriculumToDelete(null);
+    }
+  };
+
+  const [editingId, setEditingId] = useState(null);
+
+  const handleEdit = (item) => {
+    setCurriculum({
+      year_id: item.year_id,
+      program_id: item.program_id,
+    });
+
+    // Optional: store ID if updating instead of inserting
+    setEditingId(item.curriculum_id);
   };
 
   // ✅ Updated with instant UI response
@@ -449,7 +519,13 @@ const CurriculumPanel = () => {
                         border: `2px solid ${borderColor}`, textAlign: "center",
                         color: "white",
                       }} align="center">Active</TableCell>
+                      <TableCell sx={{
+                        backgroundColor: settings?.header_color || "#1976d2",
+                        border: `2px solid ${borderColor}`, textAlign: "center",
+                        color: "white",
+                      }} align="center">Actions</TableCell>
                     </TableRow>
+
                   </TableHead>
 
                   <TableBody>
@@ -489,6 +565,30 @@ const CurriculumPanel = () => {
                             color="success"
                           />
                         </TableCell>
+                        <TableCell
+                          sx={{ border: `2px solid ${borderColor}` }}
+                          align="center"
+                        >
+                          <Button
+                            variant="contained"
+                            size="small"
+                            sx={{ backgroundColor: "green", color: "white", mr: 1 }}
+                            onClick={() => handleEdit(item)}
+
+                          >
+                            Edit
+                          </Button>
+
+                          <Button
+
+                            onClick={() => confirmDelete(item)}
+                            variant="contained"
+                            size="small"
+                            sx={{ backgroundColor: "#9E0000", color: "white" }}
+                          >
+                            Delete
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -499,6 +599,47 @@ const CurriculumPanel = () => {
 
         </div>
       </Box>
+
+      <Dialog
+        open={openDeleteDialog}
+        onClose={() => setOpenDeleteDialog(false)}
+      >
+        <DialogTitle>Confirm Delete Curriculum</DialogTitle>
+
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete this curriculum?
+            <br />
+            <br />
+            <b>
+              {curriculumToDelete &&
+                `${formatAcademicYear(
+                  curriculumToDelete.year_description
+                )} — (${curriculumToDelete.program_code})`}
+            </b>
+          </Typography>
+        </DialogContent>
+
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setOpenDeleteDialog(false);
+              setCurriculumToDelete(null);
+            }}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleDeleteConfirmed}
+          >
+            Yes, Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       {/* Snackbar */}
       <Snackbar
         open={snackbar.open}

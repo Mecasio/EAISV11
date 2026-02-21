@@ -217,19 +217,6 @@ const ProctorApplicantList = () => {
     }
   };
 
-  const handleSearch = async () => {
-    try {
-      const { data } = await axios.get(
-        `${API_BASE_URL}/api/proctor-applicants`,
-        { params: { query: searchQuery } }
-      );
-      setProctor(data[0]?.schedule || null); // first schedule if multiple
-      setApplicants(data[0]?.applicants || []);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const proctorParam = params.get("proctor");
@@ -658,91 +645,92 @@ const ProctorApplicantList = () => {
               ))}
             </TableBody>
 
-            {/* ✅ Snackbar */}
-            <Snackbar
-              key={snack.key}
-              open={snack.open}
-              autoHideDuration={4000}
-              onClose={handleClose}
-              anchorOrigin={{ vertical: "top", horizontal: "center" }}
-            >
-              <Alert
-                onClose={handleClose}
-                severity={snack.severity}
-                sx={{ width: "100%" }}
-              >
-                {snack.message}
-              </Alert>
-            </Snackbar>
-            
-            <Dialog
-              open={openDeleteDialog}
-              onClose={() => {
-                setOpenDeleteDialog(false);
-                setApplicantToDelete(null);
-              }}
-            >
-              <DialogTitle>Confirm Remove Applicant</DialogTitle>
-
-              <DialogContent>
-                <Typography>
-                  Are you sure you want to remove applicant{" "}
-                  <b>{applicantToDelete?.last_name}, {applicantToDelete?.first_name}</b>
-                  from the exam schedule?
-                </Typography>
-              </DialogContent>
-
-              <DialogActions>
-                <Button
-                  onClick={() => {
-                    setOpenDeleteDialog(false);
-                    setApplicantToDelete(null);
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  color="error"
-                  variant="contained"
-                  onClick={async () => {
-                    if (!applicantToDelete) return;
-
-                    try {
-                      await axios.put(`${API_BASE_URL}/api/exam/remove_applicant`, {
-                        applicant_id: applicantToDelete.applicant_number
-                      });
-
-                      // ✅ Show success snackbar
-                      setSnack({
-                        open: true,
-                        message: "Applicant successfully removed.",
-                        severity: "success",
-                        key: new Date().getTime(),
-                      });
-
-                      handleSearch();
-                    } catch (error) {
-                      console.error("Error removing applicant:", error);
-
-                      setSnack({
-                        open: true,
-                        message: "Failed to remove applicant.",
-                        severity: "error",
-                        key: new Date().getTime(),
-                      });
-                    }
-
-                    setOpenDeleteDialog(false);
-                    setApplicantToDelete(null);
-                  }}
-                >
-                  Yes, Remove
-                </Button>
-              </DialogActions>
-            </Dialog>
           </Table>
         </TableContainer>
       )}
+
+      {/* ✅ Snackbar */}
+      <Snackbar
+        key={snack.key}
+        open={snack.open}
+        autoHideDuration={4000}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleClose}
+          severity={snack.severity}
+          sx={{ width: "100%" }}
+        >
+          {snack.message}
+        </Alert>
+      </Snackbar>
+
+      <Dialog
+        open={openDeleteDialog}
+        onClose={() => {
+          setOpenDeleteDialog(false);
+          setApplicantToDelete(null);
+        }}
+      >
+        <DialogTitle>Confirm Remove Applicant</DialogTitle>
+
+        <DialogContent>
+          <Typography>
+            Are you sure you want to remove applicant{" "}
+            <b>{applicantToDelete?.last_name}, {applicantToDelete?.first_name}</b>
+            from the exam schedule?
+          </Typography>
+        </DialogContent>
+
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setOpenDeleteDialog(false);
+              setApplicantToDelete(null);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={async () => {
+              if (!applicantToDelete) return;
+
+              try {
+                await axios.put(`${API_BASE_URL}/api/exam/remove_applicant`, {
+                  applicant_id: applicantToDelete.applicant_number
+                });
+
+                setApplicants(prev =>
+                  prev.filter(a => a.applicant_number !== applicantToDelete.applicant_number)
+                );
+
+                setSnack({
+                  open: true,
+                  message: "Applicant successfully removed.",
+                  severity: "success",
+                  key: Date.now(),
+                });
+
+              } catch (error) {
+                setSnack({
+                  open: true,
+                  message: "Failed to remove applicant.",
+                  severity: "error",
+                  key: Date.now(),
+                });
+              }
+
+              setOpenDeleteDialog(false);
+              setApplicantToDelete(null);
+            }}
+          >
+            Yes, Remove
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

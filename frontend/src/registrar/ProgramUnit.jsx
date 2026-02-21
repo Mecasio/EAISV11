@@ -398,19 +398,21 @@ const ProgramUnit = () => {
                     <MenuItem value="">
                         <em>None</em>
                     </MenuItem>
-                    {filteredCurriculumList.map((c) => (
+                    {filteredCurriculumList
+                        .sort((a, b) => Number(a.year_description) - Number(b.year_description))
+                        .map((c) => (
 
-                        <MenuItem key={c.curriculum_id} value={c.curriculum_id}>
-                            {formatSchoolYear(c.year_description)}:{" "}
-                            {`(${c.program_code}): ${c.program_description}${c.major ? ` (${c.major})` : ""
-                                } (${Number(c.components) === 1
-                                    ? "Manila Campus"
-                                    : Number(c.components) === 2
-                                        ? "Cavite Campus"
-                                        : "—"
-                                })`}
-                        </MenuItem>
-                    ))}
+                            <MenuItem key={c.curriculum_id} value={c.curriculum_id}>
+                                {formatSchoolYear(c.year_description)}:{" "}
+                                {`(${c.program_code}): ${c.program_description}${c.major ? ` (${c.major})` : ""
+                                    } (${Number(c.components) === 1
+                                        ? "Manila Campus"
+                                        : Number(c.components) === 2
+                                            ? "Cavite Campus"
+                                            : "—"
+                                    })`}
+                            </MenuItem>
+                        ))}
 
                 </Select>
             </FormControl>
@@ -483,7 +485,7 @@ const ProgramUnit = () => {
                                                             {/* YEAR + SEM */}
                                                             <tr>
                                                                 <th
-                                                                    colSpan={3}
+                                                                    colSpan={4}
                                                                     style={{
                                                                         backgroundColor: "#f5f5f5",
                                                                         borderLeft: `2px solid ${borderColor}`,
@@ -500,7 +502,7 @@ const ProgramUnit = () => {
                                                                 </th>
 
                                                                 <th
-                                                                    colSpan={3}
+                                                                    colSpan={4}
                                                                     style={{
                                                                         backgroundColor: "#f5f5f5",
                                                                         borderRight: `2px solid ${borderColor}`,
@@ -518,8 +520,10 @@ const ProgramUnit = () => {
                                                             </tr>
 
                                                             <tr>
-                                                                <th style={headerStyle}>CODE</th>
-                                                                <th style={headerStyle}>COURSE</th>
+                                                                <th style={headerStyle}>#</th>
+                                                                <th style={headerStyle}>COURSE CODE</th>
+                                                                <th style={headerStyle}>COURSE DESCRIPTION</th>
+                                                                <th style={headerStyle}>PREREQUISITE</th>
                                                                 <th style={headerStyle}>LEC</th>
                                                                 <th style={headerStyle}>LAB</th>
                                                                 <th style={headerStyle}>CREDIT</th>
@@ -528,11 +532,15 @@ const ProgramUnit = () => {
                                                         </thead>
 
                                                         <tbody>
-                                                            {courses.map((c) => (
+                                                            {courses.map((c, index) => (
                                                                 <tr key={c.program_tagging_id}>
+                                                                    <td style={cellStyle}>{index + 1}</td>
                                                                     <td style={cellStyle}>{c.course_code}</td>
                                                                     <td style={{ ...cellStyle, textAlign: "center" }}>
                                                                         {c.course_description}
+                                                                    </td>
+                                                                    <td style={{ ...cellStyle, textAlign: "center" }}>
+                                                                        {c.prereq}
                                                                     </td>
 
                                                                     <td style={{ ...cellStyle, textAlign: "center" }}>
@@ -603,7 +611,7 @@ const ProgramUnit = () => {
 
                                                             {/* TOTAL */}
                                                             <tr style={{ fontWeight: "bold", backgroundColor: "#f0f0f0" }}>
-                                                                <td colSpan={2} style={cellStyle}>
+                                                                <td colSpan={4} style={cellStyle}>
                                                                     TOTAL
                                                                 </td>
                                                                 <td style={{ ...cellStyle, textAlign: "center" }}>

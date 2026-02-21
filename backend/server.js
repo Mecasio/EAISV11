@@ -36,11 +36,11 @@ app.use("/assets", express.static(path.join(__dirname, "assets")));
 const allowedOrigins = [
   'http://localhost:5173',
   'http://192.168.50.77:5173',
-  'http://192.168.0.180:5173',
+  'http://192.168.50.44:5173',
   'http://192.168.50.211:5173',
   'http://136.239.248.58:5173',
   'http://192.168.50.43:5173',
-  'http://192.168.0.180:5173',
+  'http://192.168.50.44:5173',
 ];
 
 app.use(
@@ -8242,6 +8242,47 @@ app.put("/update_curriculum/:id", async (req, res) => {
   } catch (error) {
     console.error("❌ Error updating curriculum status:", error);
     res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+app.put("/update_curriculum_data/:id", async (req, res) => {
+  const { id } = req.params;
+  const { year_id, program_id } = req.body;
+
+  try {
+    const [result] = await db3.query(
+      "UPDATE curriculum_table SET year_id = ?, program_id = ? WHERE curriculum_id = ?",
+      [year_id, program_id, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Curriculum not found" });
+    }
+
+    res.json({ message: "Curriculum updated successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Update failed" });
+  }
+});
+
+app.delete("/delete_curriculum/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [result] = await db3.query(
+      "DELETE FROM curriculum_table WHERE curriculum_id = ?",
+      [id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Curriculum not found" });
+    }
+
+    res.json({ message: "Curriculum deleted successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Delete failed" });
   }
 });
 
@@ -18495,7 +18536,7 @@ app.post("/api/generate-cor-pdf", async (req, res) => {
       format: "A4",
       printBackground: true,
       preferCSSPageSize: true,
-      scale: 0.91, 
+      scale: 0.91,
     });
 
     await browser.close();

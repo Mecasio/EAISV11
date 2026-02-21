@@ -140,13 +140,16 @@ const AdmissionDashboardPanel = () => {
         { title: "ROOM REGISTRATION", link: "/room_registration", icon: MeetingRoom, page_id: 52 },
         { title: "VERIFY DOCUMENTS SCHEDULE MANAGEMENT", link: "/verify_document_schedule", icon: People, page_id: 115 },
         { title: "VERIFY DOCUMENTS SCHEDULE", link: "/verify_schedule", icon: People, page_id: 118 },
+        { title: "EVALUATOR SCHEDULE MANAGEMENT", link: "/evaluator_schedule_room_list", icon: People, page_id: 119 },
         { title: "ENTRANCE EXAM ROOM ASSIGNMENT", link: "/assign_entrance_exam", icon: MeetingRoom, page_id: 9 },
         { title: "ENTRANCE EXAM SCHEDULE MANAGEMENT", link: "/registrar_examination_profile", icon: EditCalendar, page_id: 11 },
         { title: "EXAMINATION PROFILE", link: "/registrar_examination_profile", icon: CampaignIcon, page_id: 48 },
         { title: "PROCTOR'S APPLICANT LIST", link: "/admission_schedule_room_list", icon: People, page_id: 33 },
         { title: "ANNOUNCEMENT FOR ADMISSION", link: "/announcement_for_admission", icon: CampaignIcon, page_id: 98 },
         { title: "PROGRAM SLOT REMAINING", link: "/program_slot_limit", icon: People, page_id: 110 },
-        { title: "EVALUATOR SCHEDULE MANAGEMENT", link: "/evaluator_schedule_room_list", icon: People, page_id: 119 }      ],
+        { title: "EVALUATOR SCHEDULE MANAGEMENT", link: "/evaluator_schedule_room_list", icon: People, page_id: 119 }
+
+      ],
     },
 
     {

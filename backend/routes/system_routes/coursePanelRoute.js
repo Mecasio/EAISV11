@@ -19,7 +19,6 @@ router.get("/course_list", async (req, res) => {
   }
 });
 
-/* ===================== ADD COURSE ===================== */
 router.post("/adding_course", async (req, res) => {
   const {
     course_code,
@@ -82,7 +81,7 @@ router.post("/adding_course", async (req, res) => {
   }
 });
 
-/* ===================== UPDATE COURSE ===================== */
+
 router.put("/update_course/:id", async (req, res) => {
   const { id } = req.params;
   const {

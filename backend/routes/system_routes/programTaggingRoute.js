@@ -29,7 +29,7 @@ router.get("/program_tagging_list", async (req, res) => {
   co.course_unit,
   co.lab_unit,
   co.lec_unit,
-
+  co.prereq,
   yl.year_level_description,
   s.semester_description
 FROM program_tagging_table pt

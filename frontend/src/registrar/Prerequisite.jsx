@@ -333,18 +333,20 @@ const CoursePanelMap = () => {
                     <MenuItem value="">
                         <em>None</em>
                     </MenuItem>
-                    {filteredCurriculumList.map((c) => (
-                        <MenuItem key={c.curriculum_id} value={c.curriculum_id}>
-                            {formatSchoolYear(c.year_description)}:{" "}
-                            {`(${c.program_code}): ${c.program_description}${c.major ? ` (${c.major})` : ""
-                                } (${Number(c.components) === 1
-                                    ? "Manila Campus"
-                                    : Number(c.components) === 2
-                                        ? "Cavite Campus"
-                                        : "—"
-                                })`}
-                        </MenuItem>
-                    ))}
+                    {filteredCurriculumList
+                        .sort((a, b) => Number(a.year_description) - Number(b.year_description))
+                        .map((c) => (
+                            <MenuItem key={c.curriculum_id} value={c.curriculum_id}>
+                                {formatSchoolYear(c.year_description)}:{" "}
+                                {`(${c.program_code}): ${c.program_description}${c.major ? ` (${c.major})` : ""
+                                    } (${Number(c.components) === 1
+                                        ? "Manila Campus"
+                                        : Number(c.components) === 2
+                                            ? "Cavite Campus"
+                                            : "—"
+                                    })`}
+                            </MenuItem>
+                        ))}
 
 
 
@@ -428,7 +430,7 @@ const CoursePanelMap = () => {
                                                             <tr>
                                                                 {/* YEAR (LEFT) */}
                                                                 <th
-                                                                    colSpan={3}
+                                                                    colSpan={4}
                                                                     style={{
                                                                         backgroundColor: "#f5f5f5",
                                                                         borderLeft: `2px solid ${borderColor}`,
@@ -466,8 +468,10 @@ const CoursePanelMap = () => {
 
                                                             {/* COLUMN HEADERS */}
                                                             <tr>
-                                                                <th style={headerStyle}>CODE</th>
-                                                                <th style={headerStyle}>COURSE</th>
+                                                                <th style={headerStyle}>#</th>
+                                                                <th style={headerStyle}>COURSE CODE</th>
+                                                                <th style={headerStyle}>COURSE DESCRIPTION</th>
+                                                                <th style={headerStyle}>PREREQUISITE</th>
                                                                 <th style={headerStyle}>CREDITED UNITS</th>
                                                                 <th style={headerStyle}>PREREQUISITES</th>
 
@@ -476,10 +480,12 @@ const CoursePanelMap = () => {
                                                         </thead>
 
                                                         <tbody>
-                                                            {semesterCourses.map((course) => (
+                                                            {semesterCourses.map((course, index) => (
                                                                 <tr key={course.program_tagging_id}>
+                                                                    <td style={{ ...cellStyle, textAlign: "center" }}>{index + 1}</td>
                                                                     <td style={cellStyle}>{course.course_code}</td>
                                                                     <td style={cellStyle}>{course.course_description}</td>
+                                                                    <td style={cellStyle}>{course.prereq}</td>
                                                                     <td style={{ ...cellStyle, textAlign: "center" }}>
                                                                         {course.course_unit}
                                                                     </td>
@@ -528,9 +534,16 @@ const CoursePanelMap = () => {
 
                                                             {/* ===== TOTAL ROW ===== */}
                                                             {/* ===== TOTAL ROW ===== */}
-                                                            <tr style={{ fontWeight: "bold", backgroundColor: "#f0f0f0" }}>
-                                                                <td style={cellStyle} colSpan={2}>
+
+
+                                                            <tr
+                                                                style={{ fontWeight: "bold", backgroundColor: "#f0f0f0" }}>
+                                                                <td style={cellStyle} colSpan={3}>
                                                                     TOTAL
+                                                                </td>
+
+                                                                <td style={{ ...cellStyle, textAlign: "center" }}>
+
                                                                 </td>
 
                                                                 {/* TOTAL UNITS */}

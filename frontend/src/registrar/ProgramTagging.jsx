@@ -192,9 +192,10 @@ const ProgramTagging = () => {
 
     const courseCode = (course.course_code || "").toLowerCase();
     const courseDesc = (course.course_description || "").toLowerCase();
+    const coursePreq = (course.prereq || "").toLowerCase();
 
     return words.every((word) =>
-      courseCode.includes(word) || courseDesc.includes(word)
+      courseCode.includes(word) || courseDesc.includes(word) || coursePreq.includes(word)
     );
   });
 
@@ -663,13 +664,15 @@ const ProgramTagging = () => {
             >
               <option value="">Choose Curriculum</option>
 
-              {filteredCurriculumList.map((curriculum) => (
-                <option key={curriculum.curriculum_id} value={curriculum.curriculum_id}>
-                  {formatSchoolYear(curriculum.year_description)}:
-                  {` (${curriculum.program_code}) ${curriculum.program_description}`}
-                  {curriculum.major ? ` (${curriculum.major})` : ""}
-                </option>
-              ))}
+              {filteredCurriculumList
+                .sort((a, b) => Number(a.year_description) - Number(b.year_description))
+                .map((curriculum) => (
+                  <option key={curriculum.curriculum_id} value={curriculum.curriculum_id}>
+                    {formatSchoolYear(curriculum.year_description)}:
+                    {` (${curriculum.program_code}) ${curriculum.program_description}`}
+                    {curriculum.major ? ` (${curriculum.major})` : ""}
+                  </option>
+                ))}
             </select>
           </div>
 
@@ -703,7 +706,7 @@ const ProgramTagging = () => {
 
               {filteredCourses.map((course) => (
                 <option key={course.course_id} value={course.course_id}>
-                  {course.course_code} - {course.course_description}
+                  {course.course_code} - {course.course_description} - ({course.prereq})
                 </option>
               ))}
             </select>
@@ -1218,7 +1221,7 @@ const ProgramTagging = () => {
 
 
                       <td style={{ ...styles.td, border: `2px solid ${borderColor}` }}>
-                        ({program.course_code}) - {program.course_description}
+                        ({program.course_code}) - {program.course_description} - ({program.prereq})
                       </td>
                       <td style={{ ...styles.td, border: `2px solid ${borderColor}`, textAlign: "center" }}>
                         {program.year_level_description}
