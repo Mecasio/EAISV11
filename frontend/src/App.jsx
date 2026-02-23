@@ -233,8 +233,17 @@ function App() {
   const fetchSettings = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/settings`);
-      setSettings(response.data);
-      setLogoVersion(Date.now()); // 🔥 update version
+      const data = response.data;
+
+      setSettings({
+        ...data,
+        branches:
+          typeof data.branches === "string"
+            ? JSON.parse(data.branches)
+            : data.branches || []
+      });
+
+      setLogoVersion(Date.now());
     } catch (error) {
       console.error("Error fetching settings:", error);
     }
@@ -249,7 +258,7 @@ function App() {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-  
+
 
   // ✅ Check authentication
   useEffect(() => {

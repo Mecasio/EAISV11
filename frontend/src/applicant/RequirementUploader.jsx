@@ -84,10 +84,9 @@ const RequirementUploader = () => {
   const fetchUploads = async (personId) => {
     try {
       // ✅ Fetch user's uploaded files
-      const res = await axios.get(`${API_BASE_URL}/uploads`, {
-        headers: { "x-person-id": personId },
-      });
+      const res = await axios.get(`${API_BASE_URL}/uploads/${personId}`);
       const uploadsData = res.data;
+      console.log(uploadsData)
       setUploads(uploadsData);
 
       // ✅ Map uploaded files to their requirement IDs

@@ -48,13 +48,14 @@ const Dashboard1 = (props) => {
   const [subtitleColor, setSubtitleColor] = useState("#555555");
   const [borderColor, setBorderColor] = useState("#000000");
   const [mainButtonColor, setMainButtonColor] = useState("#1976d2");
-  const [subButtonColor, setSubButtonColor] = useState("#ffffff"); // ✅ NEW
-  const [stepperColor, setStepperColor] = useState("#000000"); // ✅ NEW
+  const [subButtonColor, setSubButtonColor] = useState("#ffffff");   // ✅ NEW
+  const [stepperColor, setStepperColor] = useState("#000000");       // ✅ NEW
 
   const [fetchedLogo, setFetchedLogo] = useState(null);
   const [companyName, setCompanyName] = useState("");
   const [shortTerm, setShortTerm] = useState("");
   const [campusAddress, setCampusAddress] = useState("");
+  const [branches, setBranches] = useState([]);
 
   useEffect(() => {
     if (!settings) return;
@@ -63,10 +64,9 @@ const Dashboard1 = (props) => {
     if (settings.title_color) setTitleColor(settings.title_color);
     if (settings.subtitle_color) setSubtitleColor(settings.subtitle_color);
     if (settings.border_color) setBorderColor(settings.border_color);
-    if (settings.main_button_color)
-      setMainButtonColor(settings.main_button_color);
-    if (settings.sub_button_color) setSubButtonColor(settings.sub_button_color); // ✅ NEW
-    if (settings.stepper_color) setStepperColor(settings.stepper_color); // ✅ NEW
+    if (settings.main_button_color) setMainButtonColor(settings.main_button_color);
+    if (settings.sub_button_color) setSubButtonColor(settings.sub_button_color);
+    if (settings.stepper_color) setStepperColor(settings.stepper_color);
 
     // 🏫 Logo
     if (settings.logo_url) {
@@ -75,10 +75,20 @@ const Dashboard1 = (props) => {
       setFetchedLogo(EaristLogo);
     }
 
-    // 🏷️ School Information
+    // 🏷️ School Info
     if (settings.company_name) setCompanyName(settings.company_name);
     if (settings.short_term) setShortTerm(settings.short_term);
     if (settings.campus_address) setCampusAddress(settings.campus_address);
+
+    // ✅ Branches (JSON stored in DB)
+    if (settings.branches) {
+      setBranches(
+        typeof settings.branches === "string"
+          ? JSON.parse(settings.branches)
+          : settings.branches
+      );
+    }
+
   }, [settings]);
 
   const navigate = useNavigate();
@@ -1275,38 +1285,29 @@ const Dashboard1 = (props) => {
                 <Select
                   id="campus-select"
                   name="campus"
-                  value={
-                    person.campus === null ||
-                      person.campus === "" ||
-                      person.campus === undefined ||
-                      person.campus === 0
-                      ? ""
-                      : String(person.campus)
-                  }
+                  value={person.campus || ""}
                   onChange={(e) => {
-                    const val = e.target.value;
-
                     handleChange({
-                      target: {
-                        name: "campus",
-                        value: val,
-                      },
+                      target: { name: "campus", value: e.target.value },
                     });
                   }}
                   displayEmpty
                   renderValue={(selected) => {
-                    if (selected === "") {
-                      return <em>Select Campus</em>;
-                    }
-                    return selected === "1" ? "MANILA" : "CAVITE";
+                    if (!selected) return <em>Select Campus</em>;
+
+                    const branch = branches.find(b => String(b.id) === String(selected));
+                    return branch ? branch.branch.toUpperCase() : "Select Campus";
                   }}
                 >
                   <MenuItem value="">
                     <em>Select Campus</em>
                   </MenuItem>
 
-                  <MenuItem value="1">MANILA</MenuItem>
-                  <MenuItem value="2">CAVITE</MenuItem>
+                  {branches.map((b) => (
+                    <MenuItem key={b.id} value={String(b.id)}>
+                      {b.branch.toUpperCase()}
+                    </MenuItem>
+                  ))}
                 </Select>
 
                 {errors.campus && (
@@ -1569,7 +1570,7 @@ const Dashboard1 = (props) => {
                                 })`}
 
                               {/* Slot info */}
-                              {/* {isFull ? (
+                  {/* {isFull ? (
                                 <span style={{ marginLeft: 8 }}>
                                   — FULL (0 slots left)
                                 </span>
@@ -1588,9 +1589,9 @@ const Dashboard1 = (props) => {
                         <FormHelperText>This field is required.</FormHelperText>
                       )}
                     </FormControl> */}
-                  {/* </Box> */} 
+                  {/* </Box> */}
 
-                     {/* <Box display="flex" alignItems="center" gap={2} mb={1}>
+                  {/* <Box display="flex" alignItems="center" gap={2} mb={1}>
                     <label className="w-40 font-medium">Course Applied</label>
                     <FormControl fullWidth size="small" required error={!!errors.program3}>
                       <InputLabel>Course Applied</InputLabel>
@@ -1631,7 +1632,7 @@ const Dashboard1 = (props) => {
                                 })`}
 
                               {/* Slot info */}
-                              {/* {isFull ? (
+                  {/* {isFull ? (
                                 <span style={{ marginLeft: 8 }}>
                                   — FULL (0 slots left)
                                 </span>
@@ -1650,7 +1651,7 @@ const Dashboard1 = (props) => {
                         <FormHelperText>This field is required.</FormHelperText>
                       )}
                     </FormControl> */}
-                  {/* </Box> */} 
+                  {/* </Box> */}
 
 
 

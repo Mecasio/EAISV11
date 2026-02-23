@@ -20,7 +20,7 @@ const PersonalDataForm = () => {
     const [fetchedLogo, setFetchedLogo] = useState(null);
     const [companyName, setCompanyName] = useState("");
     const [shortTerm, setShortTerm] = useState("");
-    const [campusAddress, setCampusAddress] = useState("");
+    const [branches, setBranches] = useState([]);
 
     useEffect(() => {
         if (!settings) return;
@@ -30,8 +30,8 @@ const PersonalDataForm = () => {
         if (settings.subtitle_color) setSubtitleColor(settings.subtitle_color);
         if (settings.border_color) setBorderColor(settings.border_color);
         if (settings.main_button_color) setMainButtonColor(settings.main_button_color);
-        if (settings.sub_button_color) setSubButtonColor(settings.sub_button_color);   // ✅ NEW
-        if (settings.stepper_color) setStepperColor(settings.stepper_color);           // ✅ NEW
+        if (settings.sub_button_color) setSubButtonColor(settings.sub_button_color);
+        if (settings.stepper_color) setStepperColor(settings.stepper_color);
 
         // 🏫 Logo
         if (settings.logo_url) {
@@ -40,13 +40,21 @@ const PersonalDataForm = () => {
             setFetchedLogo(EaristLogo);
         }
 
-        // 🏷️ School Information
+        // 🏷️ School Info
         if (settings.company_name) setCompanyName(settings.company_name);
         if (settings.short_term) setShortTerm(settings.short_term);
         if (settings.campus_address) setCampusAddress(settings.campus_address);
 
-    }, [settings]);
+        // ✅ Branches (JSON stored in DB)
+        if (settings.branches) {
+            setBranches(
+                typeof settings.branches === "string"
+                    ? JSON.parse(settings.branches)
+                    : settings.branches
+            );
+        }
 
+    }, [settings]);
 
     const [userID, setUserID] = useState("");
     const [user, setUser] = useState("");
@@ -311,7 +319,7 @@ const PersonalDataForm = () => {
 
 
     return (
-       <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
+        <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
             <Box
                 sx={{
                     display: "flex",

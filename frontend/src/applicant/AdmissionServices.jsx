@@ -10,8 +10,7 @@ import { FcPrint } from "react-icons/fc";
 import axios from "axios";
 import API_BASE_URL from "../apiConfig";
 const AdmissionServices = () => {
-
-    const settings = useContext(SettingsContext);
+  const settings = useContext(SettingsContext);
 
     const [titleColor, setTitleColor] = useState("#000000");
     const [subtitleColor, setSubtitleColor] = useState("#555555");
@@ -24,6 +23,7 @@ const AdmissionServices = () => {
     const [companyName, setCompanyName] = useState("");
     const [shortTerm, setShortTerm] = useState("");
     const [campusAddress, setCampusAddress] = useState("");
+    const [branches, setBranches] = useState([]);
 
     useEffect(() => {
         if (!settings) return;
@@ -33,8 +33,8 @@ const AdmissionServices = () => {
         if (settings.subtitle_color) setSubtitleColor(settings.subtitle_color);
         if (settings.border_color) setBorderColor(settings.border_color);
         if (settings.main_button_color) setMainButtonColor(settings.main_button_color);
-        if (settings.sub_button_color) setSubButtonColor(settings.sub_button_color);   // ✅ NEW
-        if (settings.stepper_color) setStepperColor(settings.stepper_color);           // ✅ NEW
+        if (settings.sub_button_color) setSubButtonColor(settings.sub_button_color);
+        if (settings.stepper_color) setStepperColor(settings.stepper_color);
 
         // 🏫 Logo
         if (settings.logo_url) {
@@ -43,14 +43,28 @@ const AdmissionServices = () => {
             setFetchedLogo(EaristLogo);
         }
 
-        // 🏷️ School Information
+        // 🏷️ School Info
         if (settings.company_name) setCompanyName(settings.company_name);
         if (settings.short_term) setShortTerm(settings.short_term);
         if (settings.campus_address) setCampusAddress(settings.campus_address);
 
+        // ✅ Branches (JSON stored in DB)
+        if (settings?.branches) {
+            try {
+                const parsed =
+                    typeof settings.branches === "string"
+                        ? JSON.parse(settings.branches)
+                        : settings.branches;
+
+                setBranches(parsed);
+            } catch (err) {
+                console.error("Failed to parse branches:", err);
+                setBranches([]);
+            }
+        }
+
+
     }, [settings]);
-
-
 
     const words = companyName.trim().split(" ");
     const middleIndex = Math.ceil(words.length / 2);

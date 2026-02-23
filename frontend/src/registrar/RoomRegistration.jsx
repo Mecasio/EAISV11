@@ -17,6 +17,7 @@ import {
   Snackbar,
   Alert,
   TableContainer,
+  MenuItem
 } from "@mui/material";
 import { Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import API_BASE_URL from "../apiConfig";
@@ -34,7 +35,6 @@ import KeyIcon from "@mui/icons-material/Key";
 import CampaignIcon from '@mui/icons-material/Campaign';
 import { useNavigate } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
-
 
 
 const RoomRegistration = () => {
@@ -77,7 +77,6 @@ const RoomRegistration = () => {
 
   }, [settings]);
 
-  // 🔹 Authentication and access states
   const [userID, setUserID] = useState("");
   const [user, setUser] = useState("");
   const [userRole, setUserRole] = useState("");
@@ -139,7 +138,6 @@ const RoomRegistration = () => {
     { label: "Evaluator's Applicant List", to: "/evaluator_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
     { label: "Entrance Exam Room Assignment", to: "/assign_entrance_exam", icon: <MeetingRoomIcon fontSize="large" /> },
     { label: "Entrance Exam Schedule Management", to: "/assign_schedule_applicant", icon: <ScheduleIcon fontSize="large" /> },
-    { label: "Examination Profile", to: "/registrar_examination_profile", icon: <PersonSearchIcon fontSize="large" /> },
     { label: "Proctor's Applicant List", to: "/admission_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
     { label: "Announcement", to: "/announcement_for_admission", icon: <CampaignIcon fontSize="large" /> },
   ];
@@ -155,6 +153,8 @@ const RoomRegistration = () => {
     navigate(to); // this will actually change the page
   };
 
+
+
   // 🔹 Room management states
   const [roomName, setRoomName] = useState("");
   const [buildingName, setBuildingName] = useState("");
@@ -165,6 +165,11 @@ const RoomRegistration = () => {
     message: "",
     severity: "info",
   });
+
+  const [floor, setFloor] = useState("");
+  const [type, setType] = useState(0);
+  const [branch, setBranch] = useState(1);
+  const [isAircon, setIsAircon] = useState(0);
 
   // 🔹 Fetch all rooms
   const fetchRoomList = async () => {
@@ -185,21 +190,25 @@ const RoomRegistration = () => {
     fetchRoomList();
   }, []);
 
-  // 🔹 Add new room
   const handleAddRoom = async () => {
-    if (!roomName.trim() || !buildingName.trim()) {
+    if (!roomName.trim() || !floor) {
       setSnack({
         open: true,
-        message: "Room name and building name are required",
+        message: "Room name and floor are required",
         severity: "warning",
       });
       return;
     }
 
     try {
-      await axios.post(`${API_BASE_URL}/room`, {
-        room_name: roomName,
-        building_name: buildingName,
+      await axios.post(`${API_BASE_URL}/adding_room`, {
+        room_description: roomName,
+        building_description: buildingName,
+        floor,
+        is_airconditioned: isAircon,
+        type,
+        branch,
+        updated_by: employeeID,
       });
 
       setSnack({
@@ -207,12 +216,13 @@ const RoomRegistration = () => {
         message: "Room successfully added",
         severity: "success",
       });
+
       setRoomName("");
       setBuildingName("");
+      setFloor("");
       fetchRoomList();
     } catch (err) {
       console.error("Error adding room:", err);
-
       setSnack({
         open: true,
         message: err.response?.data?.message || "Failed to add room",
@@ -220,6 +230,8 @@ const RoomRegistration = () => {
       });
     }
   };
+
+
 
   // 🔹 Add search state
   const [searchQuery, setSearchQuery] = useState("");
@@ -232,52 +244,64 @@ const RoomRegistration = () => {
   );
 
 
-  // Update room
+  const handleEditRoom = (room) => {
+    setEditingRoom(room);
+    setBuildingName(room.building_description || "");
+    setRoomName(room.room_description || "");
+    setFloor(room.floor || "");
+    setType(room.type || 0);
+    setBranch(room.branch || 1);
+    setIsAircon(room.is_airconditioned || 0);
+  };
+
+
+  // 🔹 Update room
   const handleUpdateRoom = async () => {
     if (!editingRoom) return;
 
     try {
-      await axios.put(`${API_BASE_URL}/room/${editingRoom.room_id}`, {
-        building_name: buildingName,
-        room_name: roomName,
-      });
+      await axios.put(
+        `${API_BASE_URL}/update_room/${editingRoom.room_id}`,
+        {
+          room_description: roomName,
+          building_description: buildingName,
+          floor,
+          is_airconditioned: isAircon,
+          type,
+          branch,
+          updated_by: employeeID,
+        }
+      );
 
       setSnack({
         open: true,
         message: "Room updated successfully",
         severity: "success",
       });
+
       setEditingRoom(null);
-      setBuildingName("");
-      setRoomName("");
       fetchRoomList();
     } catch (err) {
       console.error("Error updating room:", err);
-
       setSnack({
         open: true,
-        message: err.response?.data?.message || "Failed to update room",
+        message: err.response?.data?.message || "Failed to update",
         severity: "error",
       });
     }
   };
 
-  // 🔹 Edit room
-  const handleEditRoom = (room) => {
-    setEditingRoom(room);
-    setBuildingName(room.building_description);
-    setRoomName(room.room_description);
-  };
 
 
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [roomToDelete, setRoomToDelete] = useState(null);
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
 
+
   // 🔹 Delete room (automatic, no confirm)
   const handleDeleteRoom = async (roomId) => {
     try {
-      await axios.delete(`${API_BASE_URL}/room/${roomId}`);
+      await axios.delete(`${API_BASE_URL}/delete_room/${roomId}`);
       setSnack({
         open: true,
         message: "Room deleted successfully",
@@ -301,30 +325,20 @@ const RoomRegistration = () => {
     setSnack((prev) => ({ ...prev, open: false }));
   };
 
-  // 🔒 Security: disable right-click + devtools keys safely
-  useEffect(() => {
-    const disableContext = (e) => e.preventDefault();
-    const disableKeys = (e) => {
-      const isBlockedKey =
-        e.key === "F12" ||
-        e.key === "F11" ||
-        (e.ctrlKey &&
-          e.shiftKey &&
-          (e.key.toLowerCase() === "i" || e.key.toLowerCase() === "j")) ||
-        (e.ctrlKey && ["u", "p"].includes(e.key.toLowerCase()));
+  const ROOM_TYPES = [
+    { value: 0, label: "Lecture" },
+    { value: 1, label: "Laboratory" },
+  ];
 
-      if (isBlockedKey) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    };
-    document.addEventListener("contextmenu", disableContext);
-    document.addEventListener("keydown", disableKeys);
-    return () => {
-      document.removeEventListener("contextmenu", disableContext);
-      document.removeEventListener("keydown", disableKeys);
-    };
-  }, []);
+  const BRANCHES = [
+    { value: 1, label: "Manila" },
+    { value: 2, label: "Cavite" },
+  ];
+
+  const AIRCON_OPTIONS = [
+    { value: 0, label: "No" },
+    { value: 1, label: "Yes" },
+  ];
 
   // 🔹 Loading / Unauthorized states
   if (loading || hasAccess === null) {
@@ -374,8 +388,9 @@ const RoomRegistration = () => {
       </Box>
       <hr style={{ border: "1px solid #ccc", width: "100%" }} />
 
-    <br/>
-     <br/>
+
+      <br />
+      <br />
       <Box
         sx={{
           display: "flex",
@@ -469,6 +484,60 @@ const RoomRegistration = () => {
               onChange={(e) => setRoomName(e.target.value)}
               sx={{ mb: 2 }}
             />
+            <Typography fontWeight={500}>Floor:</Typography>
+            <TextField
+              fullWidth
+              label="Floor"
+              type="number"
+              value={floor}
+              onChange={(e) => setFloor(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+
+            <Typography fontWeight={500}>Room Type:</Typography>
+            <TextField
+              select
+              fullWidth
+              value={type}
+              onChange={(e) => setType(Number(e.target.value))}
+              sx={{ mb: 2 }}
+            >
+              {ROOM_TYPES.map((item) => (
+                <MenuItem key={item.value} value={item.value}>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </TextField>
+
+            <Typography fontWeight={500}>Branch:</Typography>
+            <TextField
+              select
+              fullWidth
+              value={branch}
+              onChange={(e) => setBranch(Number(e.target.value))}
+              sx={{ mb: 2 }}
+            >
+              {BRANCHES.map((item) => (
+                <MenuItem key={item.value} value={item.value}>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </TextField>
+
+            <Typography fontWeight={500}>Airconditioned:</Typography>
+            <TextField
+              select
+              fullWidth
+              value={isAircon}
+              onChange={(e) => setIsAircon(Number(e.target.value))}
+              sx={{ mb: 2 }}
+            >
+              {AIRCON_OPTIONS.map((item) => (
+                <MenuItem key={item.value} value={item.value}>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </TextField>
 
             <Button
               variant="contained"
@@ -481,7 +550,7 @@ const RoomRegistration = () => {
                 }
               }}
               sx={{
-                backgroundColor: "primary",
+                backgroundColor: mainButtonColor,
                 "&:hover": { backgroundColor: "#a00000" },
               }}
             >
@@ -504,8 +573,6 @@ const RoomRegistration = () => {
               Registered Rooms
             </Typography>
 
-            {/* 🔍 Search bar */}
-
             <Box sx={{ maxHeight: 750, overflowY: "auto" }}>
               <Table stickyHeader size="small">
                 <TableHead>
@@ -513,20 +580,56 @@ const RoomRegistration = () => {
                     <TableCell sx={{ border: `2px solid ${borderColor}`, backgroundColor: settings?.header_color || "#1976d2", color: "#fff" }}>Room ID</TableCell>
                     <TableCell sx={{ border: `2px solid ${borderColor}`, backgroundColor: settings?.header_color || "#1976d2", color: "#fff" }}>Building</TableCell>
                     <TableCell sx={{ border: `2px solid ${borderColor}`, backgroundColor: settings?.header_color || "#1976d2", color: "#fff" }}>Room Name</TableCell>
+
+                    {/* ✅ NEW */}
+                    <TableCell sx={{ border: `2px solid ${borderColor}`, backgroundColor: settings?.header_color || "#1976d2", color: "#fff" }}>Floor</TableCell>
+                    <TableCell sx={{ border: `2px solid ${borderColor}`, backgroundColor: settings?.header_color || "#1976d2", color: "#fff" }}>Type</TableCell>
+                    <TableCell sx={{ border: `2px solid ${borderColor}`, backgroundColor: settings?.header_color || "#1976d2", color: "#fff" }}>Branch</TableCell>
+                    <TableCell sx={{ border: `2px solid ${borderColor}`, backgroundColor: settings?.header_color || "#1976d2", color: "#fff" }}>Aircon</TableCell>
+
                     <TableCell sx={{ border: `2px solid ${borderColor}`, backgroundColor: settings?.header_color || "#1976d2", color: "#fff" }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {filteredRooms.length > 0 ? filteredRooms.map((room, index) => (
+                  {filteredRooms.map((room, index) => (
                     <TableRow key={index}>
                       <TableCell sx={{ border: `2px solid ${borderColor}` }}>{index + 1}</TableCell>
-                      <TableCell sx={{ border: `2px solid ${borderColor}` }}>{room.building_description || "N/A"}</TableCell>
-                      <TableCell sx={{ border: `2px solid ${borderColor}` }}>{room.room_description}</TableCell>
+
+                      <TableCell sx={{ border: `2px solid ${borderColor}` }}>
+                        {room.building_description || "N/A"}
+                      </TableCell>
+
+                      <TableCell sx={{ border: `2px solid ${borderColor}` }}>
+                        {room.room_description}
+                      </TableCell>
+
+                      {/* ✅ NEW COLUMNS */}
+
+                      <TableCell sx={{ border: `2px solid ${borderColor}` }}>
+                        {room.floor || "N/A"}
+                      </TableCell>
+
+                      <TableCell sx={{ border: `2px solid ${borderColor}` }}>
+                        {ROOM_TYPES.find((t) => t.value === Number(room.type))?.label || "N/A"}
+                      </TableCell>
+
+                      <TableCell sx={{ border: `2px solid ${borderColor}` }}>
+                        {BRANCHES.find((b) => b.value === Number(room.branch))?.label || "N/A"}
+                      </TableCell>
+
+                      <TableCell sx={{ border: `2px solid ${borderColor}` }}>
+                        {AIRCON_OPTIONS.find((a) => a.value === Number(room.is_airconditioned))?.label || "N/A"}
+                      </TableCell>
+
                       <TableCell sx={{ border: `2px solid ${borderColor}`, textAlign: "center" }}>
                         <Button
                           variant="contained"
                           size="small"
-                          sx={{ backgroundColor: "green", color: "white", mr: 1 }}
+                          sx={{
+                            backgroundColor: "green",
+                            color: "white",
+                            mr: 1,
+                          }}
                           onClick={() => handleEditRoom(room)}
                         >
                           Edit
@@ -534,7 +637,10 @@ const RoomRegistration = () => {
                         <Button
                           variant="contained"
                           size="small"
-                          sx={{ backgroundColor: "#9E0000", color: "white" }}
+                          sx={{
+                            backgroundColor: "#9E0000",
+                            color: "white",
+                          }}
                           onClick={() => {
                             setRoomToDelete(room);
                             setOpenDeleteDialog(true);
@@ -544,18 +650,12 @@ const RoomRegistration = () => {
                         </Button>
                       </TableCell>
                     </TableRow>
-                  )) : (
-                    <TableRow>
-                      <TableCell colSpan={4} sx={{ textAlign: "center", padding: 2, color: "#777" }}>
-                        No rooms found.
-                      </TableCell>
-                    </TableRow>
-                  )}
+                  ))}
                 </TableBody>
+
               </Table>
             </Box>
           </Paper>
-
         </Grid>
       </Grid>
 
@@ -615,8 +715,8 @@ const RoomRegistration = () => {
           <Button
             variant="contained"
             onClick={async () => {
+              setOpenUpdateDialog(false); // close first
               await handleUpdateRoom();
-              setOpenUpdateDialog(false);
             }}
           >
             Yes, Update
@@ -641,3 +741,4 @@ const RoomRegistration = () => {
 };
 
 export default RoomRegistration;
+

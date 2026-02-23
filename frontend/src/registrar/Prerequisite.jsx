@@ -430,7 +430,7 @@ const CoursePanelMap = () => {
                                                             <tr>
                                                                 {/* YEAR (LEFT) */}
                                                                 <th
-                                                                    colSpan={4}
+                                                                    colSpan={3}
                                                                     style={{
                                                                         backgroundColor: "#f5f5f5",
                                                                         borderLeft: `2px solid ${borderColor}`,
@@ -471,7 +471,7 @@ const CoursePanelMap = () => {
                                                                 <th style={headerStyle}>#</th>
                                                                 <th style={headerStyle}>COURSE CODE</th>
                                                                 <th style={headerStyle}>COURSE DESCRIPTION</th>
-                                                                <th style={headerStyle}>PREREQUISITE</th>
+                                                               
                                                                 <th style={headerStyle}>CREDITED UNITS</th>
                                                                 <th style={headerStyle}>PREREQUISITES</th>
 
@@ -485,7 +485,7 @@ const CoursePanelMap = () => {
                                                                     <td style={{ ...cellStyle, textAlign: "center" }}>{index + 1}</td>
                                                                     <td style={cellStyle}>{course.course_code}</td>
                                                                     <td style={cellStyle}>{course.course_description}</td>
-                                                                    <td style={cellStyle}>{course.prereq}</td>
+                                                                   
                                                                     <td style={{ ...cellStyle, textAlign: "center" }}>
                                                                         {course.course_unit}
                                                                     </td>
@@ -538,7 +538,7 @@ const CoursePanelMap = () => {
 
                                                             <tr
                                                                 style={{ fontWeight: "bold", backgroundColor: "#f0f0f0" }}>
-                                                                <td style={cellStyle} colSpan={3}>
+                                                                <td style={cellStyle} colSpan={2}>
                                                                     TOTAL
                                                                 </td>
 

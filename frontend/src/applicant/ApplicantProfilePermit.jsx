@@ -7,6 +7,56 @@ import "../styles/Print.css";
 import API_BASE_URL from "../apiConfig";
 // ✅ Accept personId as a prop
 const ApplicantProfilePermit = ({ personId }) => {
+
+    const settings = useContext(SettingsContext);
+
+    const [titleColor, setTitleColor] = useState("#000000");
+    const [subtitleColor, setSubtitleColor] = useState("#555555");
+    const [borderColor, setBorderColor] = useState("#000000");
+    const [mainButtonColor, setMainButtonColor] = useState("#1976d2");
+    const [subButtonColor, setSubButtonColor] = useState("#ffffff");   // ✅ NEW
+    const [stepperColor, setStepperColor] = useState("#000000");       // ✅ NEW
+
+    const [fetchedLogo, setFetchedLogo] = useState(null);
+    const [companyName, setCompanyName] = useState("");
+    const [shortTerm, setShortTerm] = useState("");
+    const [campusAddress, setCampusAddress] = useState("");
+    const [branches, setBranches] = useState([]);
+
+    useEffect(() => {
+        if (!settings) return;
+
+        // 🎨 Colors
+        if (settings.title_color) setTitleColor(settings.title_color);
+        if (settings.subtitle_color) setSubtitleColor(settings.subtitle_color);
+        if (settings.border_color) setBorderColor(settings.border_color);
+        if (settings.main_button_color) setMainButtonColor(settings.main_button_color);
+        if (settings.sub_button_color) setSubButtonColor(settings.sub_button_color);
+        if (settings.stepper_color) setStepperColor(settings.stepper_color);
+
+        // 🏫 Logo
+        if (settings.logo_url) {
+            setFetchedLogo(`${API_BASE_URL}${settings.logo_url}`);
+        } else {
+            setFetchedLogo(EaristLogo);
+        }
+
+        // 🏷️ School Info
+        if (settings.company_name) setCompanyName(settings.company_name);
+        if (settings.short_term) setShortTerm(settings.short_term);
+        if (settings.campus_address) setCampusAddress(settings.campus_address);
+
+        // ✅ Branches (JSON stored in DB)
+        if (settings.branches) {
+            try {
+                setBranches(JSON.parse(settings.branches));
+            } catch (err) {
+                console.error("Invalid branches JSON", err);
+            }
+        }
+
+    }, [settings]);
+    
     const divToPrintRef = useRef(null);
     const [person, setPerson] = useState(null);
     const [examSchedule, setExamSchedule] = useState(null);
@@ -503,7 +553,7 @@ const ApplicantProfilePermit = ({ personId }) => {
                                             }}
                                         >
                                             <QRCodeSVG
-                                               value={`${window.location.origin}/applicant_profile/${person.applicant_number}`}
+                                                value={`${window.location.origin}/applicant_profile/${person.applicant_number}`}
                                                 size={150}
                                                 level="H"
                                             />

@@ -36,11 +36,9 @@ app.use("/assets", express.static(path.join(__dirname, "assets")));
 const allowedOrigins = [
   'http://localhost:5173',
   'http://192.168.50.77:5173',
-  'http://192.168.50.44:5173',
+  'http://192.168.50.43:5173',
   'http://192.168.50.211:5173',
   'http://136.239.248.58:5173',
-  'http://192.168.50.43:5173',
-  'http://192.168.50.44:5173',
 ];
 
 app.use(
@@ -100,6 +98,7 @@ const registrarRoutes = require("./routes/reset_password_routes/registrarresetpa
 const announcementRoute = require("./routes/system_routes/announcement");
 const programSlots = require("./routes/system_routes/programSlots");
 const departmentRoute = require("./routes/system_routes/dprmntRoute");
+const roomRegistrationRoute = require("./routes/system_routes/roomRegistrationRoute");
 
 app.use("/", programRoute);
 app.use("/auth/", authRoute);
@@ -126,6 +125,7 @@ app.use("/", registrarRoutes);
 app.use("/api", announcementRoute);
 app.use("/api", programSlots);
 app.use("/", departmentRoute);
+app.use("/", roomRegistrationRoute);
 
 const uploadPath = path.join(__dirname, "uploads");
 
@@ -301,6 +301,8 @@ const announcementStorage = multer.diskStorage({
 
 const announcementUpload = multer({ storage: announcementStorage });
 
+
+// Ito
 const upload = multer({ storage: multer.memoryStorage() });
 
 const nodemailer = require("nodemailer");
@@ -440,6 +442,7 @@ const deleteOldFile = (fileUrl) => {
 };
 
 // ✅ GET Settings
+// ✅ GET Settings
 app.get("/api/settings", async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -465,15 +468,27 @@ app.get("/api/settings", async (req, res) => {
 
         title_color: "#000000",
         subtitle_color: "#555555",
+
+        // ✅ NEW
+        branches: [],
       });
     }
 
-    res.json(rows[0]);
+    const settings = rows[0];
+
+    // ✅ parse JSON branches
+    settings.branches = settings.branches
+      ? JSON.parse(settings.branches)
+      : [];
+
+    res.json(settings);
   } catch (err) {
     console.error("❌ Error fetching settings:", err);
     res.status(500).json({ error: err.message });
   }
 });
+
+
 
 // ✅ POST Settings
 app.post(
@@ -500,7 +515,22 @@ app.post(
 
         title_color,
         subtitle_color,
+
+        // ✅ NEW
+        branches,
       } = req.body;
+      
+      console.log("REQ.BODY:", req.body);
+      console.log("BRANCHES RAW:", branches);
+      let parsedBranches = "[]";
+
+      try {
+        parsedBranches = Array.isArray(branches)
+          ? JSON.stringify(branches)
+          : JSON.stringify(JSON.parse(branches));
+      } catch (e) {
+        parsedBranches = "[]";
+      }
 
       const logoUrl = req.files["logo"]
         ? `/uploads/${req.files["logo"][0].filename}`
@@ -535,7 +565,9 @@ app.post(
             sidebar_button_color=?,
 
             title_color=?,
-            subtitle_color=?`;
+            subtitle_color=?,
+
+            branches=?`;
 
         const params = [
           company_name || "",
@@ -553,6 +585,9 @@ app.post(
 
           title_color || "#000000",
           subtitle_color || "#555555",
+
+          // ✅ NEW
+          parsedBranches,
         ];
 
         if (logoUrl) {
@@ -583,9 +618,10 @@ app.post(
             company_name, short_term, address, header_color, footer_text, footer_color,
             logo_url, bg_image,
             main_button_color, sub_button_color, border_color, stepper_color, sidebar_button_color,
-            title_color, subtitle_color
+            title_color, subtitle_color,
+            branches
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
         await db.query(insertQuery, [
           company_name || "",
@@ -605,6 +641,9 @@ app.post(
 
           title_color || "#000000",
           subtitle_color || "#555555",
+
+          // ✅ NEW
+          parsedBranches,
         ]);
 
         res.json({ success: true, message: "Settings created successfully." });
@@ -615,6 +654,8 @@ app.post(
     }
   },
 );
+
+
 
 //----------------------------End Settings----------------------------//
 
@@ -2372,8 +2413,8 @@ app.delete("/admin/uploads/:uploadId", async (req, res) => {
 });
 
 // ✅ Updated: Return uploads joined with requirement details
-app.get("/uploads", async (req, res) => {
-  const personId = req.headers["x-person-id"];
+app.get("/uploads/:personId", async (req, res) => {
+  const personId = req.params.personId;
   if (!personId) return res.status(400).json({ error: "Missing person ID" });
 
   try {
@@ -6884,21 +6925,6 @@ app.get("/day_list", async (req, res) => {
 });
 
 // ============================
-// GET - Room List (from enrollment.room_table)
-// ============================
-app.get("/room_list", async (req, res) => {
-  try {
-    const [results] = await db.query(
-      "SELECT room_id, room_description, building_description FROM enrollment.room_table ORDER BY room_description ASC",
-    );
-    res.json(results);
-  } catch (err) {
-    console.error("Error fetching rooms:", err);
-    res.status(500).json({ error: "Database error" });
-  }
-});
-
-// ============================
 // POST - Insert Entrance Exam Schedule
 // ============================
 // ✅ Get all interview schedules
@@ -8993,102 +9019,6 @@ app.delete("/school_years/:id", async (req, res) => {
   }
 });
 
-// ADD ROOM (Prevent Duplicate)
-app.post("/room", async (req, res) => {
-  const { room_name, building_name } = req.body;
-
-  if (!room_name || !building_name) {
-    return res.status(400).json({ message: "Missing fields" });
-  }
-
-  try {
-    // Check duplicate
-    const [exists] = await db3.query(
-      `SELECT * FROM room_table 
-       WHERE room_description = ? AND building_description = ? LIMIT 1`,
-      [room_name, building_name],
-    );
-
-    if (exists.length > 0) {
-      return res
-        .status(400)
-        .json({ message: "Room already exists in this building" });
-    }
-
-    await db3.query(
-      `INSERT INTO room_table (room_description, building_description)
-       VALUES (?, ?)`,
-      [room_name, building_name],
-    );
-
-    res.json({ message: "Room added successfully" });
-  } catch (err) {
-    console.error("Error adding room:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-// UPDATE ROOM (Prevent Duplicate)
-app.put("/room/:id", async (req, res) => {
-  const { id } = req.params;
-  const { room_name, building_name } = req.body;
-
-  if (!room_name || !building_name) {
-    return res.status(400).json({ message: "Missing fields" });
-  }
-
-  try {
-    // Check duplicate (but exclude current room)
-    const [exists] = await db3.query(
-      `SELECT * FROM room_table
-       WHERE room_description = ? AND building_description = ? AND room_id != ?
-       LIMIT 1`,
-      [room_name, building_name, id],
-    );
-
-    if (exists.length > 0) {
-      return res
-        .status(400)
-        .json({ message: "Room already exists in this building" });
-    }
-
-    await db3.query(
-      `UPDATE room_table
-       SET room_description = ?, building_description = ?
-       WHERE room_id = ?`,
-      [room_name, building_name, id],
-    );
-
-    res.json({ message: "Room updated successfully" });
-  } catch (err) {
-    console.error("Error updating room:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-// DELETE ROOM
-app.delete("/room/:id", async (req, res) => {
-  const { id } = req.params;
-  try {
-    await db3.query(`DELETE FROM room_table WHERE room_id = ?`, [id]);
-    res.json({ message: "Room deleted successfully" });
-  } catch (err) {
-    console.error("Error deleting room:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-app.get("/room_list", async (req, res) => {
-  try {
-    const [results] = await db3.query(
-      "SELECT room_id, building_description, room_description FROM room_table ORDER BY room_description ASC",
-    );
-    res.json(results);
-  } catch (err) {
-    console.error("Error fetching rooms:", err);
-    res.status(500).json({ error: "Database error" });
-  }
-});
 
 // ROOM LIST (UPDATED!)
 app.get("/get_room", async (req, res) => {
@@ -14563,6 +14493,39 @@ app.post("/api/import-xlsx", upload.single("file"), async (req, res) => {
     }
 
     console.log("📘 Parsed results:", results);
+
+    const allCourseCodes = [];
+
+    for (const block of results) {
+      for (const subj of block.subjects) {
+        const code = String(subj.course_code || "").trim();
+        if (!code) {
+          allCourseCodes.push("(blank course code)");
+        } else {
+          allCourseCodes.push(code);
+        }
+      }
+    }
+
+    const uniqueCodes = [...new Set(allCourseCodes.filter(c => c !== "(blank course code)"))];
+
+    const [existingCourses] = await db3.query(
+      `SELECT course_code FROM course_table WHERE course_code IN (?)`,
+      [uniqueCodes],
+    );
+
+    const existingCodesSet = new Set(existingCourses.map(c => c.course_code));
+
+    const missingCourseCodes = allCourseCodes.filter(code =>
+      code === "(blank course code)" || !existingCodesSet.has(code)
+    );
+
+    if (missingCourseCodes.length > 0) {
+      return res.status(400).json({
+        error: "Upload failed. Some course codes do not exist.",
+        missing_course_codes: [...new Set(missingCourseCodes)],
+      });
+    }
 
     // --- Step 5: Count completed semesters ---
     let latestOngoing = null;

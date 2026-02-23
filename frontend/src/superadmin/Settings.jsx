@@ -88,6 +88,11 @@ function Settings({ onUpdate }) {
                 setBorderColor(data.border_color || "#000000");
                 setTitleColor(data.title_color || "#000000");
                 setSubtitleColor(data.subtitle_color || "#555555");
+                setBranches(
+                    typeof data.branches === "string"
+                        ? JSON.parse(data.branches)
+                        : data.branches || []
+                );
             })
             .catch(() => setSnack({ open: true, message: "Failed to fetch settings", severity: "error" }));
     }, []);
@@ -108,6 +113,7 @@ function Settings({ onUpdate }) {
         formData.append("border_color", borderColor);
         formData.append("title_color", titleColor);
         formData.append("subtitle_color", subtitleColor);
+        formData.append("branches", JSON.stringify(branches));
 
         try {
             await axios.post(`${API_BASE_URL}/api/settings`, formData, { headers: { "Content-Type": "multipart/form-data" } });
@@ -116,6 +122,40 @@ function Settings({ onUpdate }) {
         } catch {
             setSnack({ open: true, message: "Error updating settings", severity: "error" });
         }
+    };
+
+
+    // Branches state
+    const [branches, setBranches] = useState([]);
+    const [branchInput, setBranchInput] = useState("");
+    const [branchAddressInput, setBranchAddressInput] = useState("");
+
+    // Add new branch
+    const handleAddBranch = () => {
+        if (!branchInput || !branchAddressInput) return;
+
+        setBranches(prev => {
+            // Get highest existing id
+            const maxId = prev.length > 0
+                ? Math.max(...prev.map(b => Number(b.id) || 0))
+                : 0;
+
+            return [
+                ...prev,
+                {
+                    id: maxId + 1,
+                    branch: branchInput,
+                    address: branchAddressInput
+                }
+            ];
+        });
+
+        setBranchInput("");
+        setBranchAddressInput("");
+    };
+
+    const handleRemoveBranch = (id) => {
+        setBranches(prev => prev.filter(b => b.id !== id));
     };
 
     if (loading || hasAccess === null) return <LoadingOverlay open={loading} message="Loading..." />;
@@ -160,7 +200,7 @@ function Settings({ onUpdate }) {
             <Paper
                 sx={{
                     p: 3,
-        
+
                     display: "flex",
                     gap: 5,
                     border: `2px solid ${borderColor}`,
@@ -194,15 +234,94 @@ function Settings({ onUpdate }) {
                             />
                         </Box>
 
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                            <Typography sx={{ width: "150px", fontWeight: "500" }}>Address:</Typography>
-                            <TextField
-                                value={address}
-                                onChange={e => setAddress(e.target.value)}
-                                fullWidth
-                                size="small"
-                            />
+                        <Box sx={{ mt: 3 }}>
+                            <Paper
+                                elevation={2}
+                                sx={{
+                                    p: 2,
+                                    borderRadius: 2,
+                                    border: `2px solid ${borderColor}`,
+                                }}
+                            >
+                                {/* Title */}
+                                <Typography fontWeight="600" fontSize="16px" mb={1}>
+                                    Branches / Campuses
+                                </Typography>
+                                <Typography fontSize="13px" color="gray" mb={2}>
+                                    Add all school branches or campuses.
+                                </Typography>
+
+                                {/* Vertical Inputs */}
+                                <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mb: 2 }}>
+                                    <TextField
+                                        label="Branch Name"
+                                        placeholder="e.g. Manila"
+                                        value={branchInput}
+                                        onChange={(e) => setBranchInput(e.target.value)}
+                                        size="small"
+                                        fullWidth
+                                    />
+
+                                    <TextField
+                                        label="Address"
+                                        placeholder="Full address"
+                                        value={branchAddressInput}
+                                        onChange={(e) => setBranchAddressInput(e.target.value)}
+                                        size="small"
+                                        fullWidth
+                                    />
+
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={handleAddBranch}
+                                        sx={{ alignSelf: "flex-start" }}
+                                    >
+                                        Add Branch
+                                    </Button>
+                                </Box>
+
+                                {/* Branch List */}
+                                <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                                    {branches.map((b) => (
+                                        <Paper
+                                            key={b.id}
+                                            sx={{
+                                                p: 1.2,
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                                alignItems: "center",
+                                                borderRadius: 1,
+                                                background: "#f8f8f8",
+                                                border: "2px solid black"
+                                            }}
+                                        >
+                                            <Box>
+                                                <Typography fontWeight="500">{b.branch}</Typography>
+                                                <Typography fontSize="12px" color="gray">
+                                                    {b.address}
+                                                </Typography>
+                                            </Box>
+
+                                            <Button
+                                                variant="contained"
+                                                size="small"
+                                                sx={{
+                                                    backgroundColor: "#9E0000",
+                                                    color: "white",
+                                                    width: "50px"
+                                                }}
+                                                onClick={() => handleRemoveBranch(b.id)}
+                                            >
+                                                Remove
+                                            </Button>
+                                        </Paper>
+                                    ))}
+                                </Box>
+                            </Paper>
                         </Box>
+
+
 
                         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                             <Typography sx={{ width: "150px", fontWeight: "500" }}>Footer Text:</Typography>

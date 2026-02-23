@@ -411,7 +411,7 @@ const CurriculumPanel = () => {
             style={{
               flex: 1,
               padding: "20px",
-
+              width: "600px",
               backgroundColor: "#fff",
               border: `2px solid ${borderColor}`,
               boxShadow: "0 0 10px rgba(0,0,0,0.1)",
@@ -490,7 +490,7 @@ const CurriculumPanel = () => {
           </div>
 
           {/* RIGHT SECTION */}
-          <Card sx={{ border: `2px solid ${borderColor}` }} elevation={2}>
+          <Card sx={{ border: `2px solid ${borderColor}`,   width: "900px", }} elevation={2}>
             <CardContent>
               <Typography variant="h6" gutterBottom textAlign="center" style={{ color: subtitleColor, fontWeight: "bold" }} >
                 Curriculum List

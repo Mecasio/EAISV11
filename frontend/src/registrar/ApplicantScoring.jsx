@@ -43,6 +43,8 @@ import CampaignIcon from '@mui/icons-material/Campaign';
 
 
 const ApplicantScoring = () => {
+
+
     const settings = useContext(SettingsContext);
 
     const [titleColor, setTitleColor] = useState("#000000");
@@ -56,6 +58,7 @@ const ApplicantScoring = () => {
     const [companyName, setCompanyName] = useState("");
     const [shortTerm, setShortTerm] = useState("");
     const [campusAddress, setCampusAddress] = useState("");
+    const [branches, setBranches] = useState([]);
 
     useEffect(() => {
         if (!settings) return;
@@ -65,8 +68,8 @@ const ApplicantScoring = () => {
         if (settings.subtitle_color) setSubtitleColor(settings.subtitle_color);
         if (settings.border_color) setBorderColor(settings.border_color);
         if (settings.main_button_color) setMainButtonColor(settings.main_button_color);
-        if (settings.sub_button_color) setSubButtonColor(settings.sub_button_color);   // ✅ NEW
-        if (settings.stepper_color) setStepperColor(settings.stepper_color);           // ✅ NEW
+        if (settings.sub_button_color) setSubButtonColor(settings.sub_button_color);
+        if (settings.stepper_color) setStepperColor(settings.stepper_color);
 
         // 🏫 Logo
         if (settings.logo_url) {
@@ -75,12 +78,29 @@ const ApplicantScoring = () => {
             setFetchedLogo(EaristLogo);
         }
 
-        // 🏷️ School Information
+        // 🏷️ School Info
         if (settings.company_name) setCompanyName(settings.company_name);
         if (settings.short_term) setShortTerm(settings.short_term);
         if (settings.campus_address) setCampusAddress(settings.campus_address);
 
+        // ✅ Branches (JSON stored in DB)
+        if (settings?.branches) {
+            try {
+                const parsed =
+                    typeof settings.branches === "string"
+                        ? JSON.parse(settings.branches)
+                        : settings.branches;
+
+                setBranches(parsed);
+            } catch (err) {
+                console.error("Failed to parse branches:", err);
+                setBranches([]);
+            }
+        }
+
+
     }, [settings]);
+
 
     const words = companyName.trim().split(" ");
     const middle = Math.ceil(words.length / 2);
@@ -485,10 +505,13 @@ const ApplicantScoring = () => {
             const fullText = `${personData.first_name} ${personData.middle_name} ${personData.last_name} ${personData.emailAddress ?? ''} ${personData.applicant_number ?? ''}`.toLowerCase();
             const matchesSearch = fullText.includes(searchQuery.toLowerCase());
 
+
+
+
             /* 🏫 CAMPUS */
             const matchesCampus =
-                person.campus === "" ||
-                String(personData.campus) === String(person.campus);
+                !person.campus || personData.campus === person.campus
+
 
             /* 📄 DOCUMENT STATUS */
             const matchesApplicantStatus =
@@ -1261,10 +1284,15 @@ th, td {
                                     }}
                                 >
                                     <MenuItem value=""><em>All Campuses</em></MenuItem>
-                                    <MenuItem value="1">MANILA</MenuItem>
-                                    <MenuItem value="2">CAVITE</MenuItem>
+
+                                    {branches.map((branch) => (
+                                        <MenuItem key={branch.id} value={branch.id}>
+                                            {branch.branch}
+                                        </MenuItem>
+                                    ))}
                                 </Select>
                             </FormControl>
+
                         </Box>
 
                         {/* Print ECAT Score */}

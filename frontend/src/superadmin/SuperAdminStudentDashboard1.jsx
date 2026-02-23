@@ -46,6 +46,7 @@ const SuperAdminStudentDashboard1 = () => {
     const [companyName, setCompanyName] = useState("");
     const [shortTerm, setShortTerm] = useState("");
     const [campusAddress, setCampusAddress] = useState("");
+    const [branches, setBranches] = useState([]);
 
     useEffect(() => {
         if (!settings) return;
@@ -55,8 +56,8 @@ const SuperAdminStudentDashboard1 = () => {
         if (settings.subtitle_color) setSubtitleColor(settings.subtitle_color);
         if (settings.border_color) setBorderColor(settings.border_color);
         if (settings.main_button_color) setMainButtonColor(settings.main_button_color);
-        if (settings.sub_button_color) setSubButtonColor(settings.sub_button_color);   // ✅ NEW
-        if (settings.stepper_color) setStepperColor(settings.stepper_color);           // ✅ NEW
+        if (settings.sub_button_color) setSubButtonColor(settings.sub_button_color);
+        if (settings.stepper_color) setStepperColor(settings.stepper_color);
 
         // 🏫 Logo
         if (settings.logo_url) {
@@ -65,10 +66,19 @@ const SuperAdminStudentDashboard1 = () => {
             setFetchedLogo(EaristLogo);
         }
 
-        // 🏷️ School Information
+        // 🏷️ School Info
         if (settings.company_name) setCompanyName(settings.company_name);
         if (settings.short_term) setShortTerm(settings.short_term);
         if (settings.campus_address) setCampusAddress(settings.campus_address);
+
+        // ✅ Branches (JSON stored in DB)
+        if (settings.branches) {
+            setBranches(
+                typeof settings.branches === "string"
+                    ? JSON.parse(settings.branches)
+                    : settings.branches
+            );
+        }
 
     }, [settings]);
 
@@ -682,11 +692,6 @@ const SuperAdminStudentDashboard1 = () => {
 
     const filteredCurriculum = curriculumOptions.filter((item) => {
         // ✅ CAMPUS FILTER
-        if (person.campus !== "" && person.campus !== null) {
-            if (Number(item.components) !== Number(person.campus)) {
-                return false;
-            }
-        }
 
         // ✅ ACADEMIC PROGRAM FILTER
         if (person.academicProgram !== "" && person.academicProgram !== null) {
@@ -1421,36 +1426,46 @@ const SuperAdminStudentDashboard1 = () => {
                         <br />
 
 
+
                         <div className="flex items-center mb-4 gap-4">
                             <label className="w-40 font-medium">Campus:</label>
-                            <FormControl fullWidth size="small" required error={!!errors.campus} className="mb-4">
-                                <InputLabel id="campus-label">Campus (Manila/Cavite)</InputLabel>
+
+                            <FormControl
+                                readOnly
+                                fullWidth
+                                size="small"
+                                required
+                                error={!!errors.campus}
+                                className="mb-4"
+                            >
+                                <InputLabel id="campus-label">Campus</InputLabel>
 
                                 <Select
-
-                                    labelId="campus-label"
                                     id="campus-select"
                                     name="campus"
-                                    value={
-                                        person.campus === null || person.campus === undefined
-                                            ? ""
-                                            : String(person.campus)
-                                    }
-                                    label="Campus (Manila/Cavite)"
+                                    value={person.campus || ""}
                                     onChange={(e) => {
-                                        const val = e.target.value;
                                         handleChange({
-                                            target: {
-                                                name: "campus",
-                                                value: val === "" ? null : parseInt(val, 10),
-                                            },
+                                            target: { name: "campus", value: e.target.value },
                                         });
                                     }}
-                                    onBlur={handleBlur}
+                                    displayEmpty
+                                    renderValue={(selected) => {
+                                        if (!selected) return <em>Select Campus</em>;
+
+                                        const branch = branches.find(b => String(b.id) === String(selected));
+                                        return branch ? branch.branch.toUpperCase() : "Select Campus";
+                                    }}
                                 >
-                                    <MenuItem value=""><em>Select Campus</em></MenuItem>
-                                    <MenuItem value="1">MANILA</MenuItem>
-                                    <MenuItem value="2">CAVITE</MenuItem>
+                                    <MenuItem value="">
+                                        <em>Select Campus</em>
+                                    </MenuItem>
+
+                                    {branches.map((b) => (
+                                        <MenuItem key={b.id} value={String(b.id)}>
+                                            {b.branch.toUpperCase()}
+                                        </MenuItem>
+                                    ))}
                                 </Select>
 
                                 {errors.campus && (
@@ -1458,6 +1473,7 @@ const SuperAdminStudentDashboard1 = () => {
                                 )}
                             </FormControl>
                         </div>
+
 
 
 
@@ -1564,7 +1580,7 @@ const SuperAdminStudentDashboard1 = () => {
                                         <FormControl fullWidth size="small" required error={!!errors.program}>
                                             <InputLabel>Course Applied</InputLabel>
                                             <Select
-                                            
+
                                                 name="program"
                                                 value={person.program || ""}
                                                 onBlur={() => handleUpdate(person)} onChange={handleChange}
