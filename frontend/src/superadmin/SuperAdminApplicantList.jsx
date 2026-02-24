@@ -550,7 +550,7 @@ const SuperAdminApplicantList = () => {
                 programInfo?.dprtmnt_name === selectedDepartmentFilter;
 
             /* 📅 YEAR (safe date parsing) */
-            const appliedDate = new Date(personData.created_at + "T00:00:00");
+            const appliedDate = new Date(personData.created_at.split("T")[0]);
             const applicantAppliedYear = appliedDate.getFullYear();
 
             const schoolYear = schoolYears.find((sy) => sy.year_id === selectedSchoolYear);
@@ -605,8 +605,8 @@ const SuperAdminApplicantList = () => {
 
         /* 🔽 SORTING */
         .sort((a, b) => {
-            const dateA = new Date(a.created_at + "T00:00:00");
-            const dateB = new Date(b.created_at + "T00:00:00");
+            const dateA = new Date(a.created_at.split("T")[0]);
+            const dateB = new Date(b.created_at.split("T")[0]);
 
             // 🔽 Primary Sorting (what user selects)
             if (sortBy === "name") {
@@ -941,7 +941,7 @@ th {
                     )?.program_code ?? "N/A"
                         }</td>
                       <td>${person.generalAverage1 ?? ""}</td>
-                      <td>${new Date(person.created_at).toLocaleDateString("en-PH", {
+                      <td>${new Date(person.created_at.split("T")[0]).toLocaleDateString("en-PH", {
                             year: "numeric",
                             month: "short",
                             day: "2-digit",
@@ -1693,11 +1693,11 @@ th {
                                     sx={{ textAlign: "center", border: `2px solid ${borderColor}`, fontSize: "12px" }}
                                 >
                                     {(() => {
-                                        if (!person.created_at) return "";
+                                        if (!person.created_at.split("T")[0]) return "";
 
-                                        const date = new Date(person.created_at + "T00:00:00");
+                                        const date = new Date(person.created_at.split("T")[0]);
 
-                                        if (isNaN(date)) return person.created_at;
+                                        if (isNaN(date)) return person.created_at.split("T")[0];
 
                                         return date.toLocaleDateString("en-US", {
                                             year: "numeric",

@@ -1486,7 +1486,7 @@ const CourseTagging = () => {
               onClick={() => {
                 if (studentNumber) {
                   localStorage.setItem("studentNumberForCOR", studentNumber);
-                  window.open("/search_cor_for_college", "_blank");
+                  window.open("/search_cor", "_blank");
                 } else {
                   setSnack({
                     open: true,

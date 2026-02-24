@@ -70,9 +70,9 @@ router.post("/register", async (req, res) => {
 
     // Insert account
     await db.query(
-      `INSERT INTO user_accounts (person_id, email, password, role)
-       VALUES (?, ?, ?, 'applicant')`,
-      [person_id, email.trim().toLowerCase(), hashedPassword]
+      `INSERT INTO user_accounts (person_id, email, password, role, status)
+       VALUES (?, ?, ?, 'applicant', ?)`,
+      [person_id, email.trim().toLowerCase(), hashedPassword, 1]
     );
 
     // ------------------

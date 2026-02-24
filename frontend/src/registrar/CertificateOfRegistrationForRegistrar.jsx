@@ -276,7 +276,7 @@ const CertificateOfRegistration = forwardRef(
         const res = await axios.get(`${API_BASE_URL}/api/user/${person_id}`);
         if (res.data && res.data.profile_img) {
           console.log(res.data.profile_img);
-          setProfilePicture(`${API_BASE_URL}/uploads/${res.data.profile_img}`);
+          setProfilePicture(`${API_BASE_URL}/uploads/Applicant1by1/${res.data.profile_img}`);
         }
       } catch (error) {
         console.error("Error fetching profile picture:", error);

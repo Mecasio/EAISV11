@@ -21,7 +21,12 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import axios from 'axios';
 import ErrorIcon from "@mui/icons-material/Error";
 import API_BASE_URL from "../apiConfig";
-
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
+} from "@mui/material";
 
 const RequirementUploader = () => {
   const settings = useContext(SettingsContext);
@@ -81,6 +86,8 @@ const RequirementUploader = () => {
       .catch((err) => console.error("Error loading requirements:", err));
   }, []);
 
+  const [openModal, setOpenModal] = useState(false);
+
   const fetchUploads = async (personId) => {
     try {
       // ✅ Fetch user's uploaded files
@@ -114,13 +121,9 @@ const RequirementUploader = () => {
 
       // ✅ Only show Congratulations if all required are uploaded (not every upload)
       if (!allRequirementsCompleted && allRequiredUploaded) {
-        setSnack({
-          open: true,
-          message: `🎉 Congratulations! You have successfully submitted your application to ${companyName}. Please check your Gmail Account or your Applicant Dashboard regularly to stay updated on your current step, as indicated in the stepper below.`,
-
-          severity: "success",
-        });
+        setOpenModal(true);
       }
+
 
       // ✅ Update completion state
       setAllRequirementsCompleted(allRequiredUploaded);
@@ -348,6 +351,51 @@ const RequirementUploader = () => {
           {snack.message}
         </Alert>
       </Snackbar>
+
+      <Dialog
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ fontWeight: "bold", textAlign: "center" }}>
+          🎉 Application Submitted Successfully!
+        </DialogTitle>
+
+        <DialogContent>
+          <Typography sx={{ mt: 2, textAlign: "justify", fontSize: "16px" }}>
+            Congratulations! You have successfully submitted your application to{" "}
+            <strong>{companyName}</strong>.
+          </Typography>
+
+          <Typography sx={{ mt: 2, textAlign: "justify", fontSize: "16px" }}>
+            Please wait for the <strong>Admission Office</strong> to contact you
+            regarding the evaluation of your original documents that you uploaded.
+          </Typography>
+
+          <Typography sx={{ mt: 2, textAlign: "justify", fontSize: "15px" }}>
+            Kindly check your Gmail account and Applicant Dashboard regularly for
+            updates regarding your application status.
+          </Typography>
+        </DialogContent>
+
+        <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
+          <Button
+            variant="contained"
+            onClick={() => setOpenModal(false)}
+            sx={{
+              backgroundColor: mainButtonColor,
+              fontWeight: "bold",
+              textTransform: "none",
+              minWidth: "120px",
+            }}
+          >
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+
       <Box
         sx={{
           display: 'flex',
