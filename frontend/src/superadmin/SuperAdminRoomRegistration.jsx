@@ -16,6 +16,9 @@ import {
   Snackbar,
   Alert,
   TableContainer,
+  FormControl,
+  InputLabel,
+  Select,
 } from "@mui/material";
 import { Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import Unauthorized from "../components/Unauthorized";
@@ -26,6 +29,12 @@ import { MenuItem } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 const SuperAdminRoomRegistration = () => {
   const settings = useContext(SettingsContext);
+
+  const branches = Array.isArray(settings?.branches)
+    ? settings.branches
+    : typeof settings?.branches === "string"
+      ? JSON.parse(settings.branches)
+      : [];
 
   const [titleColor, setTitleColor] = useState("#000000");
   const [subtitleColor, setSubtitleColor] = useState("#555555");
@@ -131,22 +140,22 @@ const SuperAdminRoomRegistration = () => {
   });
 
   const [floor, setFloor] = useState("");
-  const [type, setType] = useState(0);
+  const [type, setType] = useState("");
   const [branch, setBranch] = useState(1);
   const [isAircon, setIsAircon] = useState(0);
 
-  // 🔹 Fetch all rooms
-  const fetchRoomList = async () => {
+  const [selectedBranch, setSelectedBranch] = useState("");
+
+  const fetchRoomList = async (branchId = "") => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/room_list`);
+      const url = branchId
+        ? `${API_BASE_URL}/room_list?branch=${branchId}`
+        : `${API_BASE_URL}/room_list`;
+
+      const res = await axios.get(url);
       setRoomList(res.data);
     } catch (err) {
       console.error("Failed to fetch rooms:", err);
-      setSnack({
-        open: true,
-        message: "Failed to fetch rooms",
-        severity: "error",
-      });
     }
   };
 
@@ -200,12 +209,24 @@ const SuperAdminRoomRegistration = () => {
   // 🔹 Add search state
   const [searchQuery, setSearchQuery] = useState("");
 
+  const [selectedBuilding, setSelectedBuilding] = useState("");
+  const [selectedRoom, setSelectedRoom] = useState("");
+
   // 🔹 Filtered rooms based on search
-  const filteredRooms = roomList.filter(
-    (room) =>
+  const filteredRooms = roomList
+    .filter((room) =>
       room.room_description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (room.building_description || "").toLowerCase().includes(searchQuery.toLowerCase())
-  );
+    )
+    .filter((room) =>
+      selectedBranch ? room.branch === Number(selectedBranch) : true
+    )
+    .filter((room) =>
+      selectedBuilding ? room.building_description === selectedBuilding : true
+    )
+    .filter((room) =>
+      selectedRoom ? room.room_description === selectedRoom : true
+    );
 
 
   const handleEditRoom = (room) => {
@@ -213,7 +234,7 @@ const SuperAdminRoomRegistration = () => {
     setBuildingName(room.building_description || "");
     setRoomName(room.room_description || "");
     setFloor(room.floor || "");
-    setType(room.type || 0);
+    setType(room.type || "");
     setBranch(room.branch || 1);
     setIsAircon(room.is_airconditioned || 0);
   };
@@ -289,15 +310,19 @@ const SuperAdminRoomRegistration = () => {
     setSnack((prev) => ({ ...prev, open: false }));
   };
 
-  const ROOM_TYPES = [
-    { value: 0, label: "Lecture" },
-    { value: 1, label: "Laboratory" },
-  ];
+  const [openTypeDialog, setOpenTypeDialog] = useState(false);
+  const [newType, setNewType] = useState("");
 
-  const BRANCHES = [
-    { value: 1, label: "Manila" },
-    { value: 2, label: "Cavite" },
-  ];
+
+  const [roomTypes, setRoomTypes] = useState([
+    "Lecture",
+    "Laboratory",
+    "Virtual",
+    "Covered Court",
+    "Gymnasium",
+    "Auditorium",
+    "Conference Room",
+  ]);
 
   const AIRCON_OPTIONS = [
     { value: 0, label: "No" },
@@ -374,9 +399,26 @@ const SuperAdminRoomRegistration = () => {
 
             }}
           >
+
             <Typography variant="h6" sx={{ mb: 2, color: subtitleColor, }}>
               {editingRoom ? "Edit Room" : "Register New Room"}
             </Typography>
+
+            <Typography fontWeight={500}>Branch:</Typography>
+            <TextField
+              select
+              fullWidth
+              value={branch}
+              onChange={(e) => setBranch(Number(e.target.value))}
+              sx={{ mb: 2 }}
+            >
+              {branches.map((b) => (
+                <MenuItem key={b.id} value={b.id}>
+                  {b.branch}
+                </MenuItem>
+              ))}
+            </TextField>
+
 
             <Typography fontWeight={500}>Building Name:</Typography>
             <TextField
@@ -408,34 +450,32 @@ const SuperAdminRoomRegistration = () => {
             />
 
             <Typography fontWeight={500}>Room Type:</Typography>
+
             <TextField
               select
               fullWidth
               value={type}
-              onChange={(e) => setType(Number(e.target.value))}
+              onChange={(e) => {
+                if (e.target.value === "__add_new__") {
+                  setOpenTypeDialog(true);
+                } else {
+                  setType(e.target.value);
+                }
+              }}
               sx={{ mb: 2 }}
             >
-              {ROOM_TYPES.map((item) => (
-                <MenuItem key={item.value} value={item.value}>
-                  {item.label}
+              {roomTypes.map((roomType) => (
+                <MenuItem key={roomType} value={roomType}>
+                  {roomType}
                 </MenuItem>
               ))}
+
+              <MenuItem value="__add_new__" sx={{ color: "primary.main", fontWeight: 600 }}>
+                ➕ Add new type
+              </MenuItem>
             </TextField>
 
-            <Typography fontWeight={500}>Branch:</Typography>
-            <TextField
-              select
-              fullWidth
-              value={branch}
-              onChange={(e) => setBranch(Number(e.target.value))}
-              sx={{ mb: 2 }}
-            >
-              {BRANCHES.map((item) => (
-                <MenuItem key={item.value} value={item.value}>
-                  {item.label}
-                </MenuItem>
-              ))}
-            </TextField>
+
 
             <Typography fontWeight={500}>Airconditioned:</Typography>
             <TextField
@@ -470,6 +510,8 @@ const SuperAdminRoomRegistration = () => {
               {editingRoom ? "Update Room" : "Save"}
             </Button>
           </Paper>
+
+
         </Grid>
 
         {/* ✅ TABLE SECTION */}
@@ -485,6 +527,66 @@ const SuperAdminRoomRegistration = () => {
             <Typography variant="h6" sx={{ mb: 2, color: subtitleColor }}>
               Registered Rooms
             </Typography>
+
+            <Box sx={{ display: "flex", gap: 2, mb: 2, flexWrap: "wrap" }}>
+              {/* Branch Filter */}
+              <FormControl size="small" sx={{ minWidth: 150 }}>
+                <InputLabel>Branch</InputLabel>
+                <Select
+                  value={selectedBranch}
+                  label="Branch"
+                  onChange={(e) => {
+                    setSelectedBranch(e.target.value);
+                    fetchRoomList(e.target.value);
+                  }}
+                >
+                  <MenuItem value="">
+                    <em>All Branches</em>
+                  </MenuItem>
+                  {branches.map((b) => (
+                    <MenuItem key={b.id} value={b.id}>{b.branch}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {/* Building Filter */}
+              <FormControl size="small" sx={{ minWidth: 150 }}>
+                <InputLabel>Building</InputLabel>
+                <Select
+                  value={selectedBuilding}
+                  label="Building"
+                  onChange={(e) => setSelectedBuilding(e.target.value)}
+                >
+                  <MenuItem value="">
+                    <em>All Buildings</em>
+                  </MenuItem>
+                  {[...new Set(roomList.map((r) => r.building_description))].map((bld, idx) => (
+                    <MenuItem key={idx} value={bld}>{bld}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {/* Room Filter */}
+              <FormControl size="small" sx={{ minWidth: 150 }}>
+                <InputLabel>Room</InputLabel>
+                <Select
+                  value={selectedRoom}
+                  label="Room"
+                  onChange={(e) => setSelectedRoom(e.target.value)}
+                >
+                  <MenuItem value="">
+                    <em>All Rooms</em>
+                  </MenuItem>
+                  {roomList.map((room) => (
+                    <MenuItem key={room.room_id} value={room.room_description}>
+                      {room.room_description}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+
+            <hr />
 
             <Box sx={{ maxHeight: 750, overflowY: "auto" }}>
               <Table stickyHeader size="small">
@@ -523,11 +625,13 @@ const SuperAdminRoomRegistration = () => {
                       </TableCell>
 
                       <TableCell sx={{ border: `2px solid ${borderColor}` }}>
-                        {ROOM_TYPES.find((t) => t.value === Number(room.type))?.label || "N/A"}
+                        {room.type || "N/A"}
                       </TableCell>
 
                       <TableCell sx={{ border: `2px solid ${borderColor}` }}>
-                        {BRANCHES.find((b) => b.value === Number(room.branch))?.label || "N/A"}
+                        {branches.find(
+                          (b) => b.id === Number(room.branch)
+                        )?.branch || "N/A"}
                       </TableCell>
 
                       <TableCell sx={{ border: `2px solid ${borderColor}` }}>
@@ -571,6 +675,39 @@ const SuperAdminRoomRegistration = () => {
           </Paper>
         </Grid>
       </Grid>
+
+      <Dialog open={openTypeDialog} onClose={() => setOpenTypeDialog(false)}>
+        <DialogTitle>Add New Room Type</DialogTitle>
+
+        <DialogContent>
+          <TextField
+            fullWidth
+            label="Room Type Name"
+            value={newType}
+            onChange={(e) => setNewType(e.target.value)}
+            sx={{ mt: 1 }}
+          />
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={() => setOpenTypeDialog(false)}>Cancel</Button>
+
+          <Button
+            variant="contained"
+            onClick={() => {
+              if (!newType.trim()) return;
+
+              const updatedTypes = [...roomTypes, newType.trim()];
+              setRoomTypes(updatedTypes);
+              setType(newType.trim()); // auto select
+              setNewType("");
+              setOpenTypeDialog(false);
+            }}
+          >
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog
         open={openDeleteDialog}

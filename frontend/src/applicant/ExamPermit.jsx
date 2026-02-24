@@ -97,7 +97,7 @@ const ExamPermit = ({ personId }) => {
 
                     const { verified, totalRequired, totalVerified, hasSchedule } = verifyStatusRes.data;
 
-                    setIsVerified(verified);
+              setIsVerified(verified || verifyStatusRes.data.hasSchedule);
 
                     if (!verified) {
                         console.warn(

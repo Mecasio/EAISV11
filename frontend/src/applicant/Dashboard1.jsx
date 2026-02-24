@@ -876,15 +876,11 @@ const Dashboard1 = (props) => {
 
   const handleExamPermitClick = async () => {
     try {
-      const res = await axios.get(
-        `${API_BASE_URL}/exampermit/verified-exam-applicants`,
-      );
-      const verified = res.data.some((a) => a.person_id === parseInt(userID));
+      const res = await axios.get(`${API_BASE_URL}/api/verified-exam-applicants`);
+      const verified = res.data.some(a => a.person_id === parseInt(userID));
 
       if (!verified) {
-        setExamPermitError(
-          "❌ You cannot print the Exam Permit until all required documents are verified.",
-        );
+        setExamPermitError("❌ You cannot print the Exam Permit until all required documents are verified.");
         setExamPermitModalOpen(true);
         return;
       }
@@ -897,9 +893,7 @@ const Dashboard1 = (props) => {
       }, 500);
     } catch (err) {
       console.error("Error verifying exam permit eligibility:", err);
-      setExamPermitError(
-        "⚠️ Unable to check document verification status right now.",
-      );
+      setExamPermitError("⚠️ Unable to check document verification status right now.");
       setExamPermitModalOpen(true);
     }
   };

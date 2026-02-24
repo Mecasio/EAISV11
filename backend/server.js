@@ -3212,6 +3212,7 @@ app.get("/api/verified-ecat-applicants", async (req, res) => {
       SELECT DISTINCT
         p.person_id,
         p.last_name,
+        p.campus,
         p.first_name,
         p.middle_name,
         p.extension,
@@ -6996,6 +6997,7 @@ app.get("/api/interview/not-emailed-applicants", async (req, res) => {
         p.person_id,
         p.last_name,
         p.first_name,
+        p.campus,
         p.middle_name,
         p.extension,
         p.emailAddress,

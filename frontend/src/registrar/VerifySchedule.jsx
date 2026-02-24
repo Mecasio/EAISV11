@@ -49,6 +49,8 @@ import { Toc } from "@mui/icons-material";
 
 const AssignScheduleToApplicants = () => {
     const socket = useRef(null);
+
+
     const settings = useContext(SettingsContext);
 
     const [titleColor, setTitleColor] = useState("#000000");
@@ -62,11 +64,7 @@ const AssignScheduleToApplicants = () => {
     const [companyName, setCompanyName] = useState("");
     const [shortTerm, setShortTerm] = useState("");
     const [campusAddress, setCampusAddress] = useState("");
-
-    useEffect(() => {
-        socket.current = io(API_BASE_URL);
-        return () => socket.current.disconnect();
-    }, []);
+    const [branches, setBranches] = useState([]);
 
     useEffect(() => {
         if (!settings) return;
@@ -76,8 +74,8 @@ const AssignScheduleToApplicants = () => {
         if (settings.subtitle_color) setSubtitleColor(settings.subtitle_color);
         if (settings.border_color) setBorderColor(settings.border_color);
         if (settings.main_button_color) setMainButtonColor(settings.main_button_color);
-        if (settings.sub_button_color) setSubButtonColor(settings.sub_button_color);   // ✅ NEW
-        if (settings.stepper_color) setStepperColor(settings.stepper_color);           // ✅ NEW
+        if (settings.sub_button_color) setSubButtonColor(settings.sub_button_color);
+        if (settings.stepper_color) setStepperColor(settings.stepper_color);
 
         // 🏫 Logo
         if (settings.logo_url) {
@@ -86,26 +84,43 @@ const AssignScheduleToApplicants = () => {
             setFetchedLogo(EaristLogo);
         }
 
-        // 🏷️ School Information
+        // 🏷️ School Info
         if (settings.company_name) setCompanyName(settings.company_name);
         if (settings.short_term) setShortTerm(settings.short_term);
         if (settings.campus_address) setCampusAddress(settings.campus_address);
 
+        // ✅ Branches (JSON stored in DB)
+        if (settings?.branches) {
+            try {
+                const parsed =
+                    typeof settings.branches === "string"
+                        ? JSON.parse(settings.branches)
+                        : settings.branches;
+
+                setBranches(parsed);
+            } catch (err) {
+                console.error("Failed to parse branches:", err);
+                setBranches([]);
+            }
+        }
+
+
     }, [settings]);
 
 
- 
-   const tabs = [
-     { label: "Room Registration", to: "/room_registration", icon: <KeyIcon fontSize="large" /> },
-     { label: "Verify Documents Room Assignment", to: "/verify_document_schedule", icon: <MeetingRoomIcon fontSize="large" /> },
-     { label: "Verify Documents Schedule Management", to: "/verify_schedule", icon: <ScheduleIcon fontSize="large" /> },
-     { label: "Evaluator's Applicant List", to: "/evaluator_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
-     { label: "Entrance Exam Room Assignment", to: "/assign_entrance_exam", icon: <MeetingRoomIcon fontSize="large" /> },
-     { label: "Entrance Exam Schedule Management", to: "/assign_schedule_applicant", icon: <ScheduleIcon fontSize="large" /> },
-     { label: "Proctor's Applicant List", to: "/admission_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
-     { label: "Announcement", to: "/announcement_for_admission", icon: <CampaignIcon fontSize="large" /> },
-   ];
- 
+
+
+    const tabs = [
+        { label: "Room Registration", to: "/room_registration", icon: <KeyIcon fontSize="large" /> },
+        { label: "Verify Documents Room Assignment", to: "/verify_document_schedule", icon: <MeetingRoomIcon fontSize="large" /> },
+        { label: "Verify Documents Schedule Management", to: "/verify_schedule", icon: <ScheduleIcon fontSize="large" /> },
+        { label: "Evaluator's Applicant List", to: "/evaluator_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
+        { label: "Entrance Exam Room Assignment", to: "/assign_entrance_exam", icon: <MeetingRoomIcon fontSize="large" /> },
+        { label: "Entrance Exam Schedule Management", to: "/assign_schedule_applicant", icon: <ScheduleIcon fontSize="large" /> },
+        { label: "Proctor's Applicant List", to: "/admission_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
+        { label: "Announcement", to: "/announcement_for_admission", icon: <CampaignIcon fontSize="large" /> },
+    ];
+
 
 
     const location = useLocation();
@@ -318,13 +333,19 @@ const AssignScheduleToApplicants = () => {
 
     // ⬇️ Socket update refreshes the "with_count" one
     useEffect(() => {
-        socket.current.on("schedule_updated", ({ schedule_id }) => {
-            console.log("📢 Schedule updated:", schedule_id);
-            fetchSchedulesWithCount();  // ✅ always refresh counts
-            fetchAllApplicants();
-        });
+        if (!socket.current) return;
 
-        return () => socket.current.off("schedule_updated");
+        const handler = ({ schedule_id }) => {
+            console.log("📢 Schedule updated:", schedule_id);
+            fetchSchedulesWithCount();
+            fetchAllApplicants();
+        };
+
+        socket.current.on("schedule_updated", handler);
+
+        return () => {
+            socket.current?.off("schedule_updated", handler);
+        };
     }, []);
 
     // ⬇️ Add this inside ApplicantList component, before useEffect
@@ -771,11 +792,19 @@ Admission Office`
     const [department, setDepartment] = useState([]);
 
 
-
+    const [selectedCampusFilter, setSelectedCampusFilter] = useState("");
     // ✅ Step 1: Filtering
     const filteredPersons = persons.filter((personData) => {
         const query = searchQuery.toLowerCase();
         const fullName = `${personData.first_name ?? ""} ${personData.middle_name ?? ""} ${personData.last_name ?? ""}`.toLowerCase();
+
+
+
+        /* 🏫 CAMPUS */
+        const matchesCampus =
+            selectedCampusFilter === "" ||
+            personData.campus === selectedCampusFilter;
+
 
         const matchesApplicantID = personData.applicant_number?.toString().toLowerCase().includes(query);
         const matchesName = fullName.includes(query);
@@ -807,7 +836,8 @@ Admission Office`
             matchesDepartment &&
             matchesProgramFilter &&
             matchesSchoolYear &&
-            matchesSemester
+            matchesSemester &&
+            matchesCampus
         );
     });
 
@@ -1214,6 +1244,9 @@ Admission Office`
                     </Box>
 
 
+
+
+
                     <Box display="flex" alignItems="center" gap={2}>
 
                         {/* NEW Cancel Button BEFORE Assign Max */}
@@ -1299,7 +1332,30 @@ Admission Office`
                 <Box display="flex" alignItems="center" gap={3} mb={2} flexWrap="wrap">
                     {/* Department Filter */}
                     <Box display="flex" alignItems="center" gap={1}>
-                        <Typography fontSize={13} sx={{ minWidth: "70px" }}>Department:</Typography>
+
+                        <Typography fontSize={13} sx={{ minWidth: "70px", }}>Campus:</Typography>
+                        <FormControl size="small" sx={{ width: "180px" }}>
+                            <InputLabel id="campus-label">Campus</InputLabel>
+                            <Select
+                                labelId="campus-label"
+                                id="campus-select"
+                                name="campus"
+                                value={selectedCampusFilter}
+                                onChange={(e) => {
+                                    setSelectedCampusFilter(e.target.value);
+                                }}
+                            >
+                                <MenuItem value=""><em>All Campuses</em></MenuItem>
+
+                                {branches.map((branch) => (
+                                    <MenuItem key={branch.id} value={branch.id}>
+                                        {branch.branch}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+
+                        <Typography fontSize={13} sx={{ minWidth: "70px", marginLeft: "20px" }}>Department:</Typography>
                         <FormControl size="small" sx={{ width: "250px" }}>
                             <Select
                                 value={selectedDepartmentFilter}
@@ -1318,6 +1374,9 @@ Admission Office`
                                 ))}
                             </Select>
                         </FormControl>
+
+
+
                     </Box>
 
                     {/* Program Filter */}
@@ -1381,7 +1440,15 @@ Admission Office`
                                 )}
                             </Select>
                         </FormControl>
+
+
+
                     </Box>
+
+
+
+
+
                 </Box>
 
 

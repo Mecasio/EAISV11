@@ -55,16 +55,18 @@ const ScheduleHoverTile = () => {
         toTime: "",
     });
 
-   const tabs = [
-     { label: "Room Registration", to: "/room_registration", icon: <KeyIcon fontSize="large" /> },
-     { label: "Verify Documents Room Assignment", to: "/verify_document_schedule", icon: <MeetingRoomIcon fontSize="large" /> },
-     { label: "Verify Documents Schedule Management", to: "/verify_schedule", icon: <ScheduleIcon fontSize="large" /> },
-     { label: "Evaluator's Applicant List", to: "/evaluator_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
-     { label: "Entrance Exam Room Assignment", to: "/assign_entrance_exam", icon: <MeetingRoomIcon fontSize="large" /> },
-     { label: "Entrance Exam Schedule Management", to: "/assign_schedule_applicant", icon: <ScheduleIcon fontSize="large" /> },
-     { label: "Proctor's Applicant List", to: "/admission_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
-     { label: "Announcement", to: "/announcement_for_admission", icon: <CampaignIcon fontSize="large" /> },
-   ];
+    const tabs = [
+        { label: "Room Registration", to: "/room_registration", icon: <KeyIcon fontSize="large" /> },
+        { label: "Verify Documents Room Assignment", to: "/verify_document_schedule", icon: <MeetingRoomIcon fontSize="large" /> },
+        { label: "Verify Documents Schedule Management", to: "/verify_schedule", icon: <ScheduleIcon fontSize="large" /> },
+        { label: "Evaluator's Applicant List", to: "/evaluator_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
+        { label: "Entrance Exam Room Assignment", to: "/assign_entrance_exam", icon: <MeetingRoomIcon fontSize="large" /> },
+        { label: "Entrance Exam Schedule Management", to: "/assign_schedule_applicant", icon: <ScheduleIcon fontSize="large" /> },
+        { label: "Proctor's Applicant List", to: "/admission_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
+        { label: "Announcement", to: "/announcement_for_admission", icon: <CampaignIcon fontSize="large" /> },
+    ];
+
+
 
     const [activeStep, setActiveStep] = useState(3);
     const [clickedSteps, setClickedSteps] = useState(Array(tabs.length).fill(false));
@@ -73,6 +75,14 @@ const ScheduleHoverTile = () => {
         setActiveStep(index);
         navigate(to); // this will actually change the page
     };
+
+    const branches = Array.isArray(settings?.branches)
+        ? settings.branches
+        : typeof settings?.branches === "string"
+            ? JSON.parse(settings.branches)
+            : [];
+
+    const [selectedBranch, setSelectedBranch] = useState("");
 
 
     useEffect(() => {
@@ -115,9 +125,11 @@ const ScheduleHoverTile = () => {
         const fetchSchedules = async () => {
             if (!selectedSchoolYear || !selectedSchoolSemester) return;
             try {
-                const res = await axios.get(
-                    `${API_BASE_URL}/verify_schedules_with_count/${selectedSchoolYear}/${selectedSchoolSemester}`
-                );
+                const url = selectedBranch
+                    ? `${API_BASE_URL}/verify_schedules_with_count/${selectedSchoolYear}/${selectedSchoolSemester}?branch=${selectedBranch}`
+                    : `${API_BASE_URL}/verify_schedules_with_count/${selectedSchoolYear}/${selectedSchoolSemester}`;
+
+                const res = await axios.get(url);
                 setSchedules(res.data);
                 setFilteredSchedules(res.data);
 
@@ -128,7 +140,7 @@ const ScheduleHoverTile = () => {
             }
         };
         fetchSchedules();
-    }, [selectedSchoolYear, selectedSchoolSemester]);
+    }, [selectedSchoolYear, selectedSchoolSemester, selectedBranch]);
 
     useEffect(() => {
         const lowerQuery = searchQuery.toLowerCase();
@@ -326,8 +338,27 @@ const ScheduleHoverTile = () => {
                         gap: 4,
                     }}
                 >
+
+
                     {/* LEFT SIDE: School Year, Semester, Building, Room, From Time, To Time */}
                     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
+
+                        <Box sx={{ display: "flex", flexDirection: "column" }}>
+                            <Typography fontSize={13} sx={{ mb: 1 }}>Branch</Typography>
+                            <FormControl size="small" sx={{ minWidth: 150 }}>
+                                <Select
+                                    value={selectedBranch}
+                                    onChange={(e) => setSelectedBranch(e.target.value)}
+                                >
+                                    <MenuItem value="">All Branches</MenuItem>
+                                    {branches.map((b) => (
+                                        <MenuItem key={b.id} value={b.id}>
+                                            {b.branch}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Box>
                         {/* School Year */}
                         <Box sx={{ display: "flex", flexDirection: "column" }}>
                             <Typography fontSize={13} sx={{ mb: 1 }}>School Year</Typography>

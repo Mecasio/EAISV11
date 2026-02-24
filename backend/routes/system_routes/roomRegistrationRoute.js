@@ -5,7 +5,9 @@ const router = express.Router();
 
 /* ===================== GET ROOM LIST ===================== */
 router.get("/room_list", async (req, res) => {
-  const query = `
+  const { branch } = req.query;
+
+  let query = `
     SELECT 
       room_id,
       room_description,
@@ -18,11 +20,19 @@ router.get("/room_list", async (req, res) => {
       updated_at,
       updated_by
     FROM room_table
-    ORDER BY room_description ASC
   `;
 
+  const params = [];
+
+  if (branch) {
+    query += " WHERE branch = ?";
+    params.push(branch);
+  }
+
+  query += " ORDER BY room_description ASC";
+
   try {
-    const [result] = await db3.query(query);
+    const [result] = await db3.query(query, params);
     res.status(200).json(result);
   } catch (err) {
     console.error("Query error:", err);

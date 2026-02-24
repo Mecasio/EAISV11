@@ -176,7 +176,7 @@ const ProctorApplicantList = () => {
   const [applicantToDelete, setApplicantToDelete] = useState(null);
 
   const navigate = useNavigate();
-  const [activeStep, setActiveStep] = useState(7);
+  const [activeStep, setActiveStep] = useState(6);
   const [clickedSteps, setClickedSteps] = useState(Array(tabs.length).fill(false));
 
 

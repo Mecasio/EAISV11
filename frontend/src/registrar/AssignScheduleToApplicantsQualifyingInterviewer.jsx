@@ -59,6 +59,7 @@ const AssignScheduleToApplicantsInterviewer = () => {
     const [companyName, setCompanyName] = useState("");
     const [shortTerm, setShortTerm] = useState("");
     const [campusAddress, setCampusAddress] = useState("");
+    const [branches, setBranches] = useState([]);
 
     useEffect(() => {
         if (!settings) return;
@@ -68,8 +69,8 @@ const AssignScheduleToApplicantsInterviewer = () => {
         if (settings.subtitle_color) setSubtitleColor(settings.subtitle_color);
         if (settings.border_color) setBorderColor(settings.border_color);
         if (settings.main_button_color) setMainButtonColor(settings.main_button_color);
-        if (settings.sub_button_color) setSubButtonColor(settings.sub_button_color);   // ✅ NEW
-        if (settings.stepper_color) setStepperColor(settings.stepper_color);           // ✅ NEW
+        if (settings.sub_button_color) setSubButtonColor(settings.sub_button_color);
+        if (settings.stepper_color) setStepperColor(settings.stepper_color);
 
         // 🏫 Logo
         if (settings.logo_url) {
@@ -78,12 +79,29 @@ const AssignScheduleToApplicantsInterviewer = () => {
             setFetchedLogo(EaristLogo);
         }
 
-        // 🏷️ School Information
+        // 🏷️ School Info
         if (settings.company_name) setCompanyName(settings.company_name);
         if (settings.short_term) setShortTerm(settings.short_term);
         if (settings.campus_address) setCampusAddress(settings.campus_address);
 
+        // ✅ Branches (JSON stored in DB)
+        if (settings?.branches) {
+            try {
+                const parsed =
+                    typeof settings.branches === "string"
+                        ? JSON.parse(settings.branches)
+                        : settings.branches;
+
+                setBranches(parsed);
+            } catch (err) {
+                console.error("Failed to parse branches:", err);
+                setBranches([]);
+            }
+        }
+
+
     }, [settings]);
+
 
     const [user, setUser] = useState(null);
     const [adminData, setAdminData] = useState({ dprtmnt_id: "" });
@@ -780,9 +798,19 @@ Thank you and good luck!`
     const [exactRating, setExactRating] = useState("");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+
+    const [selectedCampusFilter, setSelectedCampusFilter] = useState("");
+
     // ✅ Step 1: Filtering
     const filteredPersons = persons.filter((personData) => {
         const finalRating = Number(personData.final_rating) || 0;
+
+        /* 🏫 CAMPUS */
+        const matchesCampus =
+            selectedCampusFilter === "" ||
+            personData.campus === selectedCampusFilter;
+
+
 
         // ✅ Score range filter
         const matchesScore =
@@ -833,6 +861,7 @@ Thank you and good luck!`
             matchesProgramFilter &&
             matchesSchoolYear &&
             matchesSemester &&
+            matchesCampus &&
             matchesScore &&
             matchesExactRating &&
             matchesDateRange // ✅ Added Date Applied filter
@@ -1257,6 +1286,19 @@ Thank you and good luck!`
                             </FormControl>
                         </Box>
 
+                        <Typography fontSize={13} sx={{ minWidth: "80px", textAlign: "right" }}>
+                            Exam Rating:
+                        </Typography>
+                        <TextField
+                            type="number"
+                            size="small"
+                            label="Input Rating"
+                            value={exactRating}
+                            onChange={(e) => setExactRating(e.target.value)}
+                            sx={{ width: 150 }}
+                        />
+
+
                         {/* Sort Order */}
 
                     </Box>
@@ -1320,17 +1362,29 @@ Thank you and good luck!`
                 <Box display="flex" alignItems="center" gap={3} mb={2} flexWrap="wrap">
                     {/* Department Filter */}
                     <Box display="flex" alignItems="center" gap={1}>
-                        <Typography fontSize={13} sx={{ minWidth: "80px", textAlign: "right" }}>
-                            Exam Rating:
-                        </Typography>
-                        <TextField
-                            type="number"
-                            size="small"
-                            label="Input Rating"
-                            value={exactRating}
-                            onChange={(e) => setExactRating(e.target.value)}
-                            sx={{ width: 150 }}
-                        />
+                        <Typography fontSize={13} sx={{ minWidth: "70px", }}>Campus:</Typography>
+                        <FormControl size="small" sx={{ width: "180px" }}>
+                            <InputLabel id="campus-label">Campus</InputLabel>
+                            <Select
+                                labelId="campus-label"
+                                id="campus-select"
+                                name="campus"
+                                value={selectedCampusFilter}
+                                onChange={(e) => {
+                                    setSelectedCampusFilter(e.target.value);
+                                }}
+                            >
+                                <MenuItem value=""><em>All Campuses</em></MenuItem>
+
+                                {branches.map((branch) => (
+                                    <MenuItem key={branch.id} value={branch.id}>
+                                        {branch.branch}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+
+
 
                     </Box>
                     <Box display="flex" alignItems="center" gap={1}>
