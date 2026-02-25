@@ -192,7 +192,7 @@ const Dashboard5 = (props) => {
   };
 
   const [errors, setErrors] = useState({});
-  
+
   const isFormValid = () => {
     let newErrors = {};
     let isValid = true;
@@ -377,7 +377,7 @@ const Dashboard5 = (props) => {
 
   // dot not alter
   return (
-       <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
+    <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
 
       {showPrintView && (
         <div ref={divToPrintRef} style={{ display: "block" }}>
@@ -624,7 +624,7 @@ const Dashboard5 = (props) => {
                 <Box
                   sx={{
                     height: "2px",
-                    backgroundcolor: mainButtonColor,
+                    backgroundColor: mainButtonColor,
                     flex: 1,
                     alignSelf: "center",
                     mx: 2,

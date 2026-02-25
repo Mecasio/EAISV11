@@ -105,7 +105,7 @@ const AdminApplicantList = () => {
 
 
     }, [settings]);
-    
+
 
     useEffect(() => {
         socket.current = io(API_BASE_URL);
@@ -1090,10 +1090,10 @@ const AdminApplicantList = () => {
                 </Box>
             </Box>
 
+             <hr style={{ border: "1px solid #ccc", width: "100%" }} />
 
-            <hr style={{ border: "1px solid #ccc", width: "100%" }} />
-            <div style={{ height: "20px" }}></div>
-
+            <br />
+     
             <Box
                 sx={{
                     display: "flex",

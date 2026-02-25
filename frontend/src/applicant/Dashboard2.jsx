@@ -682,17 +682,17 @@ const Dashboard2 = (props) => {
                   {step.label}
                 </Typography>
               </Box>
-              {index < steps.length - 1 && (
-                <Box
-                  sx={{
-                    height: "2px",
-                    backgroundcolor: mainButtonColor,
-                    flex: 1,
-                    alignSelf: "center",
-                    mx: 2,
-                  }}
-                />
-              )}
+          {index < steps.length - 1 && (
+  <Box
+    sx={{
+      height: "2px",
+      backgroundColor: mainButtonColor,
+      flex: 1,
+      alignSelf: "center",
+      mx: 2,
+    }}
+  />
+)}
             </React.Fragment>
           ))}
         </Box>

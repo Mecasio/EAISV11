@@ -1106,10 +1106,10 @@ th {
             </Box>
 
 
-            <hr style={{ border: "1px solid #ccc", width: "100%" }} />
-            <div style={{ height: "20px" }}></div>
+              <hr style={{ border: "1px solid #ccc", width: "100%" }} />
 
-
+            <br />
+     
             <Box
                 sx={{
                     display: "flex",

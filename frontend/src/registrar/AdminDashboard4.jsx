@@ -606,8 +606,10 @@ const AdminDashboard4 = () => {
           ADMISSION SHIFTING FORM - HEALTH MEDICAL RECORDS
         </Typography>
       </Box>
-      <hr style={{ border: "1px solid #ccc", width: "100%" }} />
+         <hr style={{ border: "1px solid #ccc", width: "100%" }} />
       <br />
+      <br />
+
 
       <Box
         sx={{
@@ -947,11 +949,11 @@ const AdminDashboard4 = () => {
                 {index < steps.length - 1 && (
                   <Box
                     sx={{
-                      height: "2px",
-                      backgroundcolor: mainButtonColor,
-                      flex: 1,
-                      alignSelf: "center",
-                      mx: 2,
+                         height: "2px",
+                    backgroundColor: mainButtonColor,
+                    flex: 1,
+                    alignSelf: "center",
+                    mx: 2,
                     }}
                   />
                 )}

@@ -1210,7 +1210,7 @@ const Dashboard1 = (props) => {
                 <Box
                   sx={{
                     height: "2px",
-                    backgroundcolor: mainButtonColor,
+                    backgroundColor: mainButtonColor,
                     flex: 1,
                     alignSelf: "center",
                     mx: 2,

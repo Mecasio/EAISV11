@@ -606,8 +606,9 @@ const RegistrarDashboard3 = () => {
                     APPLICANT FORM -  EDUCATIONAL ATTAINMENT
                 </Typography>
             </Box>
-            <hr style={{ border: "1px solid #ccc", width: "100%" }} />
-            <br />
+             <hr style={{ border: "1px solid #ccc", width: "100%" }} />
+      <br />
+      <br />
 
             <Box
                 sx={{
@@ -949,10 +950,10 @@ const RegistrarDashboard3 = () => {
                                     <Box
                                         sx={{
                                             height: "2px",
-                                            backgroundcolor: mainButtonColor,
-                                            flex: 1,
-                                            alignSelf: "center",
-                                            mx: 2,
+                    backgroundColor: mainButtonColor,
+                    flex: 1,
+                    alignSelf: "center",
+                    mx: 2,
                                         }}
                                     />
                                 )}

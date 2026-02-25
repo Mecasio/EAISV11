@@ -838,9 +838,9 @@ const StudentDashboard1 = () => {
 
 
             </Box>
-            <hr style={{ border: "1px solid #ccc", width: "100%" }} />
-
-            <br />
+        <hr style={{ border: "1px solid #ccc", width: "100%" }} />
+      <br />
+      <br />
 
 
 
@@ -1081,11 +1081,11 @@ const StudentDashboard1 = () => {
                             {index < steps.length - 1 && (
                                 <Box
                                     sx={{
-                                        height: "2px",
-                                        backgroundcolor: mainButtonColor,
-                                        flex: 1,
-                                        alignSelf: "center",
-                                        mx: 2,
+                                         height: "2px",
+                    backgroundColor: mainButtonColor,
+                    flex: 1,
+                    alignSelf: "center",
+                    mx: 2,
                                     }}
                                 />
                             )}

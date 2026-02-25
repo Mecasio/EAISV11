@@ -680,7 +680,7 @@ const AdminDashboard2 = () => {
 
   // Put this at the very bottom before the return 
   if (loading || hasAccess === null) {
-   return <LoadingOverlay open={loading} message="Loading..." />;
+    return <LoadingOverlay open={loading} message="Loading..." />;
   }
 
   if (!hasAccess) {
@@ -723,6 +723,7 @@ const AdminDashboard2 = () => {
         </Typography>
       </Box>
       <hr style={{ border: "1px solid #ccc", width: "100%" }} />
+      <br />
       <br />
 
       <Box
@@ -1068,7 +1069,7 @@ const AdminDashboard2 = () => {
                   <Box
                     sx={{
                       height: "2px",
-                      backgroundcolor: mainButtonColor,
+                      backgroundColor: mainButtonColor,
                       flex: 1,
                       alignSelf: "center",
                       mx: 2,
@@ -1432,154 +1433,155 @@ const AdminDashboard2 = () => {
                   )}
 
 
-                   <Typography sx={{ fontSize: '20px', color: '#6D2323', fontWeight: 'bold', mt: 3 }}>
-                                     Father's Contact Information
-                                   </Typography>
-                                   <hr style={{ border: '1px solid #ccc', width: '100%' }} />
-                                   <br />
-                 
-                                   <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-                 
-                                     {/* Father Contact */}
-                                     <Box flex={1} display="flex" flexDirection="column">
-                                       <Typography variant="subtitle2" mb={0.5}>Father Contact</Typography>
-                 
-                                       <TextField
-                                  
+                  <Typography sx={{ fontSize: '20px', color: '#6D2323', fontWeight: 'bold', mt: 3 }}>
+                    Father's Contact Information
+                  </Typography>
+                  <hr style={{ border: '1px solid #ccc', width: '100%' }} />
+                  <br />
 
-                                         fullWidth
-                                         size="small"
-                                         name="father_contact"
-                                         placeholder="9XXXXXXXXX"
-                                         value={person.father_contact || ""}
-                                         onBlur={() => handleUpdate(person)}
-                                         onChange={(e) => {
-                                           const onlyNumbers = e.target.value.replace(/\D/g, "");
-                                           handleChange({
-                                             target: {
-                                               name: "father_contact",
-                                               value: onlyNumbers,
-                                             },
-                                           });
-                                         }}
-                                         error={!!errors.father_contact}
-                                         helperText={errors.father_contact && "This field is required."}
-                                         InputProps={{ readOnly: true,
-                                           startAdornment: (
-                                             <Typography sx={{ mr: 1, fontWeight: "bold" }}>+63</Typography>
-                                           ),
-                                         }}
-                                       />
-                                     </Box>
-                 
-                                     {/* Father Occupation */}
-                                     <Box flex={1}>
-                                       <Typography variant="subtitle2" mb={0.5}>Father Occupation</Typography>
-                                       <TextField
-                                        InputProps={{ readOnly: true }} 
+                  <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+
+                    {/* Father Contact */}
+                    <Box flex={1} display="flex" flexDirection="column">
+                      <Typography variant="subtitle2" mb={0.5}>Father Contact</Typography>
+
+                      <TextField
 
 
-                                         fullWidth
-                                         size="small"
-                                         required
-                                         name="father_occupation"
-                                         value={person.father_occupation || ""}
-                                         placeholder="Enter Father Occupation"
-                                         onChange={handleChange}
-                                         onBlur={() => handleUpdate(person)}
-                                         error={errors.father_occupation}
-                                         helperText={errors.father_occupation ? "This field is required." : ""}
-                                       />
-                                     </Box>
-                 
-                                     {/* Father Employer */}
-                                     <Box flex={1}>
-                                       <Typography variant="subtitle2" mb={0.5}>Father Employer</Typography>
-                                       <TextField
-                                        InputProps={{ readOnly: true }} 
+                        fullWidth
+                        size="small"
+                        name="father_contact"
+                        placeholder="9XXXXXXXXX"
+                        value={person.father_contact || ""}
+                        onBlur={() => handleUpdate(person)}
+                        onChange={(e) => {
+                          const onlyNumbers = e.target.value.replace(/\D/g, "");
+                          handleChange({
+                            target: {
+                              name: "father_contact",
+                              value: onlyNumbers,
+                            },
+                          });
+                        }}
+                        error={!!errors.father_contact}
+                        helperText={errors.father_contact && "This field is required."}
+                        InputProps={{
+                          readOnly: true,
+                          startAdornment: (
+                            <Typography sx={{ mr: 1, fontWeight: "bold" }}>+63</Typography>
+                          ),
+                        }}
+                      />
+                    </Box>
+
+                    {/* Father Occupation */}
+                    <Box flex={1}>
+                      <Typography variant="subtitle2" mb={0.5}>Father Occupation</Typography>
+                      <TextField
+                        InputProps={{ readOnly: true }}
 
 
-                                         fullWidth
-                                         size="small"
-                                         required
-                                         name="father_employer"
-                                         placeholder="Enter Father Employer"
-                                         value={person.father_employer || ""}
-                                         onChange={handleChange}
-                                         onBlur={() => handleUpdate(person)}
-                                         error={errors.father_employer}
-                                         helperText={errors.father_employer ? "This field is required." : ""}
-                                       />
-                                     </Box>
-                 
-                                     {/* Father Income */}
-                                     <Box flex={1}>
-                                       <Typography variant="subtitle2" mb={0.5}>Father Income</Typography>
-                                       <TextField
-                                        InputProps={{ readOnly: true }} 
+                        fullWidth
+                        size="small"
+                        required
+                        name="father_occupation"
+                        value={person.father_occupation || ""}
+                        placeholder="Enter Father Occupation"
+                        onChange={handleChange}
+                        onBlur={() => handleUpdate(person)}
+                        error={errors.father_occupation}
+                        helperText={errors.father_occupation ? "This field is required." : ""}
+                      />
+                    </Box>
+
+                    {/* Father Employer */}
+                    <Box flex={1}>
+                      <Typography variant="subtitle2" mb={0.5}>Father Employer</Typography>
+                      <TextField
+                        InputProps={{ readOnly: true }}
 
 
-                                         fullWidth
-                                         size="small"
-                                         required
-                                         name="father_income"
-                                         placeholder="Enter Father Income"
-                                         value={person.father_income || ""}
-                                         onChange={(e) => {
-                                           const onlyNumbers = e.target.value.replace(/\D/g, ""); // numbers only
-                                           handleChange({
-                                             target: {
-                                               name: "father_income",
-                                               value: onlyNumbers,
-                                             },
-                                           });
-                                         }}
-                                         onBlur={() => handleUpdate(person)}
-                                         error={errors.father_income}
-                                         helperText={errors.father_income ? "This field is required." : ""}
-                                       />
-                                     </Box>
-                                     {/* Father Email */}
-                 
-                                   </Box>
-                 
-                                   <Box flex={1}>
-                                     <Typography variant="subtitle2" mb={0.5}>Father Email Address</Typography>
-                                     <TextField
-                                      InputProps={{ readOnly: true }} 
+                        fullWidth
+                        size="small"
+                        required
+                        name="father_employer"
+                        placeholder="Enter Father Employer"
+                        value={person.father_employer || ""}
+                        onChange={handleChange}
+                        onBlur={() => handleUpdate(person)}
+                        error={errors.father_employer}
+                        helperText={errors.father_employer ? "This field is required." : ""}
+                      />
+                    </Box>
+
+                    {/* Father Income */}
+                    <Box flex={1}>
+                      <Typography variant="subtitle2" mb={0.5}>Father Income</Typography>
+                      <TextField
+                        InputProps={{ readOnly: true }}
 
 
-                                       fullWidth
-                                       size="small"
-                                       required
-                                       name="father_email"
-                                       placeholder="Enter Father Email Address"
-                                       value={person.father_email || ""}
-                                       onChange={(e) => {
-                                         const cleaned = e.target.value.replace(/\s/g, "");
-                                         handleChange({
-                                           target: { name: "father_email", value: cleaned }
-                                         });
-                                       }}
-                                       onBlur={(e) => {
-                                         let value = e.target.value.trim();
-                                         if (value && !value.includes("@")) {
-                                           value += "@gmail.com";
-                                         }
-                                         handleChange({
-                                           target: { name: "father_email", value }
-                                         });
-                                         handleUpdate(person);
-                                       }}
-                                       error={errors.father_email}
-                                       helperText={errors.father_email ? "Please enter a valid email address." : ""}
-                                     />
-                                   </Box>
-                 
-                                 </>
-                               )}
-                             </Box>
-                 
+                        fullWidth
+                        size="small"
+                        required
+                        name="father_income"
+                        placeholder="Enter Father Income"
+                        value={person.father_income || ""}
+                        onChange={(e) => {
+                          const onlyNumbers = e.target.value.replace(/\D/g, ""); // numbers only
+                          handleChange({
+                            target: {
+                              name: "father_income",
+                              value: onlyNumbers,
+                            },
+                          });
+                        }}
+                        onBlur={() => handleUpdate(person)}
+                        error={errors.father_income}
+                        helperText={errors.father_income ? "This field is required." : ""}
+                      />
+                    </Box>
+                    {/* Father Email */}
+
+                  </Box>
+
+                  <Box flex={1}>
+                    <Typography variant="subtitle2" mb={0.5}>Father Email Address</Typography>
+                    <TextField
+                      InputProps={{ readOnly: true }}
+
+
+                      fullWidth
+                      size="small"
+                      required
+                      name="father_email"
+                      placeholder="Enter Father Email Address"
+                      value={person.father_email || ""}
+                      onChange={(e) => {
+                        const cleaned = e.target.value.replace(/\s/g, "");
+                        handleChange({
+                          target: { name: "father_email", value: cleaned }
+                        });
+                      }}
+                      onBlur={(e) => {
+                        let value = e.target.value.trim();
+                        if (value && !value.includes("@")) {
+                          value += "@gmail.com";
+                        }
+                        handleChange({
+                          target: { name: "father_email", value }
+                        });
+                        handleUpdate(person);
+                      }}
+                      error={errors.father_email}
+                      helperText={errors.father_email ? "Please enter a valid email address." : ""}
+                    />
+                  </Box>
+
+                </>
+              )}
+            </Box>
+
 
 
             <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Mother's Details</Typography>
@@ -1964,22 +1966,22 @@ const AdminDashboard2 = () => {
                   onChange={handleChange}
                   onBlur={handleBlur}
                 >
-                    <MenuItem value=""><em>Select Guardian</em></MenuItem>
-                                   <MenuItem value="Father">Father</MenuItem>
-                                   <MenuItem value="Mother">Mother</MenuItem>
-                                   <MenuItem value="Brother/Sister">Brother/Sister</MenuItem>
-                                   <MenuItem value="Uncle">Uncle</MenuItem>
-                                   <MenuItem value="Aunt">Aunt</MenuItem>
-                                   <MenuItem value="StepFather">Stepfather</MenuItem>
-                                   <MenuItem value="StepMother">Stepmother</MenuItem>
-                                   <MenuItem value="Cousin">Cousin</MenuItem>
-                                   <MenuItem value="Father in Law">Father-in-law</MenuItem>
-                                   <MenuItem value="Mother in Law">Mother-in-law</MenuItem>
-                                   <MenuItem value="Sister in Law">Sister-in-law</MenuItem>
-                                   <MenuItem value="GrandMother">GrandMother</MenuItem>
-                                   <MenuItem value="GrandFather">GrandFather</MenuItem>
-                                   <MenuItem value="Spouse">Spouse</MenuItem>
-                                   <MenuItem value="Others">Others</MenuItem>
+                  <MenuItem value=""><em>Select Guardian</em></MenuItem>
+                  <MenuItem value="Father">Father</MenuItem>
+                  <MenuItem value="Mother">Mother</MenuItem>
+                  <MenuItem value="Brother/Sister">Brother/Sister</MenuItem>
+                  <MenuItem value="Uncle">Uncle</MenuItem>
+                  <MenuItem value="Aunt">Aunt</MenuItem>
+                  <MenuItem value="StepFather">Stepfather</MenuItem>
+                  <MenuItem value="StepMother">Stepmother</MenuItem>
+                  <MenuItem value="Cousin">Cousin</MenuItem>
+                  <MenuItem value="Father in Law">Father-in-law</MenuItem>
+                  <MenuItem value="Mother in Law">Mother-in-law</MenuItem>
+                  <MenuItem value="Sister in Law">Sister-in-law</MenuItem>
+                  <MenuItem value="GrandMother">GrandMother</MenuItem>
+                  <MenuItem value="GrandFather">GrandFather</MenuItem>
+                  <MenuItem value="Spouse">Spouse</MenuItem>
+                  <MenuItem value="Others">Others</MenuItem>
                 </Select>
 
               </FormControl>

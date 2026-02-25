@@ -1054,10 +1054,9 @@ th {
 
 
             <hr style={{ border: "1px solid #ccc", width: "100%" }} />
-            <div style={{ height: "20px" }}></div>
 
-
-            <div style={{ height: "20px" }}></div>
+            <br />
+     
 
 
             <TableContainer component={Paper} sx={{ width: '100%', border: `2px solid ${borderColor}`, }}>

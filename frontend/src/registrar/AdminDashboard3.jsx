@@ -638,8 +638,10 @@ const AdminDashboard3 = () => {
           ADMISSION SHIFTING FORM - EDUCATIONAL ATTAINMENT
         </Typography>
       </Box>
-      <hr style={{ border: "1px solid #ccc", width: "100%" }} />
+     <hr style={{ border: "1px solid #ccc", width: "100%" }} />
       <br />
+      <br />
+
 
       <Box
         sx={{

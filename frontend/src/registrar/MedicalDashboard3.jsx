@@ -511,8 +511,10 @@ const MedicalDashboard3 = () => {
 
             </Box>
 
-            <hr style={{ border: "1px solid #ccc", width: "100%" }} />
-            <br />
+              <hr style={{ border: "1px solid #ccc", width: "100%" }} />
+      <br />
+      <br />
+
 
 
 

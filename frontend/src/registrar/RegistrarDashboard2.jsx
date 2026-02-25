@@ -712,8 +712,10 @@ const RegistrarDashboard2 = () => {
           APPLICANT FORM -  FAMILY BACKGROUND
         </Typography>
       </Box>
-      <hr style={{ border: "1px solid #ccc", width: "100%" }} />
+        <hr style={{ border: "1px solid #ccc", width: "100%" }} />
       <br />
+      <br />
+
       <Box
         sx={{
           display: "flex",
@@ -1058,11 +1060,11 @@ const RegistrarDashboard2 = () => {
                 {index < steps.length - 1 && (
                   <Box
                     sx={{
-                      height: "2px",
-                      backgroundcolor: mainButtonColor,
-                      flex: 1,
-                      alignSelf: "center",
-                      mx: 2,
+                            height: "2px",
+                    backgroundColor: mainButtonColor,
+                    flex: 1,
+                    alignSelf: "center",
+                    mx: 2,
                     }}
                   />
                 )}

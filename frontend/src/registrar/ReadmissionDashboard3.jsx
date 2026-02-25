@@ -523,8 +523,10 @@ const ReadmissionDashboard3 = () => {
 
       </Box>
 
-      <hr style={{ border: "1px solid #ccc", width: "100%" }} />
+        <hr style={{ border: "1px solid #ccc", width: "100%" }} />
       <br />
+      <br />
+
 
 
 
@@ -872,8 +874,8 @@ const ReadmissionDashboard3 = () => {
               {index < steps.length - 1 && (
                 <Box
                   sx={{
-                    height: "2px",
-                    backgroundcolor: mainButtonColor,
+                     height: "2px",
+                    backgroundColor: mainButtonColor,
                     flex: 1,
                     alignSelf: "center",
                     mx: 2,
