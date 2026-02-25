@@ -57,7 +57,8 @@ const CORExportingModule = () => {
   const [exportTotal, setExportTotal] = useState(0);
   const [exportCurrent, setExportCurrent] = useState(0);
 
-  const [campusFilter, setCampusFilter] = useState(1);
+  const [campusFilter, setCampusFilter] = useState("");
+  const [branches, setBranches] = useState([]);
   const [paymentType, setPaymentType] = useState(1);
   const [viewClicked, setViewClicked] = useState(false);
 
@@ -109,6 +110,19 @@ const CORExportingModule = () => {
     if (settings.company_name) setCompanyName(settings.company_name);
     if (settings.short_term) setShortTerm(settings.short_term);
     if (settings.campus_address) setCampusAddress(settings.campus_address);
+    if (settings?.branches) {
+      try {
+        const parsed =
+          typeof settings.branches === "string"
+            ? JSON.parse(settings.branches)
+            : settings.branches;
+        setBranches(parsed);
+        setCampusFilter((prev) => prev || parsed?.[0]?.id || "");
+      } catch (err) {
+        console.error("Failed to parse branches:", err);
+        setBranches([]);
+      }
+    }
   }, [settings]);
 
   useEffect(() => {
@@ -213,7 +227,9 @@ const CORExportingModule = () => {
 
     let filtered = [...arrayOfStudentNumber];
 
-    filtered = filtered.filter((d) => d.campus == campusFilter);
+    if (campusFilter !== "") {
+      filtered = filtered.filter((d) => d.campus == campusFilter);
+    }
     filtered = filtered.filter((d) => d.year_id == yearId);
     filtered = filtered.filter((d) => d.semester_id == semesterId);
     filtered = filtered.filter((d) => d.year_level_id == selectedYearLevel);
@@ -866,8 +882,14 @@ const CORExportingModule = () => {
                 value={campusFilter}
                 onChange={(e) => setCampusFilter(e.target.value)}
               >
-                <MenuItem value={1}>Manila</MenuItem>
-                <MenuItem value={2}>Cavite</MenuItem>
+                {branches.map((branch) => (
+                  <MenuItem
+                    key={branch.id ?? branch.branch}
+                    value={branch.id ?? ""}
+                  >
+                    {branch.branch}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Grid>

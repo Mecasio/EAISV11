@@ -50,6 +50,19 @@ const MigrationDataPanel = () => {
         if (settings.company_name) setCompanyName(settings.company_name);
         if (settings.short_term) setShortTerm(settings.short_term);
         if (settings.campus_address) setCampusAddress(settings.campus_address);
+        if (settings?.branches) {
+            try {
+                const parsed =
+                    typeof settings.branches === "string"
+                        ? JSON.parse(settings.branches)
+                        : settings.branches;
+                setBranches(parsed);
+                setCampusFilter((prev) => prev || parsed?.[0]?.id || "");
+            } catch (err) {
+                console.error("Failed to parse branches:", err);
+                setBranches([]);
+            }
+        }
 
     }, [settings]);
 
@@ -57,7 +70,8 @@ const MigrationDataPanel = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [studentInfo, setStudentInfo] = useState(null);
     const [studentGradeList, setStudentGradeList] = useState([]);
-    const [campusFilter, setCampusFilter] = useState(1);
+    const [campusFilter, setCampusFilter] = useState("");
+    const [branches, setBranches] = useState([]);
     const [openAddSubjectDialog, setOpenAddSubjectDialog] = useState(false);
     const [openViewDialog, setOpenViewDialog] = useState(false);
     const [courseList, setCourseList] = useState([]);
@@ -481,8 +495,11 @@ const exportPDF = async () => {
                             SelectProps={{ native: true }}
                             sx={{ width: 150 }}
                         >
-                            <option value="1">Manila</option>
-                            <option value="2">Cavite</option>
+                            {branches.map((branch) => (
+                                <option key={branch.id ?? branch.branch} value={branch.id ?? ""}>
+                                    {branch.branch}
+                                </option>
+                            ))}
                         </TextField>
                     </Box>
 

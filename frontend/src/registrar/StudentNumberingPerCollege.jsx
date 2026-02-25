@@ -58,6 +58,7 @@ const StudentNumbering = () => {
     const [companyName, setCompanyName] = useState("");
     const [shortTerm, setShortTerm] = useState("");
     const [campusAddress, setCampusAddress] = useState("");
+    const [branches, setBranches] = useState([]);
 
     useEffect(() => {
         if (!settings) return;
@@ -81,6 +82,18 @@ const StudentNumbering = () => {
         if (settings.company_name) setCompanyName(settings.company_name);
         if (settings.short_term) setShortTerm(settings.short_term);
         if (settings.campus_address) setCampusAddress(settings.campus_address);
+        if (settings?.branches) {
+            try {
+                const parsed =
+                    typeof settings.branches === "string"
+                        ? JSON.parse(settings.branches)
+                        : settings.branches;
+                setBranches(parsed);
+            } catch (err) {
+                console.error("Failed to parse branches:", err);
+                setBranches([]);
+            }
+        }
 
     }, [settings]);
 
@@ -195,6 +208,7 @@ const StudentNumbering = () => {
     const [curriculumOptions, setCurriculumOptions] = useState([]);
     const [selectedDepartmentFilter, setSelectedDepartmentFilter] = useState("");
     const [selectedProgramFilter, setSelectedProgramFilter] = useState("");
+    const [selectedCampus, setSelectedCampus] = useState("");
     const [department, setDepartment] = useState([]);
     const [allCurriculums, setAllCurriculums] = useState([]);
     const [schoolYears, setSchoolYears] = useState([]);
@@ -376,6 +390,8 @@ const StudentNumbering = () => {
 
             // ✅ Search filter
             const matchesSearch = fullText.includes(searchQuery.toLowerCase());
+            const matchesCampus =
+                !selectedCampus || String(personData.campus) === String(selectedCampus);
 
             // ✅ Program / Department filtering
             const programInfo = allCurriculums.find(
@@ -405,6 +421,7 @@ const StudentNumbering = () => {
 
             return (
                 matchesSearch &&
+                matchesCampus &&
                 matchesDepartment &&
                 matchesProgram &&
                 matchesSchoolYear &&
@@ -695,6 +712,29 @@ const StudentNumbering = () => {
 
                     {/* LEFT COLUMN: Sorting & Status Filters */}
                     <Box display="flex" flexDirection="column" gap={2}>
+                        <Box display="flex" alignItems="center" gap={1}>
+                            <Typography fontSize={13} sx={{ minWidth: "100px" }}>Campus:</Typography>
+                            <FormControl size="small" sx={{ width: "200px" }}>
+                                <InputLabel id="campus-label-college">Campus</InputLabel>
+                                <Select
+                                    labelId="campus-label-college"
+                                    value={selectedCampus}
+                                    label="Campus"
+                                    onChange={(e) => {
+                                        setSelectedCampus(e.target.value);
+                                        setCurrentPage(1);
+                                    }}
+                                    displayEmpty
+                                >
+                                    <MenuItem value=""><em>All Campuses</em></MenuItem>
+                                    {branches.map((branch) => (
+                                        <MenuItem key={branch.id ?? branch.branch} value={branch.id ?? ""}>
+                                            {branch.branch}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Box>
 
                         {/* Sort By */}
                         <Box display="flex" alignItems="center" gap={1}>
