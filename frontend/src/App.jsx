@@ -110,7 +110,7 @@ import RoomRegistration from './registrar/RoomRegistration';
 import RegistrarExamPermit from './registrar/RegistrarExamPermit';
 import ReportOfGrade from './registrar/ReportOfGrade';
 import TranscriptOfRecords from './registrar/TranscriptOfRecords';
-import TOSFCrud from './superadmin/TOSFCrud';
+
 import EvaluationCRUD from './registrar/EvaluationCrud';
 
 import DepartmentCurriculumPanel from './registrar/DepartmentCurriculumPanel';
@@ -219,6 +219,8 @@ import CORExportingModule from "./superadmin/CORExportingModule";
 import VerifyDocumentsSchedule from "./registrar/VerifyDocumentsSchedule";
 import VerifyApplicantDocumentSchedule from "./registrar/VerifySchedule";
 import StudentScholarshipList from "./superadmin/StudentScholarshipList";
+import TOSFCrud from './superadmin/TOSFCrud';
+import Receipt from './superadmin/Receipt';
 
 // ✅ Create a Context so all components can access settings
 export const SettingsContext = createContext(null);
@@ -543,6 +545,7 @@ function App() {
                     <Route path="/class_roster" element={<ProtectedRoute ><ClassRoster /></ProtectedRoute>} />
                     <Route path="/transcript_of_records" element={<ProtectedRoute ><TranscriptOfRecords /></ProtectedRoute>} />
                     <Route path="/tosf_crud" element={<ProtectedRoute ><TOSFCrud /></ProtectedRoute>} />
+                    <Route path="/receipt" element={<ProtectedRoute ><Receipt /></ProtectedRoute>} />
                     <Route path="/program_payment" element={<ProtectedRoute ><ProgramPayment /></ProtectedRoute>} />
                     <Route path="/prerequisite" element={<ProtectedRoute ><Prerequisite /></ProtectedRoute>} />
                     <Route path="/program_unit" element={<ProtectedRoute ><ProgramUnit /></ProtectedRoute>} />
