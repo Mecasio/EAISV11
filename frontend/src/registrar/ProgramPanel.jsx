@@ -43,6 +43,7 @@ const ProgramPanel = () => {
   const [companyName, setCompanyName] = useState("");
   const [shortTerm, setShortTerm] = useState("");
   const [campusAddress, setCampusAddress] = useState("");
+  const [branches, setBranches] = useState([]);
 
   useEffect(() => {
     if (!settings) return;
@@ -61,6 +62,20 @@ const ProgramPanel = () => {
     if (settings.company_name) setCompanyName(settings.company_name);
     if (settings.short_term) setShortTerm(settings.short_term);
     if (settings.campus_address) setCampusAddress(settings.campus_address);
+    if (settings?.branches) {
+      try {
+        const parsed =
+          typeof settings.branches === "string"
+            ? JSON.parse(settings.branches)
+            : settings.branches;
+        setBranches(parsed);
+      } catch (err) {
+        console.error("Failed to parse branches:", err);
+        setBranches([]);
+      }
+    } else {
+      setBranches([]);
+    }
   }, [settings]);
 
   const [program, setProgram] = useState({
@@ -242,6 +257,13 @@ const ProgramPanel = () => {
 
 
   const [searchQuery, setSearchQuery] = useState("");
+  const getCampusName = (components) => {
+    const branch = branches.find(
+      (item) => Number(item.id) === Number(components)
+    );
+    return branch?.branch || "—";
+  };
+
   const filteredPrograms = programs.filter((prog) => {
     const q = searchQuery.toLowerCase();
 
@@ -249,8 +271,7 @@ const ProgramPanel = () => {
       prog.program_description?.toLowerCase().includes(q) ||
       prog.program_code?.toLowerCase().includes(q) ||
       prog.major?.toLowerCase().includes(q) ||
-      (prog.components === 1 && "manila".includes(q)) ||
-      (prog.components === 2 && "cavite".includes(q))
+      getCampusName(prog.components).toLowerCase().includes(q)
 
     );
   });
@@ -503,8 +524,11 @@ const ProgramPanel = () => {
               style={styles.input}
             >
               <option value="">-- Select Campus --</option>
-              <option value="1">Manila Campus</option>
-              <option value="2">Cavite Campus</option>
+              {branches.map((branch) => (
+                <option key={branch.id} value={String(branch.id)}>
+                  {branch.branch}
+                </option>
+              ))}
             </select>
           </div>
           <div style={styles.formGroup}>
@@ -738,11 +762,7 @@ const ProgramPanel = () => {
                     <td style={styles.td}>{prog.program_code}</td>
                     <td style={styles.td}>{prog.major || "—"}</td>
                     <td style={styles.td}>
-                      {prog.components === 1
-                        ? "Manila Campus"
-                        : prog.components === 2
-                          ? "Cavite Campus"
-                          : "—"}
+                      {getCampusName(prog.components)}
                     </td>
                     <td style={styles.td}>
                       {prog.academic_program === 0

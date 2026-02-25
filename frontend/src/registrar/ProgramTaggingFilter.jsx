@@ -1,4 +1,5 @@
-import React, { useMemo, useEffect, useState } from "react";
+import React, { useMemo, useEffect, useState, useContext } from "react";
+import { SettingsContext } from "../App";
 
 const ProgramTaggingFilter = ({
   curriculumList,
@@ -16,10 +17,30 @@ const ProgramTaggingFilter = ({
 
   setFilteredPrograms,
 }) => {
+  const settings = useContext(SettingsContext);
 
   /* ===== NEW FILTER STATES ===== */
+  const [branches, setBranches] = useState([]);
   const [selectedCampus, setSelectedCampus] = useState("");
   const [selectedAcademicProgram, setSelectedAcademicProgram] = useState("");
+
+  useEffect(() => {
+    if (!settings?.branches) {
+      setBranches([]);
+      return;
+    }
+
+    try {
+      const parsed =
+        typeof settings.branches === "string"
+          ? JSON.parse(settings.branches)
+          : settings.branches;
+      setBranches(parsed);
+    } catch (err) {
+      console.error("Failed to parse branches:", err);
+      setBranches([]);
+    }
+  }, [settings]);
 
   /* ===== HELPER: Format School Year ===== */
   const formatSchoolYear = (yearDesc) => {
@@ -134,8 +155,11 @@ const ProgramTaggingFilter = ({
           style={{ width: "100%", padding: "10px" }}
         >
           <option value="">Select Campus</option>
-          <option value="1">Manila</option>
-          <option value="2">Cavite</option>
+          {branches.map((branch) => (
+            <option key={branch.id} value={branch.id}>
+              {branch.branch}
+            </option>
+          ))}
         </select>
       </div>
 

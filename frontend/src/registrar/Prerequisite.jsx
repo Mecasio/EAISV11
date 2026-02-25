@@ -20,6 +20,7 @@ const CoursePanelMap = () => {
 
     const [titleColor, setTitleColor] = useState("#000");
     const [borderColor, setBorderColor] = useState("#000");
+    const [branches, setBranches] = useState([]);
 
     const [curriculumList, setCurriculumList] = useState([]);
     const [selectedCurriculum, setSelectedCurriculum] = useState("");
@@ -43,6 +44,20 @@ const CoursePanelMap = () => {
         if (!settings) return;
         if (settings.title_color) setTitleColor(settings.title_color);
         if (settings.border_color) setBorderColor(settings.border_color);
+        if (settings?.branches) {
+            try {
+                const parsed =
+                    typeof settings.branches === "string"
+                        ? JSON.parse(settings.branches)
+                        : settings.branches;
+                setBranches(parsed);
+            } catch (err) {
+                console.error("Failed to parse branches:", err);
+                setBranches([]);
+            }
+        } else {
+            setBranches([]);
+        }
     }, [settings]);
 
     /* ===================== AUTH ===================== */
@@ -294,8 +309,11 @@ const CoursePanelMap = () => {
                     <MenuItem value="">
                         <em>Choose Campus</em>
                     </MenuItem>
-                    <MenuItem value="1">Manila</MenuItem>
-                    <MenuItem value="2">Cavite</MenuItem>
+                    {branches.map((branch) => (
+                        <MenuItem key={branch.id} value={branch.id}>
+                            {branch.branch}
+                        </MenuItem>
+                    ))}
                 </Select>
             </FormControl>
 

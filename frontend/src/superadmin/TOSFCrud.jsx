@@ -157,6 +157,11 @@ const TOSF = () => {
   const [scholarshipForm, setScholarshipForm] = useState({
     scholarship_name: "",
     scholarship_status: 1,
+    rfd: "50",
+    tfd: "50",
+    mfd: "50",
+    nfd: "50",
+    afd: "0",
   });
   const [editingScholarshipId, setEditingScholarshipId] = useState(null);
 
@@ -428,14 +433,79 @@ const TOSF = () => {
     setSelectedId(null);
   };
 
+  const scholarshipPercentFields = ["rfd", "tfd", "mfd", "nfd"];
+
+  const sanitizeDigitsOnly = (value) => value.replace(/\D/g, "");
+
+  const sanitizePercent = (value) => {
+    const digits = sanitizeDigitsOnly(value);
+    if (digits === "") return "";
+    const n = Number(digits);
+    if (Number.isNaN(n)) return "";
+    return String(Math.max(0, Math.min(100, n)));
+  };
+
+  const blockNonNumericKeyDown = (e) => {
+    const allowedKeys = [
+      "Backspace",
+      "Delete",
+      "Tab",
+      "Escape",
+      "Enter",
+      "ArrowLeft",
+      "ArrowRight",
+      "ArrowUp",
+      "ArrowDown",
+      "Home",
+      "End",
+    ];
+
+    if (allowedKeys.includes(e.key)) return;
+    if ((e.ctrlKey || e.metaKey) && ["a", "c", "v", "x"].includes(e.key.toLowerCase())) return;
+    if (!/^\d$/.test(e.key)) e.preventDefault();
+  };
+
+  const blockNonNumericPaste = (e) => {
+    const pasted = e.clipboardData?.getData("text") ?? "";
+    if (!/^\d+$/.test(pasted)) {
+      e.preventDefault();
+    }
+  };
+
   const handleScholarshipChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "scholarship_status") {
+      setScholarshipForm((prev) => ({
+        ...prev,
+        scholarship_status: Number(value),
+      }));
+      return;
+    }
+
+    if (scholarshipPercentFields.includes(name)) {
+      setScholarshipForm((prev) => ({
+        ...prev,
+        [name]: sanitizePercent(value),
+      }));
+      return;
+    }
+
+    if (name === "afd") {
+      const afdValue = sanitizeDigitsOnly(value);
+      setScholarshipForm((prev) => ({
+        ...prev,
+        afd: afdValue,
+        ...(Number(afdValue || 0) > 0
+          ? { rfd: "", tfd: "", mfd: "", nfd: "" }
+          : {}),
+      }));
+      return;
+    }
+
     setScholarshipForm((prev) => ({
       ...prev,
-      [name]:
-        name === "scholarship_status"
-          ? Number(value)
-          : value,
+      [name]: value,
     }));
   };
 
@@ -443,6 +513,11 @@ const TOSF = () => {
     setScholarshipForm({
       scholarship_name: "",
       scholarship_status: 1,
+      rfd: "50",
+      tfd: "50",
+      mfd: "50",
+      nfd: "50",
+      afd: "0",
     });
     setEditingScholarshipId(null);
   };
@@ -481,6 +556,11 @@ const TOSF = () => {
     setScholarshipForm({
       scholarship_name: item.scholarship_name || "",
       scholarship_status: Number(item.scholarship_status ?? 1),
+      rfd: item.rfd?.toString() ?? "50",
+      tfd: item.tfd?.toString() ?? "50",
+      mfd: item.mfd?.toString() ?? "50",
+      nfd: item.nfd?.toString() ?? "50",
+      afd: item.afd?.toString() ?? "0",
     });
     setEditingScholarshipId(item.id);
   };
@@ -876,6 +956,21 @@ const TOSF = () => {
                   Status
                 </TableCell>
                 <TableCell style={{ border: `2px solid ${borderColor}`, color: "white", textAlign: "center", fontWeight: "bold" }}>
+                  RFD (%)
+                </TableCell>
+                <TableCell style={{ border: `2px solid ${borderColor}`, color: "white", textAlign: "center", fontWeight: "bold" }}>
+                  TFD (%)
+                </TableCell>
+                <TableCell style={{ border: `2px solid ${borderColor}`, color: "white", textAlign: "center", fontWeight: "bold" }}>
+                  MFD (%)
+                </TableCell>
+                <TableCell style={{ border: `2px solid ${borderColor}`, color: "white", textAlign: "center", fontWeight: "bold" }}>
+                  NFD (%)
+                </TableCell>
+                <TableCell style={{ border: `2px solid ${borderColor}`, color: "white", textAlign: "center", fontWeight: "bold" }}>
+                  AFD
+                </TableCell>
+                <TableCell style={{ border: `2px solid ${borderColor}`, color: "white", textAlign: "center", fontWeight: "bold" }}>
                   Created At
                 </TableCell>
                 <TableCell style={{ border: `2px solid ${borderColor}`, color: "white", textAlign: "center", fontWeight: "bold" }}>
@@ -887,7 +982,7 @@ const TOSF = () => {
               {scholarshipTypes.length === 0 && (
                 <TableRow>
                   <TableCell
-                    colSpan={5}
+                    colSpan={10}
                     sx={{ border: `2px solid ${borderColor}`, textAlign: "center" }}
                   >
                     No scholarship types found.
@@ -905,6 +1000,83 @@ const TOSF = () => {
                   </TableCell>
                   <TableCell sx={{ border: `2px solid ${borderColor}`, textAlign: "center" }}>
                     {Number(item.scholarship_status) === 1 ? "Active" : "Inactive"}
+                  </TableCell>
+                  <TableCell sx={{ border: `2px solid ${borderColor}`, textAlign: "center" }}>
+                    <TextField
+                      name="rfd"
+                      value={editingScholarshipId === item.id ? scholarshipForm.rfd : (item.rfd?.toString() ?? "50")}
+                      onChange={editingScholarshipId === item.id ? handleScholarshipChange : undefined}
+                      onKeyDown={editingScholarshipId === item.id ? blockNonNumericKeyDown : undefined}
+                      onPaste={editingScholarshipId === item.id ? blockNonNumericPaste : undefined}
+                      size="small"
+                      fullWidth
+                      disabled={
+                        editingScholarshipId !== item.id ||
+                        Number(scholarshipForm.afd || 0) > 0
+                      }
+                      inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+                    />
+                  </TableCell>
+                  <TableCell sx={{ border: `2px solid ${borderColor}`, textAlign: "center" }}>
+                    <TextField
+                      name="tfd"
+                      value={editingScholarshipId === item.id ? scholarshipForm.tfd : (item.tfd?.toString() ?? "50")}
+                      onChange={editingScholarshipId === item.id ? handleScholarshipChange : undefined}
+                      onKeyDown={editingScholarshipId === item.id ? blockNonNumericKeyDown : undefined}
+                      onPaste={editingScholarshipId === item.id ? blockNonNumericPaste : undefined}
+                      size="small"
+                      fullWidth
+                      disabled={
+                        editingScholarshipId !== item.id ||
+                        Number(scholarshipForm.afd || 0) > 0
+                      }
+                      inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+                    />
+                  </TableCell>
+                  <TableCell sx={{ border: `2px solid ${borderColor}`, textAlign: "center" }}>
+                    <TextField
+                      name="mfd"
+                      value={editingScholarshipId === item.id ? scholarshipForm.mfd : (item.mfd?.toString() ?? "50")}
+                      onChange={editingScholarshipId === item.id ? handleScholarshipChange : undefined}
+                      onKeyDown={editingScholarshipId === item.id ? blockNonNumericKeyDown : undefined}
+                      onPaste={editingScholarshipId === item.id ? blockNonNumericPaste : undefined}
+                      size="small"
+                      fullWidth
+                      disabled={
+                        editingScholarshipId !== item.id ||
+                        Number(scholarshipForm.afd || 0) > 0
+                      }
+                      inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+                    />
+                  </TableCell>
+                  <TableCell sx={{ border: `2px solid ${borderColor}`, textAlign: "center" }}>
+                    <TextField
+                      name="nfd"
+                      value={editingScholarshipId === item.id ? scholarshipForm.nfd : (item.nfd?.toString() ?? "50")}
+                      onChange={editingScholarshipId === item.id ? handleScholarshipChange : undefined}
+                      onKeyDown={editingScholarshipId === item.id ? blockNonNumericKeyDown : undefined}
+                      onPaste={editingScholarshipId === item.id ? blockNonNumericPaste : undefined}
+                      size="small"
+                      fullWidth
+                      disabled={
+                        editingScholarshipId !== item.id ||
+                        Number(scholarshipForm.afd || 0) > 0
+                      }
+                      inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+                    />
+                  </TableCell>
+                  <TableCell sx={{ border: `2px solid ${borderColor}`, textAlign: "center" }}>
+                    <TextField
+                      name="afd"
+                      value={editingScholarshipId === item.id ? scholarshipForm.afd : (item.afd?.toString() ?? "0")}
+                      onChange={editingScholarshipId === item.id ? handleScholarshipChange : undefined}
+                      onKeyDown={editingScholarshipId === item.id ? blockNonNumericKeyDown : undefined}
+                      onPaste={editingScholarshipId === item.id ? blockNonNumericPaste : undefined}
+                      size="small"
+                      fullWidth
+                      disabled={editingScholarshipId !== item.id}
+                      inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+                    />
                   </TableCell>
                   <TableCell sx={{ border: `2px solid ${borderColor}`, textAlign: "center" }}>
                     {item.created_at

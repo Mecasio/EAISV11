@@ -18,6 +18,7 @@ const CurriculumCourseMap = () => {
   const [companyName, setCompanyName] = useState("");
   const [shortTerm, setShortTerm] = useState("");
   const [campusAddress, setCampusAddress] = useState("");
+  const [branches, setBranches] = useState([]);
 
   const [selectedYearLevel, setSelectedYearLevel] = useState("");
   const [selectedSemester, setSelectedSemester] = useState("");
@@ -46,6 +47,20 @@ const CurriculumCourseMap = () => {
     if (settings.company_name) setCompanyName(settings.company_name);
     if (settings.short_term) setShortTerm(settings.short_term);
     if (settings.campus_address) setCampusAddress(settings.campus_address);
+    if (settings?.branches) {
+      try {
+        const parsed =
+          typeof settings.branches === "string"
+            ? JSON.parse(settings.branches)
+            : settings.branches;
+        setBranches(parsed);
+      } catch (err) {
+        console.error("Failed to parse branches:", err);
+        setBranches([]);
+      }
+    } else {
+      setBranches([]);
+    }
 
   }, [settings]);
 
@@ -608,8 +623,11 @@ const CurriculumCourseMap = () => {
           <MenuItem value="">
             <em>Choose Campus</em>
           </MenuItem>
-          <MenuItem value="1">Manila</MenuItem>
-          <MenuItem value="2">Cavite</MenuItem>
+          {branches.map((branch) => (
+            <MenuItem key={branch.id} value={branch.id}>
+              {branch.branch}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
 
