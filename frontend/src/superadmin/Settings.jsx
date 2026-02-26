@@ -234,6 +234,17 @@ function Settings({ onUpdate }) {
                             />
                         </Box>
 
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                            <Typography sx={{ width: "150px", fontWeight: "500" }}>Main Campus Address:</Typography>
+                            <TextField
+                                value={address}
+                                onChange={e => setAddress(e.target.value)}
+                                fullWidth
+                                size="small"
+                            />
+                        </Box>
+
+
                         <Box sx={{ mt: 3 }}>
                             <Paper
                                 elevation={2}

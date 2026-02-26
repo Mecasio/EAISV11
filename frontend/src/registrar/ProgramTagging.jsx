@@ -161,6 +161,7 @@ const ProgramTagging = () => {
   const [editingId, setEditingId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [courseSearch, setCourseSearch] = useState("");
+  const [curriculumSearch, setCurriculumSearch] = useState("");
 
   useEffect(() => {
     // Start with all programs
@@ -546,18 +547,41 @@ const ProgramTagging = () => {
     new Map(
       curriculumList
         .filter(item => {
+
+          // ✅ Campus filter
           if (selectedCampus !== "") {
             if (Number(item.components) !== Number(selectedCampus)) return false;
           }
+
+          // ✅ Academic program filter
           if (selectedAcademicProgram !== "") {
             if (Number(item.academic_program) !== Number(selectedAcademicProgram)) return false;
           }
+
+          // ✅ Curriculum search filter
+          if (curriculumSearch.trim() !== "") {
+            const q = curriculumSearch.toLowerCase();
+
+            const yearDesc = String(item.year_description || "").toLowerCase();
+            const programCode = String(item.program_code || "").toLowerCase();
+            const programDesc = String(item.program_description || "").toLowerCase();
+            const major = String(item.major || "").toLowerCase();
+
+            if (
+              !yearDesc.includes(q) &&
+              !programCode.includes(q) &&
+              !programDesc.includes(q) &&
+              !major.includes(q)
+            ) {
+              return false;
+            }
+          }
+
           return true;
         })
         .map(item => [item.curriculum_id, item])
     ).values()
   );
-
 
   const formatSchoolYear = (yearDesc) => {
     if (!yearDesc) return "";
@@ -671,9 +695,25 @@ const ProgramTagging = () => {
             </select>
           </div>
 
-          {/* CURRICULUM (FILTERED) */}
           <div style={styles.formGroup}>
             <label style={styles.label}>Curriculum:</label>
+
+            {/* 🔍 Curriculum Search */}
+            <input
+              type="text"
+              placeholder="Search curriculum..."
+              value={curriculumSearch}
+              onChange={(e) => setCurriculumSearch(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "10px",
+                marginBottom: "10px",
+                borderRadius: "5px",
+                border: "1px solid #ccc",
+                fontSize: "16px"
+              }}
+            />
+
             <select
               name="curriculum_id"
               value={progTag.curriculum_id}
