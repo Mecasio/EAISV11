@@ -18,6 +18,7 @@ const CertificateOfRegistration = forwardRef(
     const settings = useContext(SettingsContext);
     const [fetchedLogo, setFetchedLogo] = useState(null);
     const [companyName, setCompanyName] = useState("");
+    const [branches, setBranches] = useState([]);
     const [snack, setSnack] = useState({
       open: false,
       message: "",
@@ -43,7 +44,18 @@ const CertificateOfRegistration = forwardRef(
 
         // ✅ load dynamic name + address
         if (settings.company_name) setCompanyName(settings.company_name);
-        if (settings.campus_address) setCampusAddress(settings.campus_address);
+        if (settings?.branches) {
+          try {
+            const parsed =
+              typeof settings.branches === "string"
+                ? JSON.parse(settings.branches)
+                : settings.branches;
+            setBranches(parsed);
+          } catch (err) {
+            console.error("Failed to parse branches:", err);
+            setBranches([]);
+          }
+        }
       }
     }, [settings]);
 
@@ -130,10 +142,25 @@ const CertificateOfRegistration = forwardRef(
     const [campusAddress, setCampusAddress] = useState("");
 
     useEffect(() => {
-      if (settings && settings.address) {
-        setCampusAddress(settings.address);
+      if (!settings) return;
+
+      const branchId = person?.campus;
+      const matchedBranch = branches.find(
+        (branch) => String(branch?.id) === String(branchId),
+      );
+
+      if (matchedBranch?.address) {
+        setCampusAddress(matchedBranch.address);
+        return;
       }
-    }, [settings]);
+
+      if (settings.campus_address) {
+        setCampusAddress(settings.campus_address);
+        return;
+      }
+
+      setCampusAddress(settings.address || "");
+    }, [settings, branches, person?.campus]);
 
     const [hasAccess, setHasAccess] = useState(null);
     const [approvedBy, setApprovedBy] = useState(null);

@@ -48,7 +48,6 @@ const AdmissionFormProcess = () => {
         // 🏷️ School Info
         if (settings.company_name) setCompanyName(settings.company_name);
         if (settings.short_term) setShortTerm(settings.short_term);
-        if (settings.campus_address) setCampusAddress(settings.campus_address);
 
         // ✅ Branches (JSON stored in DB)
         if (settings?.branches) {
@@ -281,10 +280,27 @@ const AdmissionFormProcess = () => {
   const [campusAddress, setCampusAddress] = useState("");
 
   useEffect(() => {
-    if (settings && settings.address) {
-      setCampusAddress(settings.address);
+    if (!settings) return;
+
+    // 1-5: Use branch metadata + person.campus to resolve the correct branch address.
+    const branchId = person?.campus;
+    const matchedBranch = branches.find(
+      (branch) => String(branch?.id) === String(branchId)
+    );
+
+    // 6: Replace campusAddress with the resolved branch address, fallback to settings defaults.
+    if (matchedBranch?.address) {
+      setCampusAddress(matchedBranch.address);
+      return;
     }
-  }, [settings]);
+
+    if (settings.campus_address) {
+      setCampusAddress(settings.campus_address);
+      return;
+    }
+
+    setCampusAddress(settings.address || "");
+  }, [settings, branches, person?.campus]);
 
 
 

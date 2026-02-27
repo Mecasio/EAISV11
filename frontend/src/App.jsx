@@ -3,6 +3,7 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
+  Navigate,
 } from "react-router-dom";
 import {
   createTheme,
@@ -25,7 +26,7 @@ import LoginEnrollment from './components/LoginEnrollment';
 import ApplicantForgotPassword from './components/ApplicantForgotPassword';
 import RegistrarForgotPassword from './components/RegistrarForgotPassword';
 import SideBar from './components/Sidebar';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute, { isTokenValid } from './components/ProtectedRoute';
 import ApplicantProfile from './components/ApplicantProfile';
 import ApplicantProfilePermit from './components/ApplicantProfile';
 import AnnouncementSlider from "./components/AnnouncementSlider";
@@ -251,6 +252,43 @@ function App() {
     }
   };
 
+  const clearAuthStorage = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("email");
+    localStorage.removeItem("role");
+    localStorage.removeItem("person_id");
+    localStorage.removeItem("employee_id");
+    localStorage.removeItem("department");
+  };
+
+  const getDefaultDashboardByRole = (role) => {
+    switch (role) {
+      case "applicant":
+        return "/applicant_dashboard";
+      case "student":
+        return "/student_dashboard";
+      case "faculty":
+        return "/faculty_dashboard";
+      case "registrar":
+        return "/registrar_dashboard";
+      case "superadmin":
+        return "/system_dashboard";
+      default:
+        return "/registrar_dashboard";
+    }
+  };
+
+  const PublicOnlyRoute = ({ children }) => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if (isTokenValid(token)) {
+      return <Navigate to={getDefaultDashboardByRole(role)} replace />;
+    }
+
+    return children;
+  };
+
   useEffect(() => {
     fetchSettings();
 
@@ -265,7 +303,13 @@ function App() {
   // ✅ Check authentication
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) setIsAuthenticated(true);
+    if (isTokenValid(token)) {
+      setIsAuthenticated(true);
+      return;
+    }
+
+    clearAuthStorage();
+    setIsAuthenticated(false);
   }, []);
 
   // ✅ Listen for custom 'settingsUpdated' event
@@ -346,9 +390,9 @@ function App() {
                   <Routes>
 
 
-                    <Route path="/" element={<LoginEnrollment setIsAuthenticated={setIsAuthenticated} />} />
-                    <Route path="/login_applicant" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
-                    <Route path="/login" element={<LoginEnrollment setIsAuthenticated={setIsAuthenticated} />} />
+                    <Route path="/" element={<PublicOnlyRoute><LoginEnrollment setIsAuthenticated={setIsAuthenticated} /></PublicOnlyRoute>} />
+                    <Route path="/login_applicant" element={<PublicOnlyRoute><Login setIsAuthenticated={setIsAuthenticated} /></PublicOnlyRoute>} />
+                    <Route path="/login" element={<PublicOnlyRoute><LoginEnrollment setIsAuthenticated={setIsAuthenticated} /></PublicOnlyRoute>} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/announcement_slider" element={<AnnouncementSlider />} />
                     <Route path="/applicant_forgot_password" element={<ApplicantForgotPassword />} />

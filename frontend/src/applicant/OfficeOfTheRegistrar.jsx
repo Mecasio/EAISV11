@@ -43,7 +43,6 @@ const OfficeOfTheRegistrar = () => {
         // 🏷️ School Info
         if (settings.company_name) setCompanyName(settings.company_name);
         if (settings.short_term) setShortTerm(settings.short_term);
-        if (settings.campus_address) setCampusAddress(settings.campus_address);
 
         // ✅ Branches (JSON stored in DB)
         if (settings?.branches) {
@@ -144,10 +143,25 @@ const OfficeOfTheRegistrar = () => {
     const [campusAddress, setCampusAddress] = useState("");
 
     useEffect(() => {
-        if (settings && settings.address) {
-            setCampusAddress(settings.address);
+        if (!settings) return;
+
+        const branchId = person?.campus;
+        const matchedBranch = branches.find(
+            (branch) => String(branch?.id) === String(branchId)
+        );
+
+        if (matchedBranch?.address) {
+            setCampusAddress(matchedBranch.address);
+            return;
         }
-    }, [settings]);
+
+        if (settings.campus_address) {
+            setCampusAddress(settings.campus_address);
+            return;
+        }
+
+        setCampusAddress(settings.address || "");
+    }, [settings, branches, person?.campus]);
 
     // ✅ Fetch person data from backend
     const fetchPersonData = async (id) => {

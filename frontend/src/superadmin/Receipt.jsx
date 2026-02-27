@@ -53,10 +53,10 @@ export default function Receipt() {
       <style>{`
 
 /* =========================
-   PAGE SETUP (A5)
+   PAGE SETUP
 ========================= */
 @page {
-  size: A5 portrait;
+  size: 5.8in 8.3in;
   margin: 0;
 }
 
@@ -82,7 +82,7 @@ button {
    PRINT SETTINGS
 ========================= */
 @page {
-  size: 123mm 210mm;
+  size: 5.8in 8.3in;
   margin: 0;
 }
 
@@ -105,8 +105,8 @@ button {
     position: absolute;
     top: 0;
     left: 0;
-    width: 123mm;
-    height: 210mm;
+    width: 5.8in;
+    height: 8.3in;
   }
 
   .controls {
@@ -125,7 +125,7 @@ button {
 
 /* TOP OUTSIDE TEXT */
 .outside-top {
-  width: 123mm;
+  width: 5.8in;
   display: flex;
   justify-content: space-between;
   font-size: 12px;
@@ -135,14 +135,14 @@ button {
 
 /* BOTTOM OUTSIDE NOTE */
 .outside-note {
-  width: 123mm;
+  width: 5.8in;
   font-size: 10px;
   margin-top: 8px;
   color: #1f4fbf;
 }
 
 .receipt {
-  width: 123mm;
+  width: 5.8in;
   border: 2px solid #1f4fbf;
   padding: 15px;
   box-sizing: border-box;

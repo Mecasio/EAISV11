@@ -42,14 +42,18 @@ const ExamPermit = ({ personId }) => {
            // 🏷️ School Info
            if (settings.company_name) setCompanyName(settings.company_name);
            if (settings.short_term) setShortTerm(settings.short_term);
-           if (settings.campus_address) setCampusAddress(settings.campus_address);
    
            // ✅ Branches (JSON stored in DB)
-           if (settings.branches) {
+           if (settings?.branches) {
                try {
-                   setBranches(JSON.parse(settings.branches));
+                   const parsed =
+                       typeof settings.branches === "string"
+                           ? JSON.parse(settings.branches)
+                           : settings.branches;
+                   setBranches(parsed);
                } catch (err) {
-                   console.error("Invalid branches JSON", err);
+                   console.error("Failed to parse branches:", err);
+                   setBranches([]);
                }
            }
    
@@ -142,10 +146,25 @@ const ExamPermit = ({ personId }) => {
     const [campusAddress, setCampusAddress] = useState("");
 
     useEffect(() => {
-        if (settings && settings.address) {
-            setCampusAddress(settings.address);
+        if (!settings) return;
+
+        const branchId = person?.campus;
+        const matchedBranch = branches.find(
+            (branch) => String(branch?.id) === String(branchId)
+        );
+
+        if (matchedBranch?.address) {
+            setCampusAddress(matchedBranch.address);
+            return;
         }
-    }, [settings]);
+
+        if (settings.campus_address) {
+            setCampusAddress(settings.campus_address);
+            return;
+        }
+
+        setCampusAddress(settings.address || "");
+    }, [settings, branches, person?.campus]);
 
 
 
