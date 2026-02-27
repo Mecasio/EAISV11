@@ -259,6 +259,7 @@ function App() {
     localStorage.removeItem("person_id");
     localStorage.removeItem("employee_id");
     localStorage.removeItem("department");
+    localStorage.removeItem("lastVisitedPath");
   };
 
   const getDefaultDashboardByRole = (role) => {
@@ -278,12 +279,31 @@ function App() {
     }
   };
 
+  const getLastVisitedPath = () => {
+    const path = localStorage.getItem("lastVisitedPath");
+    if (!path || typeof path !== "string") return null;
+    if (!path.startsWith("/")) return null;
+
+    const disallowedPublicPaths = new Set([
+      "/",
+      "/login",
+      "/login_applicant",
+      "/register",
+      "/announcement_slider",
+      "/applicant_forgot_password",
+      "/forgot_password",
+    ]);
+
+    return disallowedPublicPaths.has(path) ? null : path;
+  };
+
   const PublicOnlyRoute = ({ children }) => {
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
 
     if (isTokenValid(token)) {
-      return <Navigate to={getDefaultDashboardByRole(role)} replace />;
+      const targetPath = getLastVisitedPath() || getDefaultDashboardByRole(role);
+      return <Navigate to={targetPath} replace />;
     }
 
     return children;

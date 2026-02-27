@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 
 const clearAuthStorage = () => {
   localStorage.removeItem("token");
@@ -8,6 +8,7 @@ const clearAuthStorage = () => {
   localStorage.removeItem("person_id");
   localStorage.removeItem("employee_id");
   localStorage.removeItem("department");
+  localStorage.removeItem("lastVisitedPath");
 };
 
 export const isTokenValid = (token) => {
@@ -28,6 +29,7 @@ export const isTokenValid = (token) => {
 
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const [isAuthorized, setIsAuthorized] = useState(null);
+  const location = useLocation();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -52,6 +54,15 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
 
     setIsAuthorized("unauthorized");
   }, [allowedRoles]);
+
+  useEffect(() => {
+    if (isAuthorized !== true) return;
+
+    const currentPath = `${location.pathname}${location.search}${location.hash}`;
+    if (!currentPath || currentPath === "/" || currentPath === "/login" || currentPath === "/login_applicant") return;
+
+    localStorage.setItem("lastVisitedPath", currentPath);
+  }, [isAuthorized, location.pathname, location.search, location.hash]);
 
   if (isAuthorized === null) return <div>Loading...</div>;
   if (isAuthorized === true) return children;
